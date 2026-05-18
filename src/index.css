@@ -2457,11 +2457,6 @@ body {
   }
 
   .site-footer-top {
-    grid-template-columns: 1fr;
-    gap: 26px;
-  }
-
-  .site-footer-language-col {
-    grid-column: auto;
+    gap: 26px 18px;
   }
 }
