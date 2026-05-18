@@ -82,6 +82,9 @@ export const uiTextByLanguage = {
     templates: {
       libraryTitle: 'Template Library',
       libraryDesc: 'Free templates for every need',
+      allTemplatesTitle: 'Browse All Templates',
+      allTemplatesDesc:
+        'Discover free, ready-to-use templates for resumes, presentations, spreadsheets, and more.',
       categories: 'Categories',
       backToLibrary: '← Back to library',
       useThisTemplate: 'Use this template',
@@ -221,6 +224,8 @@ export const uiTextByLanguage = {
     templates: {
       libraryTitle: '模板库',
       libraryDesc: '满足各种需求的免费模板',
+      allTemplatesTitle: '浏览全部模板',
+      allTemplatesDesc: '发现适用于简历、演示文稿、电子表格等场景的免费即用模板。',
       categories: '分类',
       backToLibrary: '← 返回模板库',
       useThisTemplate: '使用此模板',

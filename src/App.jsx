@@ -3631,16 +3631,32 @@ function App() {
           <div className="flex shrink-0 items-center justify-start">
             <a
               className="flex shrink-0 items-center gap-3 whitespace-nowrap"
+              aria-label="WPS AI"
               href={localeHomePath}
               onClick={(event) => {
                 event.preventDefault()
                 navigateTo(localeHomePath)
               }}
             >
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#534ab7] text-sm font-bold text-white">
-                W
-              </span>
-              <span className="text-[14px] font-semibold text-[#1a202c]">WPS AI</span>
+              <svg
+                width="93"
+                height="24"
+                viewBox="0 0 93 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M15.3541 1.62434L15.6535 2.32936C15.6817 2.39582 15.6818 2.47088 15.6537 2.53739L13.9407 6.59147C13.8493 6.80773 13.5432 6.8089 13.4502 6.59334L12.4005 4.161C12.3583 4.06328 12.262 4 12.1556 4H4.76417C4.57392 4 4.44487 4.19351 4.51799 4.36915L10.4187 18.5433C10.5097 18.762 10.8195 18.7622 10.9109 18.5436L17.9794 1.63798C18.3943 0.645877 19.3644 0 20.4397 0H30.6694C32.571 0 33.8615 1.93328 33.1322 3.68939L25.4145 22.2739C24.9805 23.3189 23.9601 24 22.8286 24H22.5676C21.4356 24 20.4149 23.3184 19.9812 22.2727L17.7399 16.8686C17.7128 16.8033 17.7128 16.73 17.7397 16.6647L19.4213 12.589C19.5116 12.3702 19.8208 12.3687 19.9133 12.5865L22.4176 18.4856C22.5098 18.7026 22.8176 18.7021 22.9089 18.4847L28.8421 4.37C28.916 4.19425 28.7869 4 28.5963 4H21.2088C21.1011 4 21.004 4.06473 20.9626 4.1641L13.4156 22.2769C12.9808 23.3203 11.9613 24 10.831 24H10.5619C9.43276 24 8.4141 23.3218 7.97858 22.28L0.209113 3.69522C-0.525361 1.93834 0.765209 0 2.66944 0H12.8996C13.9695 0 14.9359 0.639506 15.3541 1.62434Z"
+                  fill="black"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M50.1393 13.1765C50.2962 13.0197 50.5129 12.9227 50.7522 12.9227C51.0081 12.9227 51.2381 13.0335 51.3967 13.2097L51.3968 13.2079L54.5341 16.3442L54.5343 5.0669C54.5343 4.47767 55.0119 4 55.6012 4C56.1904 4 56.6681 4.47767 56.6681 5.0669V18.9331C56.6681 19.5223 56.1904 20 55.6012 20C55.2552 20 54.9477 19.8353 54.7528 19.5801L49.2426 14.0707L50.1393 13.1765ZM43.7055 18.4718L43.7085 18.4753L42.5367 19.6481C42.4966 19.6882 42.4542 19.7244 42.4098 19.7567C42.2253 19.9087 41.989 20 41.7315 20C41.1422 20 40.6646 19.5223 40.6646 18.9331V5.0669C40.6646 4.47767 41.1422 4 41.7315 4C42.3207 4 42.7984 4.47767 42.7984 5.0669L42.7975 16.3702L47.9119 11.2571C48.1234 11.0456 48.4017 10.9415 48.6789 10.9447C48.9564 10.9415 49.2346 11.0456 49.4461 11.2571L50.359 12.1695C50.0711 12.239 49.7982 12.3861 49.5735 12.6108L43.7055 18.4718ZM61.4691 18.9331C61.4691 19.5223 60.9915 20 60.4022 20C59.813 20 59.3353 19.5223 59.3353 18.9331V12.8C59.3353 11.6218 60.2905 10.6667 61.4687 10.6667L61.8038 10.6666C61.5928 10.969 61.4691 11.3367 61.4691 11.7333V18.9331ZM70.9379 4C73.3685 4 75.3388 5.96995 75.3388 8.4C75.3388 10.8301 73.3685 12.8 70.9379 12.8L62.2685 12.7996L62.2693 11.7333C62.2693 11.1835 62.6854 10.7308 63.22 10.6729L63.3362 10.6667H70.9379C72.19 10.6667 73.205 9.65184 73.205 8.4C73.205 7.16254 72.2132 6.15669 70.981 6.13373L60.402 6.13333C59.8129 6.13333 59.3353 5.65577 59.3353 5.06667C59.3353 4.47756 59.8129 4 60.402 4H70.9379ZM88.0169 10.9319L88.1417 10.9333C90.6459 10.9333 92.676 12.963 92.676 15.4667C92.676 17.9704 90.6459 20 88.1417 20H77.7391C77.15 20 76.6725 19.5224 76.6725 18.9333C76.6725 18.3442 77.15 17.8667 77.7391 17.8667H88.1417C89.4527 17.8667 90.5183 16.8159 90.5418 15.5108L90.5422 15.4667L90.5382 15.2572C90.4676 13.4298 89.4773 11.8381 88.0169 10.9319ZM91.6093 4C92.1984 4 92.676 4.47756 92.676 5.06667C92.676 5.65577 92.1984 6.13333 91.6093 6.13333H81.2068C79.8958 6.13333 78.8302 7.1841 78.8067 8.48924L78.8063 8.53333C78.8063 9.84409 79.8573 10.9094 81.1627 10.9329L85.2077 10.9333C86.931 10.9333 88.4298 11.8945 89.197 13.3099C88.8905 13.1603 88.5479 13.0736 88.1858 13.0671L81.2068 13.0667C78.7026 13.0667 76.6725 11.037 76.6725 8.53333C76.6725 6.02964 78.7026 4 81.2068 4H91.6093Z"
+                  fill="black"
+                />
+              </svg>
             </a>
           </div>
           <nav
@@ -3801,16 +3817,17 @@ function App() {
               </div>
             )}
             <button
-              className="inline-flex shrink-0 rounded-[6px] px-4 py-2 text-[13px] font-medium text-[#4a5568] transition hover:bg-[#f1efe8] hover:text-[#1a202c]"
+              className="rounded-[6px] bg-[#534ab7] px-[18px] py-2 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
+              type="button"
+              onClick={() => navigateTo(localeDownloadPath)}
+            >
+              {uiText.nav.getStartedFree}
+            </button>
+            <button
+              className="inline-flex shrink-0 rounded-[6px] border border-black px-4 py-2 text-[13px] font-medium text-[#4a5568] transition hover:bg-[#f1efe8] hover:text-[#1a202c]"
               type="button"
             >
               {uiText.nav.signIn}
-            </button>
-            <button
-              className="rounded-[6px] bg-[#534ab7] px-[18px] py-2 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
-              type="button"
-            >
-              {uiText.nav.getStartedFree}
             </button>
           </div>
           <div className="relative ml-auto flex shrink-0 items-center gap-2 min-[720px]:hidden" ref={mobileMenuButtonRef}>
@@ -4031,6 +4048,7 @@ function App() {
         <button
               className="rounded-[10px] bg-white px-7 py-[13px] text-[16px] font-semibold text-[#534ab7] transition hover:bg-[#f1efe8]"
           type="button"
+          onClick={() => navigateTo(localeDownloadPath)}
         >
               {uiText.home.startForFree}
         </button>
@@ -4850,10 +4868,10 @@ function App() {
                   {uiText.templates.libraryTitle}
                 </p>
                 <h1 className="mt-4 text-[clamp(30px,4.5vw,48px)] font-extrabold tracking-[-0.03em] text-[#1a202c]">
-                  {uiText.allProducts.title}
+                  {uiText.templates.allTemplatesTitle}
                 </h1>
                 <p className="mx-auto mt-3 max-w-[860px] text-[15px] leading-7 text-[#4a5568]">
-                  {uiText.allProducts.desc}
+                  {uiText.templates.allTemplatesDesc}
                 </p>
               </div>
             </section>
