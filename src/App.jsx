@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Blocks, Bot, Cloud, FileText, Languages, Presentation, Sparkles, SquarePen, TableProperties, WandSparkles } from 'lucide-react'
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import DocsCenterPage from './components/DocsCenterPage'
 import {
   encyclopediaEntriesByLocale,
   encyclopediaUiTextByLocale,
-  resolveEncyclopediaLocale,
 } from './data/encyclopediaData'
 import {
   answersForumFilterSectionsEn,
@@ -16,21 +16,22 @@ import {
 } from './data/siteLocaleData'
 import { translateOfflinePhrase } from './data/offlinePhraseTranslations'
 import { uiTextByLanguage } from './data/uiText'
+import { resolveWorldwideText } from './data/worldwideText'
 
 const products = [
-  { name: 'PDF Tools', desc: 'Convert, edit, compress PDFs', color: '#e74c3c' },
-  { name: 'AI Writing', desc: 'Write faster with AI assistance', color: '#534ab7' },
-  { name: 'AI Slides', desc: 'Create stunning presentations', color: '#d24726' },
-  { name: 'AI Sheets', desc: 'Spreadsheets powered by AI', color: '#217346' },
-  { name: 'AI Tools', desc: 'Productivity tools for everyone', color: '#185fa5' },
+  { name: 'PDF Tools', desc: 'Convert, edit, compress PDFs', color: '#e74c3c', iconKey: 'pdf' },
+  { name: 'AI Writing', desc: 'Write faster with AI assistance', color: '#534ab7', iconKey: 'writing' },
+  { name: 'AI Slides', desc: 'Create stunning presentations', color: '#d24726', iconKey: 'slides' },
+  { name: 'AI Sheets', desc: 'Spreadsheets powered by AI', color: '#217346', iconKey: 'sheets' },
+  { name: 'AI Tools', desc: 'Productivity tools for everyone', color: '#185fa5', iconKey: 'tools' },
 ]
 
 const productsZh = [
-  { name: 'PDF Tools', displayName: 'PDF 工具', desc: '支持 PDF 转换、编辑与压缩', color: '#e74c3c' },
-  { name: 'AI Writing', displayName: 'AI 写作', desc: '借助 AI 更快完成内容创作', color: '#534ab7' },
-  { name: 'AI Slides', displayName: 'AI 演示', desc: '快速生成更出色的演示文稿', color: '#d24726' },
-  { name: 'AI Sheets', displayName: 'AI 表格', desc: 'AI 驱动的数据分析与表格能力', color: '#217346' },
-  { name: 'AI Tools', displayName: 'AI 工具', desc: '覆盖日常办公场景的效率工具', color: '#185fa5' },
+  { name: 'PDF Tools', displayName: 'PDF 工具', desc: '支持 PDF 转换、编辑与压缩', color: '#e74c3c', iconKey: 'pdf' },
+  { name: 'AI Writing', displayName: 'AI 写作', desc: '借助 AI 更快完成内容创作', color: '#534ab7', iconKey: 'writing' },
+  { name: 'AI Slides', displayName: 'AI 演示', desc: '快速生成更出色的演示文稿', color: '#d24726', iconKey: 'slides' },
+  { name: 'AI Sheets', displayName: 'AI 表格', desc: 'AI 驱动的数据分析与表格能力', color: '#217346', iconKey: 'sheets' },
+  { name: 'AI Tools', displayName: 'AI 工具', desc: '覆盖日常办公场景的效率工具', color: '#185fa5', iconKey: 'tools' },
 ]
 
 const templateMenuSections = [
@@ -63,18 +64,23 @@ const features = [
   {
     title: 'AI-Powered',
     desc: 'Every tool enhanced with cutting-edge AI for smarter results.',
+    iconKey: 'ai',
   },
   {
     title: '20 Languages',
     desc: 'Fully localized in 20 languages for global teams.',
+    linkKey: 'worldwide',
+    iconKey: 'languages',
   },
   {
     title: 'No Installation',
     desc: 'Works entirely in your browser, nothing to download.',
+    iconKey: 'cloud',
   },
   {
     title: '40+ Tools',
     desc: 'One platform for all your document and productivity needs.',
+    iconKey: 'tools',
   },
 ]
 
@@ -82,20 +88,40 @@ const featuresZh = [
   {
     title: 'AI 驱动',
     desc: '每个工具都结合前沿 AI 能力，帮助你更高效地产出结果。',
+    iconKey: 'ai',
   },
   {
     title: '20 种语言',
     desc: '支持 20 种语言，满足全球团队协作需求。',
+    linkKey: 'worldwide',
+    iconKey: 'languages',
   },
   {
     title: '免安装',
     desc: '完全基于浏览器使用，无需下载安装。',
+    iconKey: 'cloud',
   },
   {
     title: '40+ 工具',
     desc: '一站式覆盖文档处理与办公效率场景。',
+    iconKey: 'tools',
   },
 ]
+
+const PRODUCT_ICON_MAP = {
+  pdf: FileText,
+  writing: SquarePen,
+  slides: Presentation,
+  sheets: TableProperties,
+  tools: WandSparkles,
+}
+
+const FEATURE_ICON_MAP = {
+  ai: Bot,
+  languages: Languages,
+  cloud: Cloud,
+  tools: Blocks,
+}
 
 const desktopDownloadItems = [
   {
@@ -507,287 +533,322 @@ const docsSectionSlugMap = {
 }
 
 const docsCatalogSections = [
-  { title: '新手入门', groups: ['文档', 'PPT', '表格', '编辑转化', '智能文档', '智能表格', '智能表单', '多维表格', 'AI slides', '简历'] },
+  {
+    title: '新手入门',
+    blocks: [
+      {
+        title: '',
+        items: ['文档', 'PPT', '表格', '编辑转化', '智能文档', '智能表格', '智能表单', '多维表格', 'AI slides', '简历'],
+      },
+    ],
+  },
   {
     title: '文档',
-    groups: [
-      '文档',
-      '拼写检查',
-      '拆分/合并文件',
-      '批量重命名文档',
-      '热门字体颜色',
-      '内置图标与图像',
-      '添加复选框',
-      '添加签名',
-      '深入研究',
-      '全文翻译',
-      'Word 转 PDF',
-      'Word 转纯图 PPT',
-      '文档分类',
-      '批量工具箱',
-      '插入二维码、条形码',
-      '文档转音频',
-      'AI 文档',
-      'AI 拼写检查',
-      'AI 伴写',
-      'AI 改写',
-      'AI 润色',
-      '对照翻译',
-      '文档问答',
-      '全文总结',
-      '文档生成 PPT',
+    blocks: [
+      {
+        title: '',
+        items: [
+          '拼写检查',
+          '拆分/合并文件',
+          '批量重命名文档',
+          '热门字体颜色',
+          '内置图标与图像',
+          '添加复选框',
+          '添加签名',
+          '深入研究',
+          '全文翻译',
+          'Word 转 PDF',
+          'Word 转纯图 PPT',
+          '文档分类',
+          '批量工具箱',
+          '插入二维码、条形码',
+          '文档转音频',
+        ],
+      },
+      {
+        title: 'AI 文档',
+        items: ['AI 拼写检查', 'AI 伴写', 'AI 改写', 'AI 润色', '对照翻译', '文档问答', '全文总结', '文档生成 PPT'],
+      },
     ],
   },
   {
     title: '演示',
-    groups: [
-      '演示工具',
-      '思维导图',
-      '添加时间轴',
-      '排练计时',
-      '内置图标与图像',
-      '协同编辑',
-      'PPT 转 PDF/图片',
-      'AI 演示',
-      'AI 演示文稿生成器',
-      'AI 生成单/多页',
-      'AI 生成图片',
-      'AI 演讲稿',
-      'AI 改写',
-      'AI 帮写',
-      '对照翻译',
-      'AI 演讲视频',
+    blocks: [
+      {
+        title: '',
+        items: ['演示工具', '思维导图', '添加时间轴', '排练计时', '内置图标与图像', '协同编辑', 'PPT 转 PDF/图片'],
+      },
+      {
+        title: 'AI 演示',
+        items: ['AI 演示文稿生成器', 'AI 生成单/多页', 'AI 生成图片', 'AI 演讲稿', 'AI 改写', 'AI 帮写', '对照翻译', 'AI 演讲视频'],
+      },
     ],
   },
   {
     title: '表格',
-    groups: [
-      '合并居中单元格',
-      '高亮重复项',
-      '插入复选框',
-      '批量重命名',
-      '制作工具',
-      'Excel 转 PDF',
-      '便捷公式',
-      '拆分与合并',
-      '智能工具箱',
-      '数据对比',
-      '筛选-高级模式',
-      '表格打印智能排版',
-      '查找录入',
-      '表格批量插入图片',
-      'AI 表格',
-      '表格助手',
-      '操作表格',
-      '快速问答',
-      '快速建表',
-      '批量生成',
-      'AI 数据分析',
-      'AI 写公式',
-      'AI 函数',
-      'AI 信息提取',
-      'AI 筛选',
+    blocks: [
+      {
+        title: '',
+        items: ['合并居中单元格', '高亮重复项', '插入复选框', '批量重命名', '制作工具', 'Excel 转 PDF', '便捷公式', '拆分与合并', '智能工具箱', '数据对比', '筛选-高级模式', '表格打印智能排版', '查找录入', '表格批量插入图片'],
+      },
+      {
+        title: 'AI 表格',
+        items: ['表格助手', '操作表格', '快速问答', '快速建表', '批量生成', 'AI 数据分析', 'AI 写公式', 'AI 函数', 'AI 信息提取', 'AI 筛选'],
+      },
     ],
   },
   {
     title: 'PDF',
-    groups: [
-      '格式转换',
-      '压缩',
-      '组合',
-      'PDF 转 Word/Excel/PPT',
-      'Word/Excel/PPT/JPG 转 PDF',
-      'PDF 转 可搜索 PDF',
-      'PDF 转 可扫描 PDF',
-      '输出为图片',
-      '拆分',
-      '批量压缩',
-      '合并',
-      '页面编辑',
-      '插入页面',
-      '提取页面',
-      '裁剪页面',
-      '替换页面',
-      '复制粘贴页面',
-      '移动页面顺序',
-      '分割页面',
-      '页面大小',
-      '页面逆序',
-      '删除空白页',
-      '删除页面',
-      '页面拼接',
-      '内容编辑',
-      '自动生成书签',
-      '自动生成目录',
-      '编辑内容&图片编辑',
-      '编辑内容&文本编辑',
-      '插入页码',
-      '页眉页脚',
-      '擦除',
-      '水印',
-      '文档背景',
-      '扫描件预识别',
-      '批量增删水印',
-      'PDF 查找替换',
-      '附件',
-      '对象编辑',
-      '视频',
-      '音频',
-      '形状',
-      '表单编辑',
-      '识别表格',
-      '提取表格',
-      '注释',
-      'PDF 链接',
-      '图章工具',
-      '提取转换/OCR',
-      'PDF 转 TXT',
-      'PDF 提取图片',
-      '扫描件识别',
-      '智能优化',
-      '扫描件编辑',
-      '扫描件选项卡',
-      '公共能力',
-      'PDF 悬浮窗口',
-      '拆分合并器',
-      '系统预览窗格',
-      '签署',
-      '打印模板',
-      'AI PDF',
-      '对照翻译',
-      '文档问答',
-      '全文总结',
-      '文档生成 PPT',
-      'AI 印前优化',
+    blocks: [
+      {
+        title: '格式转换',
+        items: ['压缩', '组合', 'PDF 转 Word/Excel/PPT', 'Word/Excel/PPT/JPG 转 PDF', 'PDF 转 可搜索 PDF', 'PDF 转 可扫描 PDF', '输出为图片', '拆分', '批量压缩', '合并'],
+      },
+      {
+        title: '页面编辑',
+        items: ['插入页面', '提取页面', '裁剪页面', '替换页面', '复制粘贴页面', '移动页面顺序', '分割页面', '页面大小', '页面逆序', '删除空白页', '删除页面', '页面拼接'],
+      },
+      {
+        title: '内容编辑',
+        items: ['自动生成书签', '自动生成目录', '编辑内容&图片编辑', '编辑内容&文本编辑', '插入页码', '页眉页脚', '擦除', '水印', '文档背景', '扫描件预识别', '批量增删水印', 'PDF 查找替换', '附件'],
+      },
+      {
+        title: '对象编辑',
+        items: ['视频', '音频', '形状', '表单编辑', '识别表格', '提取表格'],
+      },
+      {
+        title: '注释',
+        items: ['PDF 链接', '图章工具'],
+      },
+      {
+        title: '提取转换/OCR',
+        items: ['PDF 转 TXT', 'PDF 提取图片', '扫描件识别', '智能优化', '扫描件编辑', '扫描件选项卡'],
+      },
+      {
+        title: '公共能力',
+        items: ['PDF 悬浮窗口', '拆分合并器', '系统预览窗格', '签署', '打印模板'],
+      },
+      {
+        title: 'AI PDF',
+        items: ['对照翻译', '文档问答', '全文总结', '文档生成 PPT', 'AI 印前优化'],
+      },
     ],
   },
-  { title: '智能文档', groups: ['智能文档'] },
-  { title: '智能表格', groups: ['智能表格'] },
-  { title: '智能表单', groups: ['智能表单'] },
-  { title: '多维表格', groups: ['多维表格'] },
-  { title: 'AI Slides', groups: ['AI Slides'] },
-  { title: '简历', groups: ['简历'] },
+  {
+    title: '智能文档',
+    blocks: [{ title: '', items: ['智能文档'] }],
+  },
+  {
+    title: '智能表格',
+    blocks: [{ title: '', items: ['智能表格'] }],
+  },
+  {
+    title: '智能表单',
+    blocks: [{ title: '', items: ['智能表单'] }],
+  },
+  {
+    title: '多维表格',
+    blocks: [{ title: '', items: ['多维表格'] }],
+  },
+  {
+    title: 'AI Slides',
+    blocks: [{ title: '', items: ['AI Slides'] }],
+  },
+  {
+    title: '简历',
+    blocks: [{ title: '', items: ['简历'] }],
+  },
   {
     title: 'WPS 图片',
-    groups: [
-      '模糊影像',
-      '画像删除文字',
-      '查看器',
-      '工具箱',
-      '另存为',
-      '云相册',
-      '批量导出和删除',
-      '格式转换',
-      '输出为图片',
-      '打印',
-      '图片打印',
-      '转换',
-      '图片转文字',
-      '高级截屏',
-      '图片悬浮工具栏',
-      '截图取字',
-      '添加、调整等基础功能',
-      '矫正',
-      '调色-本地滤镜、色彩',
-      '视频制作',
-      '屏幕录制',
-      '编辑处理',
-      '图片压缩',
-      '拼图',
-      '修改尺寸',
-      '图片批量处理',
-      '图片编辑器',
-      '图片分割',
-      'GIF 图制作',
-      '图片翻译',
+    blocks: [
+      {
+        title: '',
+        items: ['模糊影像', '画像删除文字'],
+      },
+      {
+        title: '查看器',
+        items: ['查看器', '工具箱', '另存为', '云相册', '批量导出和删除', '格式转换', '输出为图片'],
+      },
+      {
+        title: '打印',
+        items: ['图片打印'],
+      },
+      {
+        title: '转换',
+        items: ['图片转文字'],
+      },
+      {
+        title: '',
+        items: ['高级截屏', '图片悬浮工具栏', '截图取字', '另存为', '添加、调整等基础功能', '矫正', '调色-本地滤镜、色彩', '视频制作', '屏幕录制'],
+      },
+      {
+        title: '编辑处理',
+        items: ['图片压缩', '拼图', '修改尺寸', '图片批量处理', '图片编辑器', '批量导出和删除', '图片分割'],
+      },
+      {
+        title: '',
+        items: ['GIF 图制作', '图片翻译'],
+      },
     ],
   },
-  { title: '个人知识库', groups: ['个人知识库'] },
-  { title: 'WPS听记', groups: ['语音速记'] },
+  {
+    title: '个人知识库',
+    blocks: [{ title: '', items: ['个人知识库'] }],
+  },
+  {
+    title: 'WPS听记',
+    blocks: [{ title: '', items: ['语音速记'] }],
+  },
   {
     title: 'WPS AI 工具',
-    groups: [
-      'AI 表格',
-      '表格助手',
-      'AI 筛选',
-      'AI PDF',
-      'Chat PDF',
-      'AI 翻译 PDF',
-      'AI PDF 摘要器',
-      'AI 印前优化',
-      'AI PPT',
-      'AI 演示文稿生成器',
-      '原生、无限制编辑',
-      '多格式导出',
-      'AI 演讲视频',
-      'AI 图表',
-      '在线流程图',
-      'AI 文档脑图',
-      '灵犀 AI 流程图',
-      'AI 图像工具',
-      '消除图像模糊',
-      '水印去除',
-      'AI 照片编辑器',
-      'AI 背景去除器',
-      'AI 手绘转图片',
-      'AI 抠图',
-      'AI 变清晰',
-      '智能水印',
-      'AI 消除',
-      '格式转换',
-      '输出为图片',
-      '图片转 PDF',
-      'AI 裁剪',
-      'AI 提取文字',
-      'AI 公式/表格提取',
-      'AI 无痕改字',
-      'AI 文字清晰',
-      '调色-AI 滤镜',
-      'AI 扩图',
-      '无痕改字',
-      '魔法改图',
-      'AI 图形',
-      'AI 图形整理器',
-      'AI 概念图形制作',
-      'AI 论文',
-      'AI 论文初稿',
-      'AI 开题报告',
-      '知网 AI 选题分析',
-      '知网 AI 选题综述',
-      'AI 写作',
-      '智能文章生成',
-      '标题产生器',
-      '释义工具',
-      'AI 摘要器',
-      'AI 润色',
-      '故事生成器',
-      '句子重写器',
-      '段落重写器',
-      '改写工具',
-      'AI 邮件撰写器',
-      'AI 伴写',
-      'AI 拼写检查',
-      'AI 翻译',
-      'AI 朗读',
-      'AI 合同审查',
-      '稻壳',
-      'AI 封面',
-      'AI 设计',
-      'AI 新建',
-      'AI 生成 3D',
+    blocks: [
+      {
+        title: 'AI 表格',
+        items: ['表格助手', 'AI 筛选'],
+      },
+      {
+        title: 'AI PDF',
+        items: ['Chat PDF', 'AI 翻译 PDF', 'AI PDF 摘要器', 'AI 印前优化'],
+      },
+      {
+        title: 'AI PPT',
+        items: ['AI 演示文稿生成器', '原生、无限制编辑', '多格式导出', 'AI 演讲视频'],
+      },
+      {
+        title: 'AI 图表',
+        items: ['在线流程图', 'AI 文档脑图', '灵犀 AI 流程图'],
+      },
+      {
+        title: 'AI 图像工具',
+        items: ['消除图像模糊', '水印去除', 'AI 照片编辑器', 'AI 背景去除器', 'AI 手绘转图片', 'AI 抠图', 'AI 变清晰', '智能水印', 'AI 消除', '格式转换', '输出为图片', '图片转 PDF', 'AI 裁剪', 'AI 提取文字', 'AI 公式/表格提取', 'AI 无痕改字', 'AI 文字清晰', '调色-AI 滤镜', 'AI 扩图', '无痕改字', '魔法改图'],
+      },
+      {
+        title: 'AI 图形',
+        items: ['AI 图形整理器', 'AI 概念图形制作'],
+      },
+      {
+        title: 'AI 论文',
+        items: ['AI 论文初稿', 'AI 开题报告', '知网 AI 选题分析', '知网 AI 选题综述'],
+      },
+      {
+        title: 'AI 写作',
+        items: ['智能文章生成', '标题产生器', '释义工具', 'AI 摘要器', 'AI 润色', '故事生成器', '句子重写器', '段落重写器', '改写工具', 'AI 邮件撰写器', 'AI 伴写', 'AI 拼写检查'],
+      },
+      {
+        title: '',
+        items: ['AI 翻译', 'AI 朗读', 'AI 合同审查'],
+      },
+      {
+        title: '稻壳',
+        items: ['AI 封面', 'AI 设计', 'AI 新建'],
+      },
+      {
+        title: '',
+        items: ['AI 生成 3D'],
+      },
     ],
   },
-  { title: '特色功能', groups: ['图表', '思维导图', '流程图', '知识库思维导图', '论文', '论文排版', '论文 AIGC 检查', '论文查改助手', '论文助手 Web 插件'] },
+  {
+    title: '特色功能',
+    blocks: [
+      {
+        title: '图表',
+        items: ['思维导图', '流程图', '知识库思维导图'],
+      },
+      {
+        title: '论文',
+        items: ['论文排版', '论文 AIGC 检查', '论文查改助手', '论文助手 Web 插件'],
+      },
+    ],
+  },
   {
     title: '素材美化',
-    groups: ['文字类', '云字体', '在线艺术字', '在线文本框', '文字样式', '项目符号', '在线符号', '图片', '图库', '图表', '在线图表', '表格', '在线表格样式', '转 PPT', '脑图 转 PPT', 'Word 转 PPT', '智能特性', '智能动画', '在线封面', '主题色', '渐变色'],
+    blocks: [
+      {
+        title: '文字类',
+        items: ['云字体', '在线艺术字', '在线文本框', '文字样式', '项目符号', '在线符号'],
+      },
+      {
+        title: '图片',
+        items: ['图库'],
+      },
+      {
+        title: '图表',
+        items: ['在线图表'],
+      },
+      {
+        title: '表格',
+        items: ['在线表格样式'],
+      },
+      {
+        title: '转 PPT',
+        items: ['脑图 转 PPT', 'Word 转 PPT'],
+      },
+      {
+        title: '智能特性',
+        items: ['智能动画', '在线封面', '主题色', '渐变色'],
+      },
+    ],
   },
   {
     title: '拓展工具',
-    groups: ['转换工具', 'WEBP 转 PNG', 'HEIC 转 JPG', 'WEBP 转 JPG', 'AVIF 转 JPG', 'HEIC 转 PNG', 'AVIF 转 PNG', 'HEIC 到 PDF', 'JPG 转 Excel', '批量工具', '批量删除', '批量打印', '批量重命名', '社交媒体工具', 'YouTube 转 MP3', 'YouTube 视频下载器', 'Instagram 视频下载器', 'Facebook 视频下载器', 'Tiktok 视频下载器', 'Twitter 视频下载器', 'Pinterest 视频下载器', 'YouTube 缩略图下载器', '公共工具', '帮助中心', '首页右侧面板', '浏览器助手', '系统右键菜单', '系统文档属性入口'],
+    blocks: [
+      {
+        title: '转换工具',
+        items: ['WEBP 转 PNG', 'HEIC 转 JPG', 'WEBP 转 JPG', 'AVIF 转 JPG', 'HEIC 转 PNG', 'AVIF 转 PNG', 'HEIC 到 PDF', 'JPG 转 Excel'],
+      },
+      {
+        title: '批量工具',
+        items: ['批量删除', '批量打印', '批量重命名'],
+      },
+      {
+        title: '社交媒体工具',
+        items: ['YouTube 转 MP3', 'YouTube 视频下载器', 'Instagram 视频下载器', 'Facebook 视频下载器', 'Tiktok 视频下载器', 'Twitter 视频下载器', 'Pinterest 视频下载器', 'YouTube 缩略图下载器'],
+      },
+      {
+        title: '公共工具',
+        items: ['帮助中心', '首页右侧面板', '浏览器助手', '系统右键菜单', '系统文档属性入口'],
+      },
+    ],
   },
-  { title: '使用场景', groups: ['学生学习', 'Chat PDF 读论文', '英文文献翻译工作流', 'AI 辅助写论文', '教师备课', 'AI 生成教案', '一键制作课件 PPT', '试题整理与格式化', '职场办公', 'AI 写工作周报', 'AI 写会议纪要', 'AI 写项目汇报 PPT', 'AI 合同条款提取', '内容创作', 'AI 生成文章初稿', '多语言版本创作', '社交媒体文案批量生产'] },
-  { title: '帮助与支持', groups: ['更新日志', '常见问题 FAQ', 'WPS 基础', 'WPS AI', '文档', '表格', 'PPT', 'PDF', '智能文档', '智能表格', '智能表单', '多维表格', 'AI Slides', '简历', '联系支持'] },
+  {
+    title: '使用场景',
+    blocks: [
+      {
+        title: '学生学习',
+        items: ['Chat PDF 读论文', '英文文献翻译工作流', 'AI 辅助写论文'],
+      },
+      {
+        title: '',
+        items: ['教师备课', 'AI 生成教案', '一键制作课件 PPT', '试题整理与格式化'],
+      },
+      {
+        title: '职场办公',
+        items: ['AI 写工作周报', 'AI 写会议纪要', 'AI 写项目汇报 PPT', 'AI 合同条款提取'],
+      },
+      {
+        title: '内容创作',
+        items: ['AI 生成文章初稿', '多语言版本创作', '社交媒体文案批量生产'],
+      },
+    ],
+  },
+  {
+    title: '帮助与支持',
+    blocks: [
+      {
+        title: '',
+        items: ['更新日志'],
+      },
+      {
+        title: '常见问题 FAQ',
+        items: ['WPS 基础', 'WPS AI', '文档', '表格', 'PPT', 'PDF', '智能文档', '智能表格', '智能表单', '多维表格', 'AI Slides', '简历'],
+      },
+      {
+        title: '',
+        items: ['联系支持'],
+      },
+    ],
+  },
 ]
 
 const docsFaqItems = [
@@ -813,18 +874,7 @@ const docsFaqItems = [
   },
 ]
 
-const docsSectionMarkersMap = {
-  文档: ['AI 文档'],
-  演示: ['AI 演示'],
-  表格: ['AI 表格'],
-  PDF: ['格式转换', '页面编辑', '内容编辑', '对象编辑', '注释', '提取转换/OCR', '公共能力', 'AI PDF'],
-  'WPS 图片': ['查看器', '打印', '转换', '编辑处理'],
-  'WPS AI 工具': ['AI 表格', 'AI PDF', 'AI PPT', 'AI图表', 'AI 图像工具', 'AI图形', 'AI论文', 'AI 写作', '稻壳'],
-  特色功能: ['图表', '论文'],
-  素材美化: ['文字类', '图片', '图表', '表格', '转 PPT', '智能特性'],
-  拓展工具: ['转换工具', '批量工具', '社交媒体工具', '公共工具'],
-  使用场景: ['学生学习', '职场办公', '内容创作'],
-}
+const docsSectionMarkersMap = {}
 
 function splitDocsGroupsWithMarkers(items, markers) {
   const markerSet = new Set(markers)
@@ -850,6 +900,14 @@ function splitDocsGroupsWithMarkers(items, markers) {
 }
 
 function getDocsSectionBlocks(section, sectionMarkersMap) {
+  if (Array.isArray(section.blocks)) {
+    return section.blocks
+      .map((block) => ({
+        title: block.title ?? '',
+        items: Array.isArray(block.items) ? block.items.filter(Boolean) : [],
+      }))
+      .filter((block) => block.title || block.items.length > 0)
+  }
   const items = section.groups ?? []
   const markers = sectionMarkersMap[section.title]
   if (!markers) {
@@ -1490,7 +1548,8 @@ const localeOptions = supportedLocales.map((item) => ({
 const worldwideLocales = supportedLocales.map((item) => ({
   bcp47: item.bcp47,
   urlLocale: item.code,
-  label: `${item.short} - ${item.label}`,
+  shortCode: item.short,
+  nativeLabel: item.label,
 }))
 
 const worldwideGroups = [
@@ -1929,6 +1988,94 @@ function formatBlogDate(dateString, locale = 'en-us') {
   })
 }
 
+const encyclopediaLetterCollator = new Intl.Collator('en', { sensitivity: 'base' })
+const encyclopediaPinyinCollator = new Intl.Collator(
+  ['zh-Hans-CN-u-co-pinyin', 'zh-CN-u-co-pinyin', 'zh-CN', 'en'],
+  { sensitivity: 'base' },
+)
+const encyclopediaPinyinInitialBoundaries = [
+  ['A', '阿'],
+  ['B', '八'],
+  ['C', '嚓'],
+  ['D', '哒'],
+  ['E', '妸'],
+  ['F', '发'],
+  ['G', '旮'],
+  ['H', '哈'],
+  ['J', '击'],
+  ['K', '喀'],
+  ['L', '垃'],
+  ['M', '妈'],
+  ['N', '拿'],
+  ['O', '哦'],
+  ['P', '啪'],
+  ['Q', '期'],
+  ['R', '然'],
+  ['S', '撒'],
+  ['T', '塌'],
+  ['W', '挖'],
+  ['X', '昔'],
+  ['Y', '压'],
+  ['Z', '匝'],
+]
+
+function compareEncyclopediaLetters(a, b) {
+  if (a === '#') return 1
+  if (b === '#') return -1
+  return encyclopediaLetterCollator.compare(a, b)
+}
+
+function getChinesePinyinInitial(text) {
+  const firstChar = `${text ?? ''}`.trim().charAt(0)
+  if (!firstChar) {
+    return '#'
+  }
+
+  const latinLetter = firstChar.toUpperCase()
+  if (/^[A-Z]$/.test(latinLetter)) {
+    return latinLetter
+  }
+
+  if (/^[0-9]$/.test(firstChar)) {
+    return '#'
+  }
+
+  for (let index = encyclopediaPinyinInitialBoundaries.length - 1; index >= 0; index -= 1) {
+    const [letter, boundary] = encyclopediaPinyinInitialBoundaries[index]
+    if (encyclopediaPinyinCollator.compare(firstChar, boundary) >= 0) {
+      return letter
+    }
+  }
+
+  return '#'
+}
+
+function getEncyclopediaLetter(entry, shouldUsePinyinSort) {
+  if (shouldUsePinyinSort) {
+    return getChinesePinyinInitial(entry.title)
+  }
+
+  const explicitLetter = `${entry?.letter ?? ''}`.trim().charAt(0).toUpperCase()
+  if (/^[A-Z]$/.test(explicitLetter)) {
+    return explicitLetter
+  }
+
+  const titleLetter = `${entry?.title ?? ''}`.trim().charAt(0).toUpperCase()
+  return /^[A-Z]$/.test(titleLetter) ? titleLetter : '#'
+}
+
+function compareEncyclopediaEntryTitles(a, b, shouldUsePinyinSort) {
+  const primaryCompare = shouldUsePinyinSort
+    ? encyclopediaPinyinCollator.compare(a.title, b.title)
+    : encyclopediaLetterCollator.compare(a.title, b.title)
+
+  if (primaryCompare !== 0) {
+    return primaryCompare
+  }
+
+  return encyclopediaLetterCollator.compare(a.slug, b.slug)
+}
+
 function highlightEncyclopediaKeyword(text, query) {
   if (!query) {
     return [text]
@@ -2264,6 +2411,7 @@ function App() {
     () => (isZhCnContent ? uiTextBase : localizeNestedStrings(uiTextBase, localizeString)),
     [isZhCnContent, localizeString, uiTextBase],
   )
+  const worldwideText = useMemo(() => resolveWorldwideText(contentLanguage), [contentLanguage])
 
   useEffect(() => {
     document.documentElement.lang = currentLocale
@@ -2433,15 +2581,15 @@ function App() {
     () =>
       worldwideGroups.map((group) => ({
         ...group,
-        displayTitle: localizeString(group.title),
+        displayTitle: worldwideText.groupTitles[group.title] ?? group.title,
       })),
-    [localizeString],
+    [worldwideText],
   )
 
-  const docsUiTextBase = isZhCnContent ? docsUiByLanguage.zh : docsUiByLanguage.en
+  const docsUiTextBase = isZhContent ? (docsUiByLanguage[contentLanguage] ?? docsUiByLanguage.zh) : docsUiByLanguage.en
   const docsUiText = useMemo(
-    () => (isZhCnContent ? docsUiTextBase : localizeNestedStrings(docsUiTextBase, localizeString)),
-    [docsUiTextBase, isZhCnContent, localizeString],
+    () => (isZhContent ? docsUiTextBase : localizeNestedStrings(docsUiTextBase, localizeString)),
+    [docsUiTextBase, isZhContent, localizeString],
   )
   const localizedDocsContent = useMemo(() => {
     if (isZhCnContent) {
@@ -2481,7 +2629,11 @@ function App() {
       catalogSections: docsEnglishContent.catalogSections.map((section) => ({
         ...section,
         title: sectionLabelMap[section.title] ?? localizeString(section.title),
-        groups: section.groups.map((group) => localizeString(group)),
+        groups: (section.groups ?? []).map((group) => localizeString(group)),
+        blocks: (section.blocks ?? []).map((block) => ({
+          title: block.title ? localizeString(block.title) : '',
+          items: block.items.map((item) => localizeString(item)),
+        })),
       })),
       faqItems: docsEnglishContent.faqItems.map((item) => ({
         ...item,
@@ -2664,7 +2816,6 @@ function App() {
     },
     [currentLocale, localizedAllProductsSections, localizedProducts],
   )
-
   const toolDemoByPath = useMemo(() => {
     const colorMap = new Map(localizedProducts.map((item) => [item.name, item.color]))
     const categoryIntroMap = {
@@ -2985,6 +3136,7 @@ function App() {
       getCanonicalLocalizedPath(nextUrl.pathname, targetLocale) ?? nextUrl.pathname
     const nextPath = `${canonicalPathname}${nextUrl.search}${nextUrl.hash}`
     window.history.pushState({}, '', nextPath)
+    window.scrollTo({ top: 0, left: 0 })
     setCurrentPathname(canonicalPathname)
     setCurrentLocale(resolveLocaleFromPath(canonicalPathname))
     setIsLangOpen(false)
@@ -2994,7 +3146,8 @@ function App() {
     setIsMobileMenuOpen(false)
   }
 
-  const navigateTo = (targetPath) => {
+  const navigateTo = (targetPath, options = {}) => {
+    const { scrollToTop = true } = options
     const targetUrl = new URL(targetPath, window.location.origin)
     const fallbackLocale = resolveLocaleFromPath(targetUrl.pathname)
     const canonicalPathname =
@@ -3002,9 +3155,20 @@ function App() {
     const canonicalTargetPath = `${canonicalPathname}${targetUrl.search}${targetUrl.hash}`
     const currentFullPath = `${window.location.pathname}${window.location.search}${window.location.hash}`
     if (canonicalTargetPath === currentFullPath) {
+      if (scrollToTop) {
+        window.scrollTo({ top: 0, left: 0 })
+      }
+      setIsLangOpen(false)
+      setIsProductsMenuOpen(false)
+      setIsTemplatesMenuOpen(false)
+      setIsResourcesMenuOpen(false)
+      setIsMobileMenuOpen(false)
       return
     }
     window.history.pushState({}, '', canonicalTargetPath)
+    if (scrollToTop) {
+      window.scrollTo({ top: 0, left: 0 })
+    }
     setCurrentPathname(canonicalPathname)
     setCurrentLocale(resolveLocaleFromPath(canonicalPathname))
     setIsLangOpen(false)
@@ -3041,6 +3205,52 @@ function App() {
   const localeAllTemplatesPath = getLocaleAllTemplatesPath(currentLocale)
   const localeWorldwidePath = getLocaleWorldwidePath(currentLocale)
   const localeGuidesPath = getLocaleGuidesPath(currentLocale)
+  const footerBlurb = isZhContent
+    ? '人人可用的 AI 办公套件。'
+    : localizeString('AI-powered office suite for everyone.')
+  const footerProductLinks = useMemo(
+    () =>
+      homeProductCards.slice(0, 5).map((item) => ({
+        label: item.displayName ?? item.name,
+        path: item.targetPath,
+      })),
+    [homeProductCards],
+  )
+  const footerResourceLinks = useMemo(
+    () => [
+      { label: uiText.nav.templates, path: localeAllTemplatesPath },
+      { label: uiText.nav.guides, path: localeGuidesPath },
+      { label: uiText.nav.blog, path: localeBlogPath },
+      { label: localizeString('API Docs') },
+    ],
+    [
+      localeAllTemplatesPath,
+      localeBlogPath,
+      localeGuidesPath,
+      localizeString,
+      uiText.nav.blog,
+      uiText.nav.guides,
+      uiText.nav.templates,
+    ],
+  )
+  const footerCompanyLinks = useMemo(
+    () => [
+      { label: localizeString('About') },
+      { label: localizeString('Careers') },
+      { label: localizeString('Press') },
+      { label: localizeString('Contact') },
+    ],
+    [localizeString],
+  )
+  const footerLegalLinks = useMemo(
+    () => [
+      { label: localizeString('Privacy Policy') },
+      { label: localizeString('Terms of Service') },
+      { label: localizeString('Cookie Policy') },
+    ],
+    [localizeString],
+  )
+  const footerSocialItems = blogSocialLinks.slice(0, 3)
   const { normalizedSegments: currentSegments } = splitPath(currentPathname)
   const currentContentRoot = currentSegments[0] ?? ''
   const desktopOverflowMenuAriaLabel = isZhContent ? '更多导航' : localizeString('More navigation')
@@ -3209,12 +3419,31 @@ function App() {
     }
   }, [desktopMainNavItems])
 
-  const encyclopediaLocale = resolveEncyclopediaLocale(currentLocale)
-  const encyclopediaUiText =
-    encyclopediaUiTextByLocale[encyclopediaLocale] ?? encyclopediaUiTextByLocale.en
+  const encyclopediaBaseLanguage = isZhCnContent ? 'zh' : 'en'
+  const encyclopediaUiLocale = encyclopediaUiTextByLocale[contentLanguage]
+    ? contentLanguage
+    : encyclopediaUiTextByLocale[encyclopediaBaseLanguage]
+      ? encyclopediaBaseLanguage
+      : 'en'
+  const encyclopediaUiText = encyclopediaUiTextByLocale[encyclopediaUiLocale] ?? encyclopediaUiTextByLocale.en
+  const shouldUsePinyinEncyclopediaSort = isZhContent
+  const encyclopediaEntriesBase = useMemo(
+    () => encyclopediaEntriesByLocale[encyclopediaBaseLanguage] ?? encyclopediaEntriesByLocale.en ?? [],
+    [encyclopediaBaseLanguage],
+  )
   const encyclopediaEntries = useMemo(
-    () => [...(encyclopediaEntriesByLocale[encyclopediaLocale] ?? encyclopediaEntriesByLocale.en ?? [])],
-    [encyclopediaLocale],
+    () =>
+      encyclopediaEntriesBase.map((entry) => ({
+        ...entry,
+        title: contentLanguage === encyclopediaBaseLanguage ? entry.title : localizeString(entry.title),
+        summary: contentLanguage === encyclopediaBaseLanguage ? entry.summary : localizeString(entry.summary),
+        body:
+          contentLanguage === encyclopediaBaseLanguage
+            ? [...(entry.body ?? [])]
+            : (entry.body ?? []).map((paragraph) => localizeString(paragraph)),
+        related: [...(entry.related ?? [])],
+      })),
+    [contentLanguage, encyclopediaBaseLanguage, encyclopediaEntriesBase, localizeString],
   )
   const normalizedEncyclopediaQuery = encyclopediaSearchQuery.trim().toLowerCase()
   const filteredEncyclopediaEntries = useMemo(() => {
@@ -3232,19 +3461,26 @@ function App() {
   const encyclopediaGroupedEntries = useMemo(() => {
     const groupedMap = new Map()
     filteredEncyclopediaEntries.forEach((entry) => {
-      const letter = entry.letter || '#'
+      const letter = getEncyclopediaLetter(entry, shouldUsePinyinEncyclopediaSort)
       if (!groupedMap.has(letter)) {
         groupedMap.set(letter, [])
       }
       groupedMap.get(letter).push(entry)
     })
     return Array.from(groupedMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([letter, items]) => ({ letter, items }))
-  }, [filteredEncyclopediaEntries])
+      .sort(([a], [b]) => compareEncyclopediaLetters(a, b))
+      .map(([letter, items]) => ({
+        letter,
+        items: [...items].sort((a, b) =>
+          compareEncyclopediaEntryTitles(a, b, shouldUsePinyinEncyclopediaSort),
+        ),
+      }))
+  }, [filteredEncyclopediaEntries, shouldUsePinyinEncyclopediaSort])
   const encyclopediaLetters = useMemo(
-    () => [...new Set(encyclopediaEntries.map((entry) => entry.letter))].sort(),
-    [encyclopediaEntries],
+    () =>
+      [...new Set(encyclopediaEntries.map((entry) => getEncyclopediaLetter(entry, shouldUsePinyinEncyclopediaSort)))]
+        .sort(compareEncyclopediaLetters),
+    [encyclopediaEntries, shouldUsePinyinEncyclopediaSort],
   )
   const encyclopediaSlugFromRoute = useMemo(() => {
     if (currentSegments[0] !== 'encyclopedia' && currentSegments[0] !== 'academy') {
@@ -3389,7 +3625,6 @@ function App() {
   const filteredLocalizedGuides = localizedGuideItems.filter(
     (item) => activeGuideCategory === 'all' || item.category === activeGuideCategory,
   )
-
   const renderDesktopMainNavItem = (item) => {
     if (item.type === 'products') {
       return (
@@ -3400,12 +3635,12 @@ function App() {
           onMouseLeave={() => scheduleDesktopMenuClose('products')}
         >
           <a
-            className={`flex h-full items-center border-x border-transparent px-[14px] text-[14px] font-medium transition ${
+            className={`home-page-header-link flex h-full items-center border-x border-transparent px-[14px] text-[14px] font-medium transition ${
               item.isCurrent
-                ? 'border-[#e8eaf3] bg-[#ece9fd] text-[#534ab7]'
+                ? 'home-page-header-link--active'
                 : isProductsMenuOpen
-                  ? 'bg-[#f6f5ff] text-[#1a202c]'
-                : 'text-[#4a5568] hover:bg-[#f6f5ff] hover:text-[#1a202c]'
+                  ? 'home-page-header-link--open'
+                  : 'home-page-header-link--idle'
             }`}
             href={item.path}
             onClick={(event) => {
@@ -3438,17 +3673,17 @@ function App() {
 
           {isProductsMenuOpen && (
             <div
-              className="fixed inset-x-0 top-[60px] z-40 border-b border-[#e7eaf2] bg-white shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
+              className="fixed inset-x-0 top-[59px] z-40 home-nav-mega-panel"
               onMouseEnter={() => openDesktopMenu('products')}
               onMouseLeave={() => scheduleDesktopMenuClose('products')}
             >
-              <div className="mx-auto grid w-full max-w-[1160px] grid-cols-5">
-                {productsMegaMenuSections.map((section, index) => (
+              <div
+                className="home-nav-mega-grid mx-auto grid w-full max-w-[1200px] grid-cols-5"
+              >
+                {productsMegaMenuSections.map((section) => (
                   <section
                     key={section.title}
-                    className={`min-w-0 px-4 py-3 ${
-                      index < productsMegaMenuSections.length - 1 ? 'border-r border-[#edf0f4]' : ''
-                    }`}
+                    className="home-nav-mega-card min-w-0"
                   >
                     <div className="flex items-start gap-2">
                       <span
@@ -3461,10 +3696,14 @@ function App() {
                         {(section.displayTitle ?? section.title).replace(/\s+/g, '').charAt(0)}
                       </span>
                       <div className="min-w-0">
-                        <h3 className="truncate text-[16px] font-semibold leading-[1.1] text-[#2b3140]">
+                        <h3
+                          className="truncate text-[16px] font-semibold leading-[1.1] text-[#261f38]"
+                        >
                           {section.displayTitle ?? section.title}
                         </h3>
-                        <p className="mt-0.5 text-[12px] leading-4 text-[#8b92a3]">
+                        <p
+                          className="mt-0.5 text-[12px] leading-4 text-[#847a96]"
+                        >
                           {section.desc}
                         </p>
                       </div>
@@ -3476,7 +3715,7 @@ function App() {
                           <a
                             key={sectionItem.name}
                             href={targetPath}
-                            className="truncate text-[13px] text-[#3f4656] transition hover:text-[#534ab7]"
+                            className="home-nav-mega-link truncate text-[13px]"
                             onClick={(event) => {
                               event.preventDefault()
                               navigateTo(targetPath)
@@ -3489,7 +3728,7 @@ function App() {
                     </div>
                     <a
                       href={item.path}
-                      className="mt-2.5 inline-flex text-[12.5px] font-semibold text-[#534ab7] transition hover:text-[#3c3489]"
+                      className="home-nav-mega-cta mt-2.5 inline-flex text-[12.5px] font-semibold"
                       onClick={(event) => {
                         event.preventDefault()
                         navigateTo(item.path)
@@ -3515,12 +3754,12 @@ function App() {
           onMouseLeave={() => scheduleDesktopMenuClose('templates')}
         >
           <a
-            className={`flex h-full items-center border-x border-transparent px-[14px] text-[14px] font-medium transition ${
+            className={`home-page-header-link flex h-full items-center border-x border-transparent px-[14px] text-[14px] font-medium transition ${
               item.isCurrent
-                ? 'border-[#e8eaf3] bg-[#ece9fd] text-[#534ab7]'
+                ? 'home-page-header-link--active'
                 : isTemplatesMenuOpen
-                  ? 'bg-[#f6f5ff] text-[#1a202c]'
-                : 'text-[#4a5568] hover:bg-[#f6f5ff] hover:text-[#1a202c]'
+                  ? 'home-page-header-link--open'
+                  : 'home-page-header-link--idle'
             }`}
             href={item.path}
             onClick={(event) => {
@@ -3553,19 +3792,21 @@ function App() {
 
           {isTemplatesMenuOpen && (
             <div
-              className="fixed inset-x-0 top-[60px] z-40 border-b border-[#e7eaf2] bg-white shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
+              className="fixed inset-x-0 top-[59px] z-40 home-nav-mega-panel"
               onMouseEnter={() => openDesktopMenu('templates')}
               onMouseLeave={() => scheduleDesktopMenuClose('templates')}
             >
-              <div className="mx-auto grid w-full max-w-[1160px] grid-cols-3">
-                {localizedTemplateMenuSections.map((section, index) => (
+              <div
+                className="home-nav-mega-grid mx-auto grid w-full max-w-[1200px] grid-cols-3"
+              >
+                {localizedTemplateMenuSections.map((section) => (
                   <section
                     key={section.title}
-                    className={`min-w-0 px-6 py-5 ${
-                      index < localizedTemplateMenuSections.length - 1 ? 'border-r border-[#edf0f4]' : ''
-                    }`}
+                    className="home-nav-mega-card min-w-0"
                   >
-                    <h3 className="text-[11px] font-semibold tracking-[0.04em] text-[#a1a8b8]">
+                    <h3
+                      className="text-[11px] font-semibold tracking-[0.04em] text-[#9e91b5]"
+                    >
                       {section.displayTitle ?? section.title}
                     </h3>
                     <div className="mt-3 flex flex-col gap-2">
@@ -3575,7 +3816,7 @@ function App() {
                           <a
                             key={sectionItem.name}
                             href={targetPath}
-                            className="inline-flex items-center gap-2 text-[14px] text-[#4c5568] transition hover:text-[#534ab7]"
+                            className="home-nav-mega-link inline-flex items-center gap-2 text-[14px]"
                             onClick={(event) => {
                               event.preventDefault()
                               navigateTo(targetPath)
@@ -3608,10 +3849,10 @@ function App() {
     return (
       <a
         key={item.key}
-        className={`flex h-full shrink-0 items-center whitespace-nowrap border-x border-transparent px-[14px] text-[14px] font-medium transition ${
+        className={`home-page-header-link flex h-full shrink-0 items-center whitespace-nowrap border-x border-transparent px-[14px] text-[14px] font-medium transition ${
           item.isCurrent
-            ? 'border-[#e8eaf3] bg-[#ece9fd] text-[#534ab7]'
-            : 'text-[#4a5568] hover:bg-[#f6f5ff] hover:text-[#1a202c]'
+            ? 'home-page-header-link--active'
+            : 'home-page-header-link--idle'
         }`}
         href={item.path}
         onClick={(event) => {
@@ -3624,10 +3865,12 @@ function App() {
     )
   }
 
+  const isDesktopMegaMenuOpen = isProductsMenuOpen || isTemplatesMenuOpen
+
   return (
-    <div className="min-h-screen overflow-x-clip bg-[#fafbfc] text-[#1a202c]">
-      <header className="sticky top-0 z-20 border-b border-[#e2e8f0] bg-white/95 backdrop-blur-[12px]">
-        <div className="relative mx-auto flex h-[60px] w-full max-w-[1240px] items-center gap-4 px-6">
+    <div className="home-figma-page min-h-screen overflow-x-clip bg-[#fffdfd] text-[#1a202c]">
+      <header className={`sticky top-0 z-20 border-b border-[#e2e8f0] bg-white/95 backdrop-blur-[12px] home-page-header${isDesktopMegaMenuOpen ? ' home-page-header--mega-open' : ''}`}>
+        <div className="home-page-header-inner relative mx-auto flex h-[60px] w-full max-w-[1240px] items-center gap-4 px-6">
           <div className="flex shrink-0 items-center justify-start">
             <a
               className="flex shrink-0 items-center gap-3 whitespace-nowrap"
@@ -3660,7 +3903,7 @@ function App() {
             </a>
           </div>
           <nav
-            className="hidden h-full min-w-0 flex-1 flex-nowrap items-stretch justify-center gap-[2px] min-[720px]:flex"
+            className="home-page-header-nav hidden h-full min-w-0 flex-1 flex-nowrap items-stretch justify-center gap-[2px] min-[720px]:flex"
             ref={desktopNavRef}
           >
             {visibleDesktopNavItems.map((item) => renderDesktopMainNavItem(item))}
@@ -3671,12 +3914,12 @@ function App() {
                 onMouseLeave={() => scheduleDesktopMenuClose('resources')}
               >
                 <button
-                  className={`flex h-full w-[42px] items-center justify-center border-x border-transparent transition ${
+                  className={`home-page-header-link flex h-full w-[42px] items-center justify-center border-x border-transparent transition ${
                     isDesktopNavOverflowActive
-                      ? 'border-[#e8eaf3] bg-[#ece9fd] text-[#534ab7]'
+                      ? 'home-page-header-link--active'
                       : isResourcesMenuOpen
-                        ? 'bg-[#f6f5ff] text-[#1a202c]'
-                      : 'text-[#4a5568] hover:bg-[#f6f5ff] hover:text-[#1a202c]'
+                        ? 'home-page-header-link--open'
+                        : 'home-page-header-link--idle'
                   }`}
                   type="button"
                   onClick={() => openDesktopMenu('resources')}
@@ -3707,17 +3950,17 @@ function App() {
                 </button>
                 {isResourcesMenuOpen && (
                   <div
-                    className="absolute left-1/2 top-full z-40 hidden w-[190px] -translate-x-1/2 rounded-[10px] border border-[#e2e8f0] bg-white p-2 shadow-[0_10px_24px_rgba(15,23,42,0.12)] md:block"
+                    className="home-nav-floating-panel absolute left-1/2 top-full z-40 hidden w-[190px] -translate-x-1/2 p-2.5 md:block"
                     onMouseEnter={() => openDesktopMenu('resources')}
                     onMouseLeave={() => scheduleDesktopMenuClose('resources')}
                   >
                     {overflowDesktopNavItems.map((item, index) => (
                       <a
                         key={item.key}
-                        className={`${index === 0 ? '' : 'mt-1 '}flex rounded-[8px] px-3 py-2 text-[13px] transition ${
+                        className={`${index === 0 ? '' : 'mt-1 '}flex px-3 py-2 text-[13px] transition ${
                           item.isCurrent
-                            ? 'bg-[#ece9fd] text-[#534ab7]'
-                            : 'text-[#4a5568] hover:bg-[#f6f5ff] hover:text-[#1a202c]'
+                            ? 'rounded-[12px] bg-[linear-gradient(135deg,rgba(255,255,255,0.96)_0%,rgba(244,236,255,0.96)_100%)] text-[#8f5bff] shadow-[inset_0_1px_0_rgba(255,255,255,0.92)]'
+                            : 'home-nav-floating-item'
                         }`}
                         href={item.path}
                         onClick={(event) => {
@@ -3780,30 +4023,42 @@ function App() {
             </span>
           </div>
           <div
-            className="relative hidden shrink-0 items-center justify-end gap-2 whitespace-nowrap min-[720px]:flex min-[960px]:gap-3"
+            className="home-page-header-actions relative hidden shrink-0 items-center justify-end gap-2 whitespace-nowrap min-[720px]:flex min-[960px]:gap-3"
             ref={langMenuRef}
           >
             <button
-              className="inline-flex shrink-0 items-center gap-1 rounded-[6px] border border-[#e2e8f0] px-[10px] py-[5px] text-[12px] font-medium text-[#4a5568] transition hover:border-[#afa9ec] hover:text-[#534ab7]"
+              className="home-nav-trigger-button inline-flex shrink-0 items-center justify-center gap-0 p-0 transition"
               type="button"
               onClick={() => setIsLangOpen((prev) => !prev)}
               aria-expanded={isLangOpen}
               aria-haspopup="dialog"
             >
-              <span>{currentLocaleOption.short}</span>
-              <span className="hidden min-[960px]:inline">{currentLocaleOption.label}</span>
+              <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M11.25 0.749954C17.049 0.749954 21.75 5.45096 21.75 11.25C21.75 16.9281 17.2428 21.5536 11.611 21.7439L11.25 21.75C11.1294 21.75 11.0092 21.7479 10.8896 21.7439L10.5311 21.7257C5.06742 21.3563 0.75 16.8073 0.75 11.25C0.75 5.45096 5.45101 0.749954 11.25 0.749954ZM14.5563 2.87667L14.4842 2.90387C13.5923 3.25607 12.8041 3.8868 12.8106 4.7487C12.8131 5.08015 13.119 7.1371 12.4641 7.0986C11.8089 7.0601 11.663 6.12525 10.9616 5.8659C9.8444 5.45255 9.2319 6.59005 9.3439 7.5606C9.4195 8.21545 11.1789 10.6371 10.1528 11.25C9.542 11.615 7.97785 9.81915 7.35065 9.43415C6.73045 9.05335 5.52575 9.58325 4.74735 8.9529C4.2374 8.5399 4.63815 6.6597 4.5286 6.0871C4.47715 5.8197 4.3655 5.6188 4.22935 5.46655L4.29018 5.54332C3.01526 7.09639 2.25 9.08381 2.25 11.25C2.25 16.0964 6.08072 20.0481 10.8795 20.2425L10.9269 20.2247C11.1097 20.1177 11.2894 20.0056 11.466 19.8887C11.6637 19.7034 11.7936 19.4572 11.8349 19.1894C12.1306 17.3722 10.6116 17.6802 10.1867 16.8122C9.7989 16.0194 10.8212 16.0184 10.8024 14.0423C10.7107 13.4273 10.7779 12.797 10.9711 12.2814C11.4334 11.0487 12.9577 9.5143 14.8389 10.2581C15.8067 10.6406 15.4024 12.2331 15.7237 12.5894C16.501 13.4518 17.5728 12.9363 18.5356 13.4753C19.0316 13.7532 19.2297 14.66 19.306 15.4748L19.288 15.3028C19.9034 14.0847 20.25 12.7078 20.25 11.25C20.25 7.44672 17.8909 4.19448 14.5563 2.87667Z"
+                  fill="#757575"
+                />
+                <circle cx="11.25" cy="11.25" r="10.125" stroke="#757575" strokeWidth="2.25" />
+              </svg>
+              <span className="sr-only">
+                {currentLocaleOption.short} {currentLocaleOption.label}
+              </span>
             </button>
             {isLangOpen && (
-              <div className="absolute right-0 top-[calc(100%+10px)] z-30 w-[min(460px,calc(100vw-24px))] rounded-[10px] border border-[#e2e8f0] bg-[#f4f5f9] p-4 shadow-[0_10px_24px_rgba(0,0,0,0.12)]">
+              <div
+                className="home-nav-locale-panel absolute right-0 top-[calc(100%+10px)] z-30 w-[min(460px,calc(100vw-24px))] p-4"
+              >
                 <div className="grid grid-cols-2 gap-[6px] min-[540px]:grid-cols-4">
                   {localeOptions.map((item) => (
                     <button
                       key={item.code}
                       type="button"
-                      className={`flex items-center gap-2 rounded-[6px] px-3 py-2 text-left text-[12px] transition ${
+                      className={`flex items-center gap-2 px-3 py-2 text-left text-[12px] transition ${
                         currentLocale === item.code
-                          ? 'bg-[#d9d8eb] text-[#534ab7]'
-                          : 'text-[#4a5568] hover:bg-[#e8e9f2]'
+                          ? 'home-nav-locale-item-active'
+                          : 'home-nav-locale-item'
                       }`}
                       onClick={() => handleLocaleSelect(item.code)}
                     >
@@ -3817,14 +4072,14 @@ function App() {
               </div>
             )}
             <button
-              className="rounded-[6px] bg-[#534ab7] px-[18px] py-2 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
+              className="home-page-header-cta rounded-[6px] bg-[#534ab7] px-[18px] py-2 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
               type="button"
               onClick={() => navigateTo(localeDownloadPath)}
             >
               {uiText.nav.getStartedFree}
             </button>
             <button
-              className="inline-flex shrink-0 rounded-[6px] border border-black px-4 py-2 text-[13px] font-medium text-[#4a5568] transition hover:bg-[#f1efe8] hover:text-[#1a202c]"
+              className="home-page-header-signin inline-flex shrink-0 rounded-[6px] border-0 px-4 py-2 text-[13px] font-medium text-[#4a5568] transition hover:bg-[#f1efe8] hover:text-[#1a202c]"
               type="button"
             >
               {uiText.nav.signIn}
@@ -3929,26 +4184,26 @@ function App() {
       <main>
         {pageType === 'home' ? (
           <>
-            <section className="bg-gradient-to-br from-[#eeedfe] to-[#e6f1fb] px-6 py-[72px] text-center">
-          <div className="mx-auto w-full max-w-[1160px]">
-            <p className="mx-auto mb-4 inline-flex rounded-[20px] bg-[#cecbf6] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
+            <section className="home-hero-section px-6 py-[72px] text-center">
+          <div className="home-section-inner home-hero-inner mx-auto w-full max-w-[1160px]">
+            <p className="home-hero-badge mx-auto mb-4 inline-flex rounded-[20px] bg-[#cecbf6] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
               {uiText.home.trustedBadge}
             </p>
-            <h1 className="mx-auto max-w-3xl text-[clamp(28px,4vw,44px)] font-extrabold leading-[1.2] tracking-[-0.04em] text-[#1a202c]">
+            <h1 className="home-hero-title mx-auto max-w-3xl text-[clamp(28px,4vw,44px)] font-extrabold leading-[1.2] tracking-[-0.04em] text-[#1a202c]">
               {uiText.home.heroTitle}
             </h1>
-            <p className="mx-auto mt-4 max-w-[640px] text-[18px] text-[#4a5568]">
+            <p className="home-hero-desc mx-auto mt-4 max-w-[640px] text-[18px] text-[#4a5568]">
               {uiText.home.heroDesc}
             </p>
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <div className="home-hero-actions mt-7 flex flex-wrap items-center justify-center gap-3">
               <button
-                className="rounded-[10px] bg-[#534ab7] px-7 py-[13px] text-[16px] font-semibold text-white transition hover:bg-[#3c3489]"
+                className="home-primary-btn rounded-[10px] bg-[#534ab7] px-7 py-[13px] text-[16px] font-semibold text-white transition hover:bg-[#3c3489]"
                 type="button"
               >
                   {uiText.nav.getStartedFree}
               </button>
               <button
-                className="rounded-[10px] border border-[#e2e8f0] bg-transparent px-7 py-[13px] text-[16px] font-semibold text-[#1a202c] transition hover:border-[#7f77dd] hover:bg-[#eeedfe] hover:text-[#534ab7]"
+                className="home-secondary-btn rounded-[10px] border border-[#e2e8f0] bg-transparent px-7 py-[13px] text-[16px] font-semibold text-[#1a202c] transition hover:border-[#7f77dd] hover:bg-[#eeedfe] hover:text-[#534ab7]"
                 type="button"
               >
                 {uiText.home.seeHowItWorks}
@@ -3957,96 +4212,121 @@ function App() {
           </div>
             </section>
 
-            <section className="border-b border-[#e2e8f0] bg-white py-6">
-          <div className="mx-auto grid w-full max-w-[1160px] grid-cols-2 gap-0 px-6 text-center md:grid-cols-4">
-            <div className="flex flex-col gap-1">
-              <strong className="text-[26px] font-bold text-[#534ab7]">500M+</strong>
-              <span className="text-[12px] text-[#a0aec0]">{uiText.home.stats.activeUsers}</span>
+            <section className="home-stats-section border-b border-[#e2e8f0] bg-white py-6">
+          <div className="home-section-inner home-stats-panel mx-auto grid w-full max-w-[1160px] grid-cols-2 gap-0 px-6 text-center md:grid-cols-4">
+            <div className="home-stat-item flex flex-col gap-1">
+              <strong className="home-stat-value text-[26px] font-bold text-[#534ab7]">500M+</strong>
+              <span className="home-stat-label text-[12px] text-[#a0aec0]">{uiText.home.stats.activeUsers}</span>
             </div>
-            <div className="flex flex-col gap-1">
-              <strong className="text-[26px] font-bold text-[#534ab7]">200+</strong>
-              <span className="text-[12px] text-[#a0aec0]">{uiText.home.stats.countries}</span>
+            <div className="home-stat-item flex flex-col gap-1">
+              <strong className="home-stat-value text-[26px] font-bold text-[#534ab7]">200+</strong>
+              <span className="home-stat-label text-[12px] text-[#a0aec0]">{uiText.home.stats.countries}</span>
             </div>
-            <div className="flex flex-col gap-1">
-              <strong className="text-[26px] font-bold text-[#534ab7]">20</strong>
-              <span className="text-[12px] text-[#a0aec0]">{uiText.home.stats.languages}</span>
+            <div className="home-stat-item flex flex-col gap-1">
+              <strong className="home-stat-value text-[26px] font-bold text-[#534ab7]">20</strong>
+              <span className="home-stat-label text-[12px] text-[#a0aec0]">{uiText.home.stats.languages}</span>
             </div>
-            <div className="flex flex-col gap-1">
-              <strong className="text-[26px] font-bold text-[#534ab7]">1B+</strong>
-              <span className="text-[12px] text-[#a0aec0]">{uiText.home.stats.filesProcessed}</span>
+            <div className="home-stat-item flex flex-col gap-1">
+              <strong className="home-stat-value text-[26px] font-bold text-[#534ab7]">1B+</strong>
+              <span className="home-stat-label text-[12px] text-[#a0aec0]">{uiText.home.stats.filesProcessed}</span>
             </div>
           </div>
             </section>
 
-            <section className="px-6 py-12">
-          <div className="mx-auto w-full max-w-[1160px]">
-            <h2 className="mb-8 text-center text-[clamp(20px,2.5vw,26px)] font-semibold text-[#1a202c]">
+            <section className="home-products-section px-6 py-12">
+          <div className="home-section-inner mx-auto w-full max-w-[1160px]">
+            <h2 className="home-section-title mb-8 text-center text-[clamp(20px,2.5vw,26px)] font-semibold text-[#1a202c]">
               {uiText.home.ourProducts}
             </h2>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-              {homeProductCards.map((item) => (
-                <a
-                  key={item.name}
-                  className="group relative overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white p-6 transition hover:-translate-y-[3px] hover:border-[#d7d3fb] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
-                  href={item.targetPath}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    navigateTo(item.targetPath)
-                  }}
-                >
-                  <span
-                    className="absolute left-0 right-0 top-0 h-[3px]"
-                    style={{ backgroundColor: item.color }}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="mb-3 block h-3 w-3 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                    aria-hidden="true"
-                  />
-                  <h3 className="text-[14px] font-semibold text-[#1a202c]">{item.displayName ?? item.name}</h3>
-                  <p className="mt-1 text-[12.5px] text-[#4a5568]">{item.desc}</p>
-                  <span className="absolute bottom-4 right-4 text-[16px] text-[#a0aec0] transition group-hover:translate-x-[2px] group-hover:text-[#4a5568]">
-                    →
-                  </span>
-                </a>
-              ))}
+            <div className="home-products-grid grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+              {homeProductCards.map((item) => {
+                const ProductIcon = PRODUCT_ICON_MAP[item.iconKey] ?? Sparkles
+
+                return (
+                  <a
+                    key={item.name}
+                    className="home-product-card group relative overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white p-6 transition hover:-translate-y-[3px] hover:border-[#d7d3fb] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+                    href={item.targetPath}
+                    onClick={(event) => {
+                      event.preventDefault()
+                      navigateTo(item.targetPath)
+                    }}
+                  >
+                    <span
+                      className="mb-4 flex items-center justify-start"
+                      style={{ color: item.color }}
+                      aria-hidden="true"
+                    >
+                      <ProductIcon className="h-6 w-6" strokeWidth={2} />
+                    </span>
+                    <h3 className="home-card-title text-[14px] font-semibold text-[#1a202c]">{item.displayName ?? item.name}</h3>
+                    <p className="home-card-desc mt-1 text-[12.5px] text-[#4a5568]">{item.desc}</p>
+                  </a>
+                )
+              })}
             </div>
           </div>
             </section>
 
-            <section className="bg-[#f1efe8] px-6 py-12">
-          <div className="mx-auto w-full max-w-[1160px]">
-            <h2 className="text-center text-[clamp(20px,2.5vw,26px)] font-semibold text-[#1a202c]">
+            <section className="home-features-section bg-[#f1efe8] px-6 py-12">
+          <div className="home-section-inner mx-auto w-full max-w-[1160px]">
+            <h2 className="home-section-title text-center text-[clamp(20px,2.5vw,26px)] font-semibold text-[#1a202c]">
               {uiText.home.everythingYouNeed}
             </h2>
-            <p className="mx-auto mb-8 mt-2 max-w-[560px] text-center text-[14px] text-[#4a5568]">
+            <p className="home-section-subtitle mx-auto mb-8 mt-2 max-w-[560px] text-center text-[14px] text-[#4a5568]">
               {uiText.home.aiPoweredTools}
             </p>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-              {localizedFeatures.map((item) => (
-                <article
-                  key={item.title}
-                  className="rounded-[10px] border border-[#e2e8f0] bg-white p-6"
-                >
-                  <h3 className="text-[15px] font-semibold text-[#1a202c]">{item.title}</h3>
-                  <p className="mt-2 text-[13px] text-[#4a5568]">{item.desc}</p>
-                </article>
-              ))}
+            <div className="home-features-grid grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {localizedFeatures.map((item) => {
+                const FeatureIcon = FEATURE_ICON_MAP[item.iconKey] ?? Sparkles
+                const targetPath = item.linkKey === 'worldwide' ? localeWorldwidePath : null
+                const isClickable = Boolean(targetPath)
+
+                return (
+                  <article
+                    key={item.title}
+                    className={`home-feature-card rounded-[10px] border border-[#e2e8f0] bg-white p-6 ${
+                      isClickable ? 'cursor-pointer transition hover:border-[#cfc4f7] hover:shadow-[0_4px_18px_rgba(83,74,183,0.08)]' : ''
+                    }`}
+                    role={isClickable ? 'button' : undefined}
+                    tabIndex={isClickable ? 0 : undefined}
+                    onClick={isClickable ? () => navigateTo(targetPath) : undefined}
+                    onKeyDown={
+                      isClickable
+                        ? (event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              navigateTo(targetPath)
+                            }
+                          }
+                        : undefined
+                    }
+                  >
+                    <span
+                      className="mb-4 flex items-center justify-start text-[#534ab7]"
+                      aria-hidden="true"
+                    >
+                      <FeatureIcon className="h-6 w-6" strokeWidth={2} />
+                    </span>
+                    <h3 className="home-card-title home-feature-title text-[15px] font-semibold text-[#1a202c]">{item.title}</h3>
+                    <p className="home-card-desc home-feature-desc mt-2 text-[13px] text-[#4a5568]">{item.desc}</p>
+                  </article>
+                )
+              })}
         </div>
           </div>
             </section>
 
-            <section className="bg-gradient-to-br from-[#534ab7] to-[#3c3489] px-6 py-16 text-center text-white">
-          <div className="mx-auto w-full max-w-[1160px]">
-            <h2 className="text-[clamp(20px,2.5vw,26px)] font-semibold text-white">
+            <section className="home-cta-section bg-gradient-to-br from-[#534ab7] to-[#3c3489] px-6 py-16 text-center text-white">
+          <div className="home-cta-card mx-auto w-full max-w-[1160px]">
+            <h2 className="home-cta-title text-[clamp(20px,2.5vw,26px)] font-semibold text-white">
               {uiText.home.readyToBoost}
             </h2>
-            <p className="mb-7 mt-3 text-[16px] text-white/85">
+            <p className="home-cta-desc mb-7 mt-3 text-[16px] text-white/85">
               {uiText.home.joinUsers}
             </p>
         <button
-              className="rounded-[10px] bg-white px-7 py-[13px] text-[16px] font-semibold text-[#534ab7] transition hover:bg-[#f1efe8]"
+              className="home-cta-button rounded-[10px] bg-white px-7 py-[13px] text-[16px] font-semibold text-[#534ab7] transition hover:bg-[#f1efe8]"
           type="button"
           onClick={() => navigateTo(localeDownloadPath)}
         >
@@ -4376,7 +4656,7 @@ function App() {
               </div>
             </header>
 
-            <section className="ency-promo ency-container" aria-label="Promotion">
+            <section className="ency-promo ency-container" aria-label={encyclopediaUiText.promoSectionLabel}>
               <div className="ency-promo-inner">
                 <p className="ency-promo-text">{encyclopediaUiText.promoTitle}</p>
                 <a
@@ -4522,8 +4802,8 @@ function App() {
             </div>
           </div>
         ) : pageType === 'download' ? (
-          <div className="bg-[#fafbfc]">
-            <section className="bg-gradient-to-br from-[#eeedfe] to-[#e6f1fb] px-6 py-14">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--aurora px-6 py-14">
               <div className="mx-auto w-full max-w-[1160px] text-center">
                 <h1 className="text-[clamp(28px,4vw,42px)] font-extrabold leading-[1.2] tracking-[-0.03em] text-[#1a202c]">
                   {uiText.download.heroTitle}
@@ -4540,8 +4820,8 @@ function App() {
               </div>
       </section>
 
-            <section className="px-6 pb-10">
-              <div className="mx-auto w-full max-w-[1160px] rounded-[14px] border border-[#e2e8f0] bg-white p-6 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)] md:p-8">
+            <section className="site-page-transition-section site-page-transition-section--aurora px-6 pb-10">
+              <div className="site-page-overlap-panel mx-auto w-full max-w-[1160px] rounded-[14px] border border-[#e2e8f0] bg-white p-6 text-center shadow-[0_1px_3px_rgba(0,0,0,0.06)] md:p-8">
                 <h2 className="text-[34px] font-semibold text-[#1a202c]">WPS Office</h2>
                 <p className="mx-auto mt-3 max-w-[930px] text-[13px] leading-7 text-[#4a5568]">
                   {uiText.download.suiteDesc}
@@ -4653,8 +4933,8 @@ function App() {
             </section>
           </div>
         ) : pageType === 'guides' ? (
-          <div className="bg-[#f5f6fa]">
-            <section className="border-b border-[#e3e6ef] bg-gradient-to-b from-[#eceffc] to-[#f2f4fd] px-6 py-12">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--mist px-6 pb-5 pt-12">
               <div className="mx-auto w-full max-w-[1160px] text-center">
                 <h1 className="text-[clamp(34px,4.4vw,52px)] font-extrabold tracking-[-0.03em] text-[#1f2433]">
                   {uiText.guides.title}
@@ -4665,7 +4945,7 @@ function App() {
               </div>
             </section>
 
-            <section className="px-6 pb-10 pt-8">
+            <section className="site-page-transition-section site-page-transition-section--lift site-page-transition-section--mist px-6 pb-10 pt-4">
               <div className="mx-auto w-full max-w-[1160px]">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   {guideCategoryTabs.map((tab) => (
@@ -4723,8 +5003,8 @@ function App() {
             </section>
           </div>
         ) : pageType === 'guide-detail' && currentGuide ? (
-          <div className="bg-[#f5f6f8]">
-            <section className="border-b border-[#e3e7ef] bg-[#f8fafc] px-6 py-4">
+          <div className="bg-transparent">
+            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-4">
               <div className="mx-auto w-full max-w-[1160px]">
                 <div className="flex items-center gap-2 text-[12px] text-[#7b8395]">
                   <button type="button" onClick={() => navigateTo(localeHomePath)} className="hover:text-[#534ab7]">
@@ -4744,7 +5024,7 @@ function App() {
               </div>
             </section>
 
-            <section className="border-b border-[#e3e7ef] bg-[#f8fafc] px-6 py-10">
+            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-10">
               <div className="mx-auto w-full max-w-[1160px]">
                 <span
                   className={`inline-flex rounded-[5px] px-2 py-[2px] text-[11px] font-semibold lowercase ${
@@ -4797,7 +5077,7 @@ function App() {
             </section>
           </div>
         ) : pageType === 'pricing' ? (
-          <div className="bg-[#f5f6f9] px-6 py-16">
+          <div className="site-page-hero site-page-hero--mist px-6 py-16">
             <section className="mx-auto w-full max-w-[1160px]">
               <div className="text-center">
                 <h1 className="text-[clamp(34px,4.8vw,56px)] font-extrabold tracking-[-0.03em] text-[#1a202c]">
@@ -4861,8 +5141,8 @@ function App() {
             </section>
           </div>
         ) : pageType === 'all-templates' ? (
-          <div className="bg-[#fafbfc]">
-            <section className="bg-gradient-to-br from-[#f4ecff] to-[#e9f2ff] px-6 py-14">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--aurora px-6 py-14">
               <div className="mx-auto w-full max-w-[1160px] text-center">
                 <p className="mx-auto inline-flex rounded-[20px] bg-[#ddd8fb] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
                   {uiText.templates.libraryTitle}
@@ -4876,8 +5156,8 @@ function App() {
               </div>
             </section>
 
-            <section className="px-6 py-8">
-              <div className="mx-auto w-full max-w-[1160px] overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+            <section className="site-page-transition-section site-page-transition-section--aurora px-6 py-8">
+              <div className="site-page-overlap-panel mx-auto w-full max-w-[1160px] overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0] bg-[#fafbfc] px-5 py-4">
                   <p className="text-[14px] font-semibold text-[#2f3542]">
                     {allTemplatesTab === 'category'
@@ -4910,22 +5190,24 @@ function App() {
                   </div>
                 </div>
 
-                <div className="p-4 md:p-6">
                   {allTemplatesTab === 'category'
                     ? (
-                        <div className="flex flex-col gap-4">
-                          {allTemplatesSections.map((section) => (
-                            <section
-                              key={section.title}
-                              className="rounded-[12px] border border-[#e2e8f0] bg-[#fafbfc] p-4"
-                            >
-                              <h2 className="text-[14px] font-semibold text-[#2f3542]">{section.displayTitle ?? section.title}</h2>
+                        <div className="p-4 md:p-6">
+                          {allTemplatesSections.map((section, sectionIndex) => (
+                            <Fragment key={section.title}>
+                              <h2
+                                className={`text-[14px] font-semibold text-[#2f3542]${
+                                  sectionIndex > 0 ? ' mt-6 border-t border-[#eef2f7] pt-6' : ''
+                                }`}
+                              >
+                                {section.displayTitle ?? section.title}
+                              </h2>
                               <div className="mt-3 grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                                 {section.items.map((item) => (
                                   <a
                                     key={item.name}
                                     href={item.targetPath}
-                                    className="rounded-[8px] border border-[#e5e8f0] bg-white px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:border-[#b8b2ea] hover:text-[#534ab7]"
+                                    className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
                                     onClick={(event) => {
                                       event.preventDefault()
                                       navigateTo(item.targetPath)
@@ -4935,12 +5217,12 @@ function App() {
                                   </a>
                                 ))}
                               </div>
-                            </section>
+                            </Fragment>
                           ))}
                         </div>
                       )
                     : (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
                           {allTemplatesAlphabetGroups.map((group) => (
                             <section
                               key={group.letter}
@@ -4954,7 +5236,7 @@ function App() {
                                   <a
                                     key={item.name}
                                     href={item.targetPath}
-                                    className="rounded-[8px] border border-[#e5e8f0] bg-white px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:border-[#b8b2ea] hover:text-[#534ab7]"
+                                    className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
                                     onClick={(event) => {
                                       event.preventDefault()
                                       navigateTo(item.targetPath)
@@ -4968,13 +5250,12 @@ function App() {
                           ))}
                         </div>
                       )}
-                </div>
               </div>
             </section>
           </div>
         ) : currentTemplateRoute?.kind === 'library' && currentTemplateLibrary ? (
-          <div className="bg-[#f5f6f8]">
-            <section className="border-b border-[#e3e7ef] bg-[#f8fafc] px-6 py-12">
+          <div className="bg-transparent">
+            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-12">
               <div className="mx-auto w-full max-w-[1160px]">
                 <h1 className="text-[50px] font-extrabold leading-[1.08] tracking-[-0.03em] text-[#1a202c]">
                   {currentTemplateLibrary.title}
@@ -5034,7 +5315,7 @@ function App() {
             </section>
           </div>
         ) : currentTemplateRoute?.kind === 'detail' && currentTemplateDetail ? (
-          <div className="bg-[#f5f6f8] px-6 py-6">
+          <div className="site-page-hero site-page-hero--mist px-6 py-6">
             <section className="mx-auto w-full max-w-[1160px]">
               <div className="grid gap-6 lg:grid-cols-[0.58fr_0.42fr]">
                 <div className="rounded-[12px] border border-[#d8deea] bg-[#f0f1fb] p-4">
@@ -5085,8 +5366,8 @@ function App() {
             </section>
           </div>
         ) : pageType === 'tool-demo' && currentToolDemo ? (
-          <div className="bg-[#f5f6f8]">
-            <section className="border-b border-[#e3e7ef] bg-[#f8fafc] px-6 py-4">
+          <div className="bg-transparent">
+            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-4">
               <div className="mx-auto w-full max-w-[1160px]">
                 <div className="flex items-center gap-2 text-[12px] text-[#7b8395]">
                   <button type="button" onClick={() => navigateTo(localeHomePath)} className="hover:text-[#534ab7]">
@@ -5106,7 +5387,7 @@ function App() {
               </div>
             </section>
 
-            <section className="border-b border-[#e3e7ef] bg-[#f8fafc] px-6 py-10">
+            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-10">
               <div className="mx-auto w-full max-w-[1160px]">
                 <h1 className="text-[50px] font-extrabold leading-[1.08] tracking-[-0.03em] text-[#1a202c]">
                   {currentToolDemo.displayName ?? currentToolDemo.name}
@@ -5240,8 +5521,8 @@ function App() {
             </section>
           </div>
         ) : pageType === 'all-products' ? (
-          <div className="bg-[#fafbfc]">
-            <section className="bg-gradient-to-br from-[#eeedfe] to-[#e6f1fb] px-6 py-14">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--aurora px-6 py-14">
               <div className="mx-auto w-full max-w-[1160px] text-center">
                 <p className="mx-auto inline-flex rounded-[20px] bg-[#cecbf6] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
                   {uiText.allProducts.catalogBadge}
@@ -5255,8 +5536,8 @@ function App() {
               </div>
             </section>
 
-            <section className="px-6 py-8">
-              <div className="mx-auto w-full max-w-[1160px] overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+            <section className="site-page-transition-section site-page-transition-section--aurora px-6 py-8">
+              <div className="site-page-overlap-panel mx-auto w-full max-w-[1160px] overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0] bg-[#fafbfc] px-5 py-4">
                   <p className="text-[14px] font-semibold text-[#2f3542]">
                     {allProductsTab === 'category'
@@ -5289,16 +5570,16 @@ function App() {
                   </div>
                 </div>
 
-                <div className="p-4 md:p-6">
                   {allProductsTab === 'category'
                     ? (
-                        <div className="flex flex-col gap-4">
-                          {localizedAllProductsSections.map((section) => (
-                            <section
-                              key={section.title}
-                              className="rounded-[12px] border border-[#e2e8f0] bg-[#fafbfc] p-4"
-                            >
-                              <h2 className="text-[14px] font-semibold text-[#2f3542]">
+                        <div className="p-4 md:p-6">
+                          {localizedAllProductsSections.map((section, sectionIndex) => (
+                            <Fragment key={section.title}>
+                              <h2
+                                className={`text-[14px] font-semibold text-[#2f3542]${
+                                  sectionIndex > 0 ? ' mt-6 border-t border-[#eef2f7] pt-6' : ''
+                                }`}
+                              >
                                 {section.displayTitle ?? section.title}
                               </h2>
                               <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -5308,7 +5589,7 @@ function App() {
                                     <a
                                       key={item.name}
                                       href={targetPath}
-                                      className="rounded-[8px] border border-[#e5e8f0] bg-white px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:border-[#b8b2ea] hover:text-[#534ab7]"
+                                      className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
                                       onClick={(event) => {
                                         event.preventDefault()
                                         navigateTo(targetPath)
@@ -5319,12 +5600,12 @@ function App() {
                                   )
                                 })}
                               </div>
-                            </section>
+                            </Fragment>
                           ))}
                         </div>
                       )
                     : (
-                        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
                           {allProductsAlphabetGroups.map((group) => (
                             <section
                               key={group.letter}
@@ -5340,7 +5621,7 @@ function App() {
                                     <a
                                       key={item.name}
                                       href={targetPath}
-                                      className="rounded-[8px] border border-[#e5e8f0] bg-white px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:border-[#b8b2ea] hover:text-[#534ab7]"
+                                      className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
                                       onClick={(event) => {
                                         event.preventDefault()
                                         navigateTo(targetPath)
@@ -5355,13 +5636,12 @@ function App() {
                           ))}
                         </div>
                       )}
-                </div>
               </div>
             </section>
           </div>
         ) : pageType === 'answers' ? (
-          <div className="bg-[#f3f4f6]">
-            <section className="relative overflow-hidden border-b border-[#dde3ec] bg-[#ecebe6] px-6 py-10">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--warm relative overflow-hidden px-6 py-10">
               <div
                 className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] md:block"
                   aria-hidden="true"
@@ -5397,7 +5677,7 @@ function App() {
               </div>
             </section>
 
-            <section className="px-6 py-10">
+            <section className="site-page-transition-section site-page-transition-section--lift site-page-transition-section--warm px-6 py-10">
               <div className="mx-auto w-full max-w-[1160px]">
                 <h2 className="text-[34px] font-semibold tracking-[-0.02em] text-[#1a202c]">
                   {answersUiText.popularTitle}
@@ -5485,8 +5765,8 @@ function App() {
             </section>
           </div>
         ) : pageType === 'answers-forum' ? (
-          <div className="bg-[#f3f4f6]">
-            <section className="relative overflow-hidden border-b border-[#d9dee8] bg-[#ecebe7] px-6 py-8">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--warm relative overflow-hidden border-b border-[#d9dee8] px-6 py-8">
               <div
                 className="pointer-events-none absolute inset-y-0 right-0 hidden w-[45%] md:block"
                 aria-hidden="true"
@@ -5518,8 +5798,8 @@ function App() {
               </div>
             </section>
 
-            <section className="px-6 py-8">
-              <div className="mx-auto w-full max-w-[1160px] overflow-hidden rounded-[8px] border border-[#d9dee9] bg-white">
+            <section className="site-page-transition-section site-page-transition-section--warm px-6 py-8">
+              <div className="site-page-overlap-panel mx-auto w-full max-w-[1160px] overflow-hidden rounded-[8px] border border-[#d9dee9] bg-white">
                 <div className="grid lg:grid-cols-[260px_minmax(0,1fr)]">
                   <aside className="border-b border-[#e4e8f1] bg-[#f8f9fc] p-4 lg:border-b-0 lg:border-r lg:p-5">
                     <h2 className="text-[34px] font-semibold tracking-[-0.02em] text-[#1f2432]">
@@ -5617,17 +5897,17 @@ function App() {
             </section>
           </div>
         ) : (
-          <div className="bg-[#fafbfc]">
-            <section className="bg-gradient-to-br from-[#eeedfe] to-[#e6f1fb] px-6 py-14">
+          <div className="bg-transparent">
+            <section className="site-page-hero site-page-hero--aurora px-6 py-14">
               <div className="mx-auto w-full max-w-[1160px] text-center">
                 <p className="mx-auto inline-flex rounded-[20px] bg-[#cecbf6] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
-                  {uiText.worldwide.badge}
+                  {worldwideText.badge}
                 </p>
                 <h1 className="mt-4 text-[clamp(30px,4.5vw,48px)] font-extrabold leading-[1.15] tracking-[-0.03em] text-[#1a202c]">
-                  {uiText.worldwide.title}
+                  {worldwideText.title}
                 </h1>
                 <p className="mx-auto mt-4 max-w-[820px] text-[16px] leading-7 text-[#4a5568]">
-                  {uiText.worldwide.desc}
+                  {worldwideText.desc}
                 </p>
               </div>
             </section>
@@ -5637,7 +5917,7 @@ function App() {
 
       {pageType === 'worldwide' && (
         <section
-          className="select-none px-6 py-12"
+          className="site-page-transition-section site-page-transition-section--lift site-page-transition-section--aurora select-none px-6 py-12"
           onDragStart={(event) => {
             event.preventDefault()
           }}
@@ -5664,7 +5944,11 @@ function App() {
                         }}
                         title={item.bcp47}
                       >
-                        {item.label}
+                        <span className="inline-flex items-center gap-1" dir="ltr">
+                          <bdi>{item.shortCode}</bdi>
+                          <span aria-hidden="true">-</span>
+                          <bdi dir="auto">{item.nativeLabel}</bdi>
+                        </span>
                       </a>
                     )
                   })}
@@ -5674,7 +5958,7 @@ function App() {
           </div>
 
           <div className="mx-auto mt-6 w-full max-w-[1160px] rounded-[14px] border border-[#e2e8f0] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            <h2 className="text-[15px] font-semibold text-[#1f2432]">{uiText.worldwide.allLanguages}</h2>
+            <h2 className="text-[15px] font-semibold text-[#1f2432]">{worldwideText.allLanguages}</h2>
             <div className="mt-3 grid gap-x-10 gap-y-1 sm:grid-cols-2 lg:grid-cols-4">
               {worldwideLocales.map((item) => {
                 const targetPath = `/${item.urlLocale}/`
@@ -5690,7 +5974,11 @@ function App() {
                     }}
                     title={item.bcp47}
                   >
-                    {item.label}
+                    <span className="inline-flex items-center gap-1" dir="ltr">
+                      <bdi>{item.shortCode}</bdi>
+                      <span aria-hidden="true">-</span>
+                      <bdi dir="auto">{item.nativeLabel}</bdi>
+                    </span>
                   </a>
                 )
               })}
@@ -5699,120 +5987,188 @@ function App() {
       </section>
       )}
 
-      <footer className="bg-[#000000] text-[#c3cad7]">
-        <div className="mx-auto w-full max-w-[1160px] px-6 py-10">
-          <div className="grid gap-8 md:grid-cols-[1.2fr_1.1fr_1fr_1fr_0.9fr]">
-            <div>
-              <a className="flex items-center gap-2" href={localeHomePath}>
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-[6px] border border-[#4f46e5] bg-[#1d1a3b] text-[12px] font-bold text-white">
-                  W
-                </span>
-                <span className="text-[23px] font-semibold text-white">WPS</span>
+      <footer className="site-footer">
+        <div className="site-footer-shell">
+          <div className="site-footer-top">
+            <div className="site-footer-brand-col">
+              <a
+                className="site-footer-brand"
+                aria-label="WPS AI"
+                href={localeHomePath}
+                onClick={(event) => {
+                  event.preventDefault()
+                  navigateTo(localeHomePath)
+                }}
+              >
+                <svg
+                  className="site-footer-brand-logo"
+                  width="93"
+                  height="24"
+                  viewBox="0 0 93 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M15.3541 1.62434L15.6535 2.32936C15.6817 2.39582 15.6818 2.47088 15.6537 2.53739L13.9407 6.59147C13.8493 6.80773 13.5432 6.8089 13.4502 6.59334L12.4005 4.161C12.3583 4.06328 12.262 4 12.1556 4H4.76417C4.57392 4 4.44487 4.19351 4.51799 4.36915L10.4187 18.5433C10.5097 18.762 10.8195 18.7622 10.9109 18.5436L17.9794 1.63798C18.3943 0.645877 19.3644 0 20.4397 0H30.6694C32.571 0 33.8615 1.93328 33.1322 3.68939L25.4145 22.2739C24.9805 23.3189 23.9601 24 22.8286 24H22.5676C21.4356 24 20.4149 23.3184 19.9812 22.2727L17.7399 16.8686C17.7128 16.8033 17.7128 16.73 17.7397 16.6647L19.4213 12.589C19.5116 12.3702 19.8208 12.3687 19.9133 12.5865L22.4176 18.4856C22.5098 18.7026 22.8176 18.7021 22.9089 18.4847L28.8421 4.37C28.916 4.19425 28.7869 4 28.5963 4H21.2088C21.1011 4 21.004 4.06473 20.9626 4.1641L13.4156 22.2769C12.9808 23.3203 11.9613 24 10.831 24H10.5619C9.43276 24 8.4141 23.3218 7.97858 22.28L0.209113 3.69522C-0.525361 1.93834 0.765209 0 2.66944 0H12.8996C13.9695 0 14.9359 0.639506 15.3541 1.62434Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M50.1393 13.1765C50.2962 13.0197 50.5129 12.9227 50.7522 12.9227C51.0081 12.9227 51.2381 13.0335 51.3967 13.2097L51.3968 13.2079L54.5341 16.3442L54.5343 5.0669C54.5343 4.47767 55.0119 4 55.6012 4C56.1904 4 56.6681 4.47767 56.6681 5.0669V18.9331C56.6681 19.5223 56.1904 20 55.6012 20C55.2552 20 54.9477 19.8353 54.7528 19.5801L49.2426 14.0707L50.1393 13.1765ZM43.7055 18.4718L43.7085 18.4753L42.5367 19.6481C42.4966 19.6882 42.4542 19.7244 42.4098 19.7567C42.2253 19.9087 41.989 20 41.7315 20C41.1422 20 40.6646 19.5223 40.6646 18.9331V5.0669C40.6646 4.47767 41.1422 4 41.7315 4C42.3207 4 42.7984 4.47767 42.7984 5.0669L42.7975 16.3702L47.9119 11.2571C48.1234 11.0456 48.4017 10.9415 48.6789 10.9447C48.9564 10.9415 49.2346 11.0456 49.4461 11.2571L50.359 12.1695C50.0711 12.239 49.7982 12.3861 49.5735 12.6108L43.7055 18.4718ZM61.4691 18.9331C61.4691 19.5223 60.9915 20 60.4022 20C59.813 20 59.3353 19.5223 59.3353 18.9331V12.8C59.3353 11.6218 60.2905 10.6667 61.4687 10.6667L61.8038 10.6666C61.5928 10.969 61.4691 11.3367 61.4691 11.7333V18.9331ZM70.9379 4C73.3685 4 75.3388 5.96995 75.3388 8.4C75.3388 10.8301 73.3685 12.8 70.9379 12.8L62.2685 12.7996L62.2693 11.7333C62.2693 11.1835 62.6854 10.7308 63.22 10.6729L63.3362 10.6667H70.9379C72.19 10.6667 73.205 9.65184 73.205 8.4C73.205 7.16254 72.2132 6.15669 70.981 6.13373L60.402 6.13333C59.8129 6.13333 59.3353 5.65577 59.3353 5.06667C59.3353 4.47756 59.8129 4 60.402 4H70.9379ZM88.0169 10.9319L88.1417 10.9333C90.6459 10.9333 92.676 12.963 92.676 15.4667C92.676 17.9704 90.6459 20 88.1417 20H77.7391C77.15 20 76.6725 19.5224 76.6725 18.9333C76.6725 18.3442 77.15 17.8667 77.7391 17.8667H88.1417C89.4527 17.8667 90.5183 16.8159 90.5418 15.5108L90.5422 15.4667L90.5382 15.2572C90.4676 13.4298 89.4773 11.8381 88.0169 10.9319ZM91.6093 4C92.1984 4 92.676 4.47756 92.676 5.06667C92.676 5.65577 92.1984 6.13333 91.6093 6.13333H81.2068C79.8958 6.13333 78.8302 7.1841 78.8067 8.48924L78.8063 8.53333C78.8063 9.84409 79.8573 10.9094 81.1627 10.9329L85.2077 10.9333C86.931 10.9333 88.4298 11.8945 89.197 13.3099C88.8905 13.1603 88.5479 13.0736 88.1858 13.0671L81.2068 13.0667C78.7026 13.0667 76.6725 11.037 76.6725 8.53333C76.6725 6.02964 78.7026 4 81.2068 4H91.6093Z"
+                    fill="currentColor"
+                  />
+                </svg>
               </a>
-              <p className="mt-4 text-[13px] leading-7 text-[#b4bdcc]">
-                WPS SOFTWARE PTE. LTD.
-                <br />
-                6 RAFFLES QUAY #14-06.
-                <br />
-                SINGAPORE(048580)
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2.5 text-[13px]">
-              <h4 className="mb-1 text-[15px] font-semibold text-white">{uiText.footer.products}</h4>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeAllProductsPath}>
-                {localizeString('WPS Office for Windows')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeAllProductsPath}>
-                {localizeString('WPS Office for Mac')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeAllProductsPath}>
-                {localizeString('WPS Office for Android')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeAllProductsPath}>
-                {localizeString('WPS Office for iOS')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeAllProductsPath}>
-                {localizeString('WPS Office for Linux')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeAllProductsPath}>
-                {localizeString('WPS Office for Education')}
-              </a>
-            </div>
-
-            <div className="flex flex-col gap-2.5 text-[13px]">
-              <h4 className="mb-1 text-[15px] font-semibold text-white">{uiText.footer.company}</h4>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('About Us')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('Business Cooperation')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('Partners')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('Privacy Policy')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('Global Trust')}
-              </a>
-            </div>
-
-            <div className="flex flex-col gap-2.5 text-[13px]">
-              <h4 className="mb-1 text-[15px] font-semibold text-white">{uiText.footer.support}</h4>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('Help Center')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('WPS Academy')}
-              </a>
-              <a className="text-[#c3cad7] transition hover:text-white" href={localeHomePath}>
-                {localizeString('Tech Specs')}
-              </a>
-            </div>
-
-            <div>
-              <h4 className="mb-3 text-[15px] font-semibold text-white">{uiText.footer.followUs}</h4>
-              <div className="flex items-center gap-3">
-                {['f', 't', '▶'].map((social) => (
+              <p className="site-footer-brand-text">{footerBlurb}</p>
+              <div className="site-footer-social-row">
+                {footerSocialItems.map((social) => (
                   <a
-                    key={social}
+                    key={social.id}
                     href="#"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#2a3140] bg-[#12161f] text-[13px] font-semibold text-[#e5e7eb] transition hover:border-[#4f46e5] hover:bg-[#1b2140] hover:text-white"
+                    aria-label={social.label}
+                    className="site-footer-social-link"
+                    onClick={(event) => event.preventDefault()}
                   >
-                    {social}
+                    {social.icon}
                   </a>
                 ))}
               </div>
             </div>
-          </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <div className="relative">
-              <select
-                value={currentLocale}
-                onChange={(event) => handleLocaleSelect(event.target.value)}
-                className="appearance-none rounded-[10px] border border-[#2a3140] bg-[#12161f] px-8 py-2 pl-8 text-[14px] text-[#f3f4f6] outline-none transition hover:border-[#4f46e5]"
-              >
-                {localeOptions.map((item) => (
-                  <option key={item.code} value={item.code}>
-                    {item.label}
-                  </option>
+            <div className="site-footer-links-col">
+              <h4 className="site-footer-heading">{uiText.footer.products}</h4>
+              <div className="site-footer-link-list">
+                {footerProductLinks.map((link) => (
+                  <a
+                    key={`footer-product-${link.label}`}
+                    href={link.path}
+                    className="site-footer-link"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      navigateTo(link.path)
+                    }}
+                  >
+                    {link.label}
+                  </a>
                 ))}
-              </select>
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[#a9b3c4]">
-                🌐
-              </span>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#a9b3c4]">
-                ▾
-              </span>
+              </div>
+            </div>
+
+            <div className="site-footer-links-col">
+              <h4 className="site-footer-heading">{uiText.nav.resources}</h4>
+              <div className="site-footer-link-list">
+                {footerResourceLinks.map((link) =>
+                  link.path ? (
+                    <a
+                      key={`footer-resource-${link.label}`}
+                      href={link.path}
+                      className="site-footer-link"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        navigateTo(link.path)
+                      }}
+                    >
+                      <span>{link.label}</span>
+                      {link.external ? (
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          aria-hidden="true"
+                          className="site-footer-link-icon"
+                        >
+                          <path
+                            d="M4 2H10V8M10 2L2 10"
+                            stroke="currentColor"
+                            strokeWidth="1.3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : null}
+                    </a>
+                  ) : (
+                    <span key={`footer-resource-${link.label}`} className="site-footer-link">
+                      <span>{link.label}</span>
+                    </span>
+                  ),
+                )}
+              </div>
+            </div>
+
+            <div className="site-footer-links-col">
+              <h4 className="site-footer-heading">{uiText.footer.company}</h4>
+              <div className="site-footer-link-list">
+                {footerCompanyLinks.map((link) =>
+                  link.path ? (
+                    <a
+                      key={`footer-company-${link.label}`}
+                      href={link.path}
+                      className="site-footer-link"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        navigateTo(link.path)
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <span key={`footer-company-${link.label}`} className="site-footer-link">
+                      {link.label}
+                    </span>
+                  ),
+                )}
+              </div>
+            </div>
+
+            <div className="site-footer-language-col">
+              <h4 className="site-footer-heading">{uiText.nav.language}</h4>
+              <div className="site-footer-select-wrap">
+                <select
+                  value={currentLocale}
+                  onChange={(event) => handleLocaleSelect(event.target.value)}
+                  className="site-footer-select"
+                >
+                  {localeOptions.map((item) => (
+                    <option key={item.code} value={item.code}>
+                      {`${item.short} ${item.label}`}
+                    </option>
+                  ))}
+                </select>
+                <span className="site-footer-select-caret" aria-hidden="true">▾</span>
+              </div>
             </div>
           </div>
 
-          <p className="mt-4 text-[13px] text-[#a9b3c4]">
-            Copyright © Kingsoft Office Software, All Rights Reserved.
-          </p>
+          <div className="site-footer-bottom">
+            <p className="site-footer-copyright">
+              © {new Date().getFullYear()} WPS AI. {localizeString('All rights reserved.')}
+            </p>
+            <div className="site-footer-legal-list">
+              {footerLegalLinks.map((link) =>
+                link.path ? (
+                  <a
+                    key={`footer-legal-${link.label}`}
+                    href={link.path}
+                    className="site-footer-legal-link"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      navigateTo(link.path)
+                    }}
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <span key={`footer-legal-${link.label}`} className="site-footer-legal-link">
+                    {link.label}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
         </div>
       </footer>
     </div>

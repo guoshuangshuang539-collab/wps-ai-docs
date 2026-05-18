@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ALL_DOC_LANGS, buildDocsStaticMetaMap, createDocsPathKey } from '../data/docsCenterMeta'
 
 const siteLocaleToDocLangMap = {
@@ -11,19 +11,74 @@ const siteLocaleToDocLangMap = {
   'es-mx': 'es-mx',
 }
 
+const DOC_LANGUAGE_LABELS = {
+  'zh-cn': '简体中文',
+  'zh-tw': '繁體中文',
+  'en-us': 'English',
+  'ja-jp': '日本語',
+  'ko-kr': '한국어',
+  'es-mx': 'Español',
+}
+
 function getDocLanguageFromLocale(locale) {
   return siteLocaleToDocLangMap[`${locale}`.toLowerCase()] ?? 'en-us'
 }
 
+function getDocLanguageLabel(language) {
+  return DOC_LANGUAGE_LABELS[language] ?? language
+}
+
+function resolveAvailableDocLanguage(helpContent, preferredLanguage) {
+  if (!helpContent) {
+    return ''
+  }
+  if (helpContent[preferredLanguage]) {
+    return preferredLanguage
+  }
+  if (helpContent['zh-cn']) {
+    return 'zh-cn'
+  }
+  if (helpContent['en-us']) {
+    return 'en-us'
+  }
+  return Object.keys(helpContent)[0] ?? ''
+}
+
 function safeIdSegment(value) {
   const raw = `${value ?? ''}`.trim()
-  const latin = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-  if (latin) {
-    return latin
+  if (!raw) {
+    return 'doc'
   }
-  return Array.from(raw)
-    .map((char) => char.charCodeAt(0).toString(16))
-    .join('-') || 'doc'
+
+  const parts = []
+  let latinBuffer = ''
+
+  Array.from(raw.toLowerCase()).forEach((char) => {
+    if (/[a-z0-9]/.test(char)) {
+      latinBuffer += char
+      return
+    }
+
+    if (latinBuffer) {
+      parts.push(latinBuffer)
+      latinBuffer = ''
+    }
+
+    if (/\s|[-_]/.test(char)) {
+      return
+    }
+
+    const codePoint = char.codePointAt(0)
+    if (codePoint) {
+      parts.push(codePoint.toString(16))
+    }
+  })
+
+  if (latinBuffer) {
+    parts.push(latinBuffer)
+  }
+
+  return parts.join('-') || 'doc'
 }
 
 function parseDocsRoute(pathname) {
@@ -46,9 +101,9 @@ function escapeHtml(text) {
     .replaceAll('"', '&quot;')
 }
 
-function markdownToHtml(markdown) {
+function markdownToHtml(markdown, emptyText = 'No content available.') {
   if (!markdown) {
-    return '<p class="docs-center-empty">暂无内容</p>'
+    return `<p class="docs-center-empty">${escapeHtml(emptyText)}</p>`
   }
 
   let html = escapeHtml(markdown)
@@ -149,6 +204,12 @@ function fallbackSlug(text, sectionSlugMap) {
     return latin
   }
   return safeIdSegment(raw)
+}
+
+function getDocsScrollOffset() {
+  const rootStyles = window.getComputedStyle(document.documentElement)
+  const navHeight = Number.parseFloat(rootStyles.getPropertyValue('--nav-height')) || 60
+  return navHeight + 18
 }
 
 function buildSectionModels(catalogSections, sourceCatalogSections, sectionMarkersMap, sourceSectionMarkersMap, getSectionBlocks) {
@@ -255,6 +316,7 @@ export default function DocsCenterPage({
   const [appliedSearchKeyword, setAppliedSearchKeyword] = useState('')
   const [tocSearchKeyword, setTocSearchKeyword] = useState('')
   const [currentDocLanguage, setCurrentDocLanguage] = useState(getDocLanguageFromLocale(currentLocale))
+  const hasTocSearchKeyword = Boolean(tocSearchKeyword.trim())
 
   const staticMetaMap = useMemo(() => buildDocsStaticMetaMap(), [])
 
@@ -334,24 +396,25 @@ export default function DocsCenterPage({
     ? displayPathBySourceKey.get(currentDocMeta.pathKey) ?? currentDocMeta.pathParts
     : null
   const currentDocAvailableLangs = currentDocMeta?.publishedLangs ?? []
+  const displayedDocLanguage = resolveAvailableDocLanguage(currentDocMeta?.helpContent, currentDocLanguage)
+  const displayedDocLanguageLabel = displayedDocLanguage
+    ? getDocLanguageLabel(displayedDocLanguage)
+    : ''
   const currentDocContent =
-    currentDocMeta?.helpContent?.[currentDocLanguage]
-    || currentDocMeta?.helpContent?.['zh-cn']
-    || currentDocMeta?.helpContent?.['en-us']
-    || ''
+    (displayedDocLanguage && currentDocMeta?.helpContent?.[displayedDocLanguage]) || ''
   const currentDocNeedsFallbackNotice =
     Boolean(currentDocMeta?.helpContent)
-    && !currentDocMeta.helpContent[currentDocLanguage]
-    && currentDocLanguage !== 'zh-cn'
-  const currentDocHtml = useMemo(() => {
-    if (!currentDocMeta) {
-      return ''
-    }
-    const notice = currentDocNeedsFallbackNotice
-      ? '<div class="docs-center-lang-notice">当前语言暂无翻译，已回退到简体中文。</div>'
-      : ''
-    return `${notice}${markdownToHtml(currentDocContent)}`
-  }, [currentDocContent, currentDocMeta, currentDocNeedsFallbackNotice])
+    && Boolean(displayedDocLanguage)
+    && displayedDocLanguage !== currentDocLanguage
+  const currentDocHtml = currentDocMeta
+    ? (() => {
+        const noticeText = docsUiText.translationFallbackNotice.replace('{language}', displayedDocLanguageLabel)
+        const notice = currentDocNeedsFallbackNotice
+          ? `<div class="docs-center-lang-notice">${escapeHtml(noticeText)}</div>`
+          : ''
+        return `${notice}${markdownToHtml(currentDocContent, docsUiText.emptyDocContent)}`
+      })()
+    : ''
 
   const currentDocSectionLabel = currentDocDisplayParts?.[0] ?? activeSection
   const currentDocSectionSlug =
@@ -360,10 +423,61 @@ export default function DocsCenterPage({
     ? `wps.ai/${currentLocale}/docs/${currentDocSectionSlug}/${currentDocMeta.routeSlug}/`
     : ''
   const activeBlockTitle = currentDocDisplayParts?.length === 3 ? currentDocDisplayParts[1] : ''
+  const [scrollLinkedTarget, setScrollLinkedTarget] = useState(null)
+  const sidebarRef = useRef(null)
+  const scrollSpyFrameRef = useRef(0)
+  const scrollSpyLockRef = useRef(null)
+  const scrollSpyUnlockTimeoutRef = useRef(0)
+  const requestScrollSpyUpdateRef = useRef(() => {})
+  const scrollToSectionTimeoutRef = useRef(0)
+  const resolvedActiveSection = scrollLinkedTarget?.sectionTitle ?? activeSection
+  const resolvedActiveBlockTitle = scrollLinkedTarget?.blockTitle ?? activeBlockTitle
+
+  const scrollSpyTargets = useMemo(
+    () =>
+      visibleSections.flatMap((section) => [
+        {
+          id: `docs-section-${safeIdSegment(section.title)}`,
+          sectionTitle: section.title,
+          blockTitle: '',
+        },
+        ...section.blocks
+          .filter((block) => block.title)
+          .map((block) => ({
+            id: `docs-block-${safeIdSegment(section.title)}-${safeIdSegment(block.title)}`,
+            sectionTitle: section.title,
+            blockTitle: block.title,
+          })),
+      ]),
+    [visibleSections],
+  )
 
   useEffect(() => {
     setCurrentDocLanguage(getDocLanguageFromLocale(currentLocale))
   }, [currentLocale, currentDocMeta?.pathKey])
+
+  useEffect(() => {
+    return () => {
+      if (scrollSpyUnlockTimeoutRef.current) {
+        window.clearTimeout(scrollSpyUnlockTimeoutRef.current)
+        scrollSpyUnlockTimeoutRef.current = 0
+      }
+      if (scrollToSectionTimeoutRef.current) {
+        window.clearTimeout(scrollToSectionTimeoutRef.current)
+        scrollToSectionTimeoutRef.current = 0
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (scrollSpyLockRef.current) {
+      return
+    }
+    setScrollLinkedTarget({
+      sectionTitle: activeSection,
+      blockTitle: activeBlockTitle,
+    })
+  }, [activeBlockTitle, activeSection])
 
   useEffect(() => {
     document.body.style.overflow = currentDocMeta ? 'hidden' : ''
@@ -372,23 +486,178 @@ export default function DocsCenterPage({
     }
   }, [currentDocMeta])
 
+  useEffect(() => {
+    requestScrollSpyUpdateRef.current = () => {}
+    if (currentDocMeta || !scrollSpyTargets.length) {
+      if (scrollSpyUnlockTimeoutRef.current) {
+        window.clearTimeout(scrollSpyUnlockTimeoutRef.current)
+        scrollSpyUnlockTimeoutRef.current = 0
+      }
+      return undefined
+    }
+
+    function clearPendingScrollSpyUnlock() {
+      if (!scrollSpyUnlockTimeoutRef.current) {
+        return
+      }
+      window.clearTimeout(scrollSpyUnlockTimeoutRef.current)
+      scrollSpyUnlockTimeoutRef.current = 0
+    }
+
+    function scheduleScrollSpyUpdate() {
+      if (scrollSpyFrameRef.current) {
+        return
+      }
+      scrollSpyFrameRef.current = window.requestAnimationFrame(() => {
+        scrollSpyFrameRef.current = 0
+        updateScrollLinkedTarget()
+      })
+    }
+
+    function scheduleScrollSpyUnlock() {
+      clearPendingScrollSpyUnlock()
+      scrollSpyUnlockTimeoutRef.current = window.setTimeout(() => {
+        scrollSpyUnlockTimeoutRef.current = 0
+        scrollSpyLockRef.current = null
+        scheduleScrollSpyUpdate()
+      }, 140)
+    }
+
+    function updateScrollLinkedTarget() {
+      const scrollOffset = getDocsScrollOffset()
+      const lockedTarget = scrollSpyLockRef.current
+
+      if (lockedTarget) {
+        const lockedElement = document.getElementById(lockedTarget.targetId)
+        const reachedTarget = lockedElement
+          ? Math.abs(lockedElement.getBoundingClientRect().top - scrollOffset) <= 8
+          : true
+        const reachedPageEnd =
+          window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2
+        const lockExpired = window.performance.now() - lockedTarget.startedAt >= 2200
+
+        if (!reachedTarget && !reachedPageEnd && !lockExpired) {
+          clearPendingScrollSpyUnlock()
+          return
+        }
+
+        scheduleScrollSpyUnlock()
+        return
+      }
+
+      clearPendingScrollSpyUnlock()
+
+      let nextActiveTarget = scrollSpyTargets[0]
+
+      scrollSpyTargets.forEach((target) => {
+        const element = document.getElementById(target.id)
+        if (!element) {
+          return
+        }
+        if (element.getBoundingClientRect().top - scrollOffset <= 0) {
+          nextActiveTarget = target
+        }
+      })
+
+      setScrollLinkedTarget((previousTarget) => {
+        if (
+          previousTarget?.sectionTitle === nextActiveTarget.sectionTitle
+          && previousTarget?.blockTitle === nextActiveTarget.blockTitle
+        ) {
+          return previousTarget
+        }
+        return nextActiveTarget
+      })
+    }
+
+    requestScrollSpyUpdateRef.current = scheduleScrollSpyUpdate
+
+    scheduleScrollSpyUpdate()
+    window.addEventListener('scroll', scheduleScrollSpyUpdate, { passive: true })
+    window.addEventListener('resize', scheduleScrollSpyUpdate)
+
+    return () => {
+      requestScrollSpyUpdateRef.current = () => {}
+      clearPendingScrollSpyUnlock()
+      window.removeEventListener('scroll', scheduleScrollSpyUpdate)
+      window.removeEventListener('resize', scheduleScrollSpyUpdate)
+      if (scrollSpyFrameRef.current) {
+        window.cancelAnimationFrame(scrollSpyFrameRef.current)
+        scrollSpyFrameRef.current = 0
+      }
+    }
+  }, [currentDocMeta, scrollSpyTargets])
+
+  useEffect(() => {
+    const sidebarElement = sidebarRef.current
+    if (!sidebarElement) {
+      return
+    }
+
+    const activeNode =
+      sidebarElement.querySelector('.docs-center-toc-child.active')
+      ?? sidebarElement.querySelector('.docs-center-toc-parent-btn.active')
+
+    if (!activeNode) {
+      return
+    }
+
+    const sidebarRect = sidebarElement.getBoundingClientRect()
+    const activeRect = activeNode.getBoundingClientRect()
+    const buffer = 8
+
+    if (activeRect.top < sidebarRect.top + buffer) {
+      sidebarElement.scrollTop -= sidebarRect.top + buffer - activeRect.top
+    } else if (activeRect.bottom > sidebarRect.bottom - buffer) {
+      sidebarElement.scrollTop += activeRect.bottom - (sidebarRect.bottom - buffer)
+    }
+  }, [resolvedActiveBlockTitle, resolvedActiveSection, tocSections])
+
   const handleHeroSearch = () => {
     setAppliedSearchKeyword(heroInputValue)
+  }
+
+  const navigatePreservingScroll = (targetPath) => {
+    navigateTo(targetPath, { scrollToTop: false })
   }
 
   const handleScrollToSection = (sectionTitle, blockTitle = '') => {
     const targetId = blockTitle
       ? `docs-block-${safeIdSegment(sectionTitle)}-${safeIdSegment(blockTitle)}`
       : `docs-section-${safeIdSegment(sectionTitle)}`
-    window.setTimeout(() => {
+
+    if (scrollSpyUnlockTimeoutRef.current) {
+      window.clearTimeout(scrollSpyUnlockTimeoutRef.current)
+      scrollSpyUnlockTimeoutRef.current = 0
+    }
+
+    if (scrollToSectionTimeoutRef.current) {
+      window.clearTimeout(scrollToSectionTimeoutRef.current)
+      scrollToSectionTimeoutRef.current = 0
+    }
+
+    scrollSpyLockRef.current = {
+      targetId,
+      sectionTitle,
+      blockTitle,
+      startedAt: window.performance.now(),
+    }
+
+    setScrollLinkedTarget({
+      sectionTitle,
+      blockTitle,
+    })
+
+    scrollToSectionTimeoutRef.current = window.setTimeout(() => {
+      scrollToSectionTimeoutRef.current = 0
       const target = document.getElementById(targetId)
       if (!target) {
+        scrollSpyLockRef.current = null
         return
       }
-      const rootStyles = window.getComputedStyle(document.documentElement)
-      const navHeight = Number.parseFloat(rootStyles.getPropertyValue('--nav-height')) || 60
-      const scrollTop = target.getBoundingClientRect().top + window.scrollY - navHeight - 18
+      const scrollTop = target.getBoundingClientRect().top + window.scrollY - getDocsScrollOffset()
       window.scrollTo({ top: Math.max(0, scrollTop), behavior: 'smooth' })
+      requestScrollSpyUpdateRef.current()
     }, 40)
   }
 
@@ -400,7 +669,7 @@ export default function DocsCenterPage({
     const displayParts = displayPathBySourceKey.get(meta.pathKey) ?? meta.pathParts
     const sectionLabel = displayParts[0] ?? meta.pathParts[0]
     const sectionSlug = sectionSlugMap[sectionLabel] ?? fallbackSlug(sectionLabel, sectionSlugMap)
-    navigateTo(getLocaleDocsPath(currentLocale, sectionSlug, meta.routeSlug))
+    navigatePreservingScroll(getLocaleDocsPath(currentLocale, sectionSlug, meta.routeSlug))
   }
 
   return (
@@ -440,7 +709,7 @@ export default function DocsCenterPage({
                   }
                   const sectionSlug =
                     sectionSlugMap[card.section] ?? fallbackSlug(card.section, sectionSlugMap)
-                  navigateTo(getLocaleDocsPath(currentLocale, sectionSlug))
+                  navigatePreservingScroll(getLocaleDocsPath(currentLocale, sectionSlug))
                   handleScrollToSection(card.section)
                 }}
               >
@@ -453,7 +722,7 @@ export default function DocsCenterPage({
       </section>
 
       <main className="docs-center-layout docs-center-container">
-        <aside className="docs-center-sidebar">
+        <aside ref={sidebarRef} className="docs-center-sidebar">
           <label className="docs-center-sidebar-search">
             <span aria-hidden="true">⌕</span>
             <input
@@ -465,45 +734,51 @@ export default function DocsCenterPage({
           </label>
           <h3>{docsUiText.directoryTitle}</h3>
           <div>
-            {tocSections.map((section) => (
-              <div key={`toc-${section.title}`} className="docs-center-toc-parent">
-                <button
-                  type="button"
-                  className={`docs-center-toc-parent-btn${activeSection === section.title ? ' active' : ''}`}
-                  onClick={() => {
-                    const sectionSlug =
-                      sectionSlugMap[section.title] ?? fallbackSlug(section.title, sectionSlugMap)
-                    navigateTo(getLocaleDocsPath(currentLocale, sectionSlug))
-                    handleScrollToSection(section.title)
-                  }}
-                >
-                  {renderHighlightedText(section.title, tocSearchKeyword.trim().toLowerCase())}
-                </button>
-                {section.blocks.filter((block) => block.title).length ? (
-                  <div className="docs-center-toc-children">
-                    {section.blocks
-                      .filter((block) => block.title)
-                      .map((block) => (
+            {tocSections.map((section) => {
+              const titledBlocks = section.blocks.filter((block) => block.title)
+              const shouldShowChildren = Boolean(titledBlocks.length)
+                && (hasTocSearchKeyword || resolvedActiveSection === section.title)
+
+              return (
+                <div key={`toc-${section.title}`} className="docs-center-toc-parent">
+                  <button
+                    type="button"
+                    className={`docs-center-toc-parent-btn${resolvedActiveSection === section.title ? ' active' : ''}`}
+                    onClick={() => {
+                      const sectionSlug =
+                        sectionSlugMap[section.title] ?? fallbackSlug(section.title, sectionSlugMap)
+                      navigatePreservingScroll(getLocaleDocsPath(currentLocale, sectionSlug))
+                      handleScrollToSection(section.title)
+                    }}
+                  >
+                    {renderHighlightedText(section.title, tocSearchKeyword.trim().toLowerCase())}
+                  </button>
+                  {shouldShowChildren ? (
+                    <div className="docs-center-toc-children">
+                      {titledBlocks.map((block) => (
                         <button
                           key={`toc-child-${section.title}-${block.title}`}
                           type="button"
                           className={`docs-center-toc-child${
-                            activeSection === section.title && activeBlockTitle === block.title ? ' active' : ''
+                            resolvedActiveSection === section.title && resolvedActiveBlockTitle === block.title
+                              ? ' active'
+                              : ''
                           }`}
                           onClick={() => {
                             const sectionSlug =
                               sectionSlugMap[section.title] ?? fallbackSlug(section.title, sectionSlugMap)
-                            navigateTo(getLocaleDocsPath(currentLocale, sectionSlug))
+                            navigatePreservingScroll(getLocaleDocsPath(currentLocale, sectionSlug))
                             handleScrollToSection(section.title, block.title)
                           }}
                         >
                           {renderHighlightedText(block.title, tocSearchKeyword.trim().toLowerCase())}
                         </button>
                       ))}
-                  </div>
-                ) : null}
-              </div>
-            ))}
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })}
           </div>
         </aside>
 
@@ -600,7 +875,7 @@ export default function DocsCenterPage({
                 <h2>{docsUiText.directoryTitle}</h2>
               </header>
               <div className="docs-center-section-body">
-                <p className="docs-center-empty">未找到匹配的文档目录项。</p>
+                <p className="docs-center-empty">{docsUiText.noResults}</p>
               </div>
             </article>
           )}
@@ -632,9 +907,9 @@ export default function DocsCenterPage({
           <button
             type="button"
             className="docs-center-overlay-back"
-            onClick={() => navigateTo(getLocaleDocsPath(currentLocale, currentDocSectionSlug))}
+            onClick={() => navigatePreservingScroll(getLocaleDocsPath(currentLocale, currentDocSectionSlug))}
           >
-            ← 返回
+            {docsUiText.overlayBackLabel}
           </button>
           <div className="docs-center-overlay-breadcrumb">
             {(currentDocDisplayParts ?? []).map((part, index) => (
@@ -654,13 +929,14 @@ export default function DocsCenterPage({
                 <button
                   key={`lang-${langCode}`}
                   type="button"
-                  className={`docs-center-lang-tab${currentDocLanguage === langCode ? ' active' : ''}${
+                  title={langCode}
+                  className={`docs-center-lang-tab${displayedDocLanguage === langCode ? ' active' : ''}${
                     isAvailable ? '' : ' unavailable'
                   }`}
                   disabled={!isAvailable}
                   onClick={() => setCurrentDocLanguage(langCode)}
                 >
-                  {langCode}
+                  {getDocLanguageLabel(langCode)}
                 </button>
               )
             })}
@@ -675,7 +951,7 @@ export default function DocsCenterPage({
             />
           ) : (
             <div className="docs-center-overlay-body">
-              <p className="docs-center-empty">该文档尚未发布。</p>
+              <p className="docs-center-empty">{docsUiText.unpublishedDoc}</p>
             </div>
           )
         ) : null}

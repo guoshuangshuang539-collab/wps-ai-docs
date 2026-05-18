@@ -110,26 +110,306 @@ const docsSectionSlugMapEn = {
 }
 
 const docsCatalogSectionsEn = [
-  { title: 'Getting Started', groups: ['Product overview', 'Install and setup', 'Account and permissions', 'Frequently asked questions'] },
-  { title: 'Writer', groups: ['AI Writer', 'Formatting and layout', 'Collaboration and comments', 'Translation and proofreading', 'Export and printing'] },
-  { title: 'Presentation', groups: ['AI Slides', 'Theme and master slides', 'Animations and transitions', 'Speaker notes', 'Export to video and PDF'] },
-  { title: 'Spreadsheet', groups: ['Smart Sheets', 'Formulas and functions', 'Pivot tables', 'Charts and dashboards', 'Data import and cleanup'] },
-  { title: 'PDF', groups: ['Format conversion', 'Page editing', 'Annotations and signatures', 'OCR and text extraction', 'AI PDF workflows'] },
-  { title: 'Smart Docs', groups: ['Smart drafting', 'Context-aware rewriting', 'Document summarization', 'Tone adaptation'] },
-  { title: 'Smart Sheets', groups: ['Natural language formulas', 'Data analysis suggestions', 'Chart generation', 'Audit and explanation'] },
-  { title: 'Smart Forms', groups: ['Form creation', 'Question logic', 'Response collaboration', 'Export responses to sheets'] },
-  { title: 'Multidim Tables', groups: ['Table structures', 'Views and filters', 'Permissions and workflows', 'Automation hooks'] },
-  { title: 'AI Slides', groups: ['Outline generation', 'Auto layout', 'Slide rewriting', 'Speaker note assistance'] },
-  { title: 'Resume', groups: ['Resume templates', 'Cover letter templates', 'Content polishing', 'Export and sharing'] },
-  { title: 'WPS Image', groups: ['Image enhancement', 'Background removal', 'Format conversion', 'Image compression'] },
-  { title: 'Personal Knowledge Base', groups: ['Collection and indexing', 'Search and retrieval', 'Knowledge organization', 'Content reuse'] },
-  { title: 'WPS Captalk', groups: ['Speech-to-text', 'Meeting notes', 'Summary extraction', 'Action item tracking'] },
-  { title: 'WPS AI Tools', groups: ['AI writing toolkit', 'AI presentation toolkit', 'AI image toolkit', 'AI research toolkit'] },
-  { title: 'Key Features', groups: ['Cloud sync', 'Cross-device editing', 'Version history', 'Security and privacy'] },
-  { title: 'Assets & Beautify', groups: ['Template assets', 'Icons and illustrations', 'Brand materials', 'Visual consistency'] },
-  { title: 'Online Tools', groups: ['File conversion', 'Compression and optimization', 'Document utilities', 'Social media tools'] },
-  { title: 'Use Cases', groups: ['Students and education', 'Workplace productivity', 'Content creation', 'Team collaboration'] },
-  { title: 'Help & Support', groups: ['Release notes', 'FAQ and troubleshooting', 'Submit a ticket', 'Contact support'] },
+  {
+    title: 'Getting Started',
+    blocks: [
+      {
+        title: '',
+        items: ['Writer', 'PPT', 'Spreadsheet', 'Edit & Convert', 'Smart Docs', 'Smart Sheets', 'Smart Forms', 'Multidim Tables', 'AI Slides', 'Resume'],
+      },
+    ],
+  },
+  {
+    title: 'Writer',
+    blocks: [
+      {
+        title: '',
+        items: ['Spell Check', 'Split/Merge Files', 'Batch Rename Documents', 'Popular Fonts & Colors', 'Built-in Icons & Images', 'Add Checkboxes', 'Add Signature', 'Deep Research', 'Full Document Translation', 'Word to PDF', 'Word to Image PPT', 'Document Classification', 'Batch Toolbox', 'Insert QR Codes & Barcodes', 'Document to Audio'],
+      },
+      {
+        title: 'AI Writer',
+        items: ['AI Spell Check', 'AI Co-writing', 'AI Rewrite', 'AI Polish', 'Side-by-side Translation', 'Document Q&A', 'Full Summary', 'Document to PPT'],
+      },
+    ],
+  },
+  {
+    title: 'Presentation',
+    blocks: [
+      {
+        title: '',
+        items: ['Presentation Tools', 'Mind Map', 'Add Timeline', 'Rehearse Timing', 'Built-in Icons & Images', 'Collaborative Editing', 'PPT to PDF/Images'],
+      },
+      {
+        title: 'AI Presentation',
+        items: ['AI Presentation Generator', 'AI Single/Multi-slide Generation', 'AI Image Generation', 'AI Speech Draft', 'AI Rewrite', 'AI Writing Assistant', 'Side-by-side Translation', 'AI Presentation Video'],
+      },
+    ],
+  },
+  {
+    title: 'Spreadsheet',
+    blocks: [
+      {
+        title: '',
+        items: ['Merge & Center Cells', 'Highlight Duplicates', 'Insert Checkboxes', 'Batch Rename', 'Creation Tools', 'Excel to PDF', 'Quick Formulas', 'Split & Merge', 'Smart Toolbox', 'Data Comparison', 'Advanced Filter Mode', 'Smart Print Layout', 'Find & Fill', 'Batch Insert Images'],
+      },
+      {
+        title: 'AI Spreadsheet',
+        items: ['Spreadsheet Assistant', 'Operate Spreadsheet', 'Quick Q&A', 'Quick Table Creation', 'Batch Generation', 'AI Data Analysis', 'AI Formula Writing', 'AI Functions', 'AI Information Extraction', 'AI Filter'],
+      },
+    ],
+  },
+  {
+    title: 'PDF',
+    blocks: [
+      {
+        title: 'Format Conversion',
+        items: ['Compress', 'Combine', 'PDF to Word/Excel/PPT', 'Word/Excel/PPT/JPG to PDF', 'PDF to Searchable PDF', 'PDF to Scanned PDF', 'Output as Images', 'Split', 'Batch Compress', 'Merge'],
+      },
+      {
+        title: 'Page Editing',
+        items: ['Insert Pages', 'Extract Pages', 'Crop Pages', 'Replace Pages', 'Copy/Paste Pages', 'Move Page Order', 'Split Pages', 'Page Size', 'Reverse Pages', 'Delete Blank Pages', 'Delete Pages', 'Page Stitching'],
+      },
+      {
+        title: 'Content Editing',
+        items: ['Auto-generate Bookmarks', 'Auto-generate Table of Contents', 'Edit Content & Images', 'Edit Content & Text', 'Insert Page Numbers', 'Header & Footer', 'Erase', 'Watermark', 'Document Background', 'Scanned File Pre-recognition', 'Batch Add/Remove Watermarks', 'PDF Find & Replace', 'Attachments'],
+      },
+      {
+        title: 'Object Editing',
+        items: ['Video', 'Audio', 'Shapes', 'Form Editing', 'Recognize Tables', 'Extract Tables'],
+      },
+      {
+        title: 'Comments',
+        items: ['PDF Links', 'Stamp Tool'],
+      },
+      {
+        title: 'Extract/Convert/OCR',
+        items: ['PDF to TXT', 'Extract Images from PDF', 'Scanned File Recognition', 'Smart Optimization', 'Scanned File Editing', 'Scanned File Tabs'],
+      },
+      {
+        title: 'Shared Capabilities',
+        items: ['PDF Floating Window', 'Split & Merge Tool', 'System Preview Pane', 'Sign', 'Print Templates'],
+      },
+      {
+        title: 'AI PDF',
+        items: ['Side-by-side Translation', 'Document Q&A', 'Full Summary', 'Document to PPT', 'AI Prepress Optimization'],
+      },
+    ],
+  },
+  {
+    title: 'Smart Docs',
+    blocks: [{ title: '', items: ['Smart Docs'] }],
+  },
+  {
+    title: 'Smart Sheets',
+    blocks: [{ title: '', items: ['Smart Sheets'] }],
+  },
+  {
+    title: 'Smart Forms',
+    blocks: [{ title: '', items: ['Smart Forms'] }],
+  },
+  {
+    title: 'Multidim Tables',
+    blocks: [{ title: '', items: ['Multidim Tables'] }],
+  },
+  {
+    title: 'AI Slides',
+    blocks: [{ title: '', items: ['AI Slides'] }],
+  },
+  {
+    title: 'Resume',
+    blocks: [{ title: '', items: ['Resume'] }],
+  },
+  {
+    title: 'WPS Image',
+    blocks: [
+      {
+        title: '',
+        items: ['Blurred Image Repair', 'Portrait Text Removal'],
+      },
+      {
+        title: 'Viewer',
+        items: ['Viewer', 'Toolbox', 'Save As', 'Cloud Album', 'Batch Export & Delete', 'Format Conversion', 'Output as Images'],
+      },
+      {
+        title: 'Print',
+        items: ['Image Printing'],
+      },
+      {
+        title: 'Convert',
+        items: ['Image to Text'],
+      },
+      {
+        title: '',
+        items: ['Advanced Screenshot', 'Floating Image Toolbar', 'Screenshot OCR', 'Save As', 'Add/Adjust Basics', 'Correction', 'Local Filters & Colors', 'Video Creation', 'Screen Recording'],
+      },
+      {
+        title: 'Editing & Processing',
+        items: ['Image Compression', 'Collage', 'Resize', 'Batch Image Processing', 'Image Editor', 'Batch Export & Delete', 'Image Split'],
+      },
+      {
+        title: '',
+        items: ['GIF Maker', 'Image Translation'],
+      },
+    ],
+  },
+  {
+    title: 'Personal Knowledge Base',
+    blocks: [{ title: '', items: ['Personal Knowledge Base'] }],
+  },
+  {
+    title: 'WPS Captalk',
+    blocks: [{ title: '', items: ['Voice Transcription'] }],
+  },
+  {
+    title: 'WPS AI Tools',
+    blocks: [
+      {
+        title: 'AI Spreadsheet',
+        items: ['Spreadsheet Assistant', 'AI Filter'],
+      },
+      {
+        title: 'AI PDF',
+        items: ['Chat PDF', 'AI PDF Translation', 'AI PDF Summarizer', 'AI Prepress Optimization'],
+      },
+      {
+        title: 'AI PPT',
+        items: ['AI Presentation Generator', 'Native Unlimited Editing', 'Multi-format Export', 'AI Presentation Video'],
+      },
+      {
+        title: 'AI Charts',
+        items: ['Online Flowchart', 'AI Document Mind Map', 'Lingxi AI Flowchart'],
+      },
+      {
+        title: 'AI Image Tools',
+        items: ['Unblur Images', 'Remove Watermarks', 'AI Photo Editor', 'AI Background Remover', 'AI Sketch to Image', 'AI Cutout', 'AI Sharpen', 'Smart Watermark', 'AI Erase', 'Format Conversion', 'Output as Images', 'Image to PDF', 'AI Crop', 'AI Text Extraction', 'AI Formula/Table Extraction', 'AI Text Replacement', 'AI Clear Text', 'AI Filters & Color Grading', 'AI Expand Image', 'Text Replacement', 'Magic Image Edit'],
+      },
+      {
+        title: 'AI Graphics',
+        items: ['AI Graphic Organizer', 'AI Concept Graphic Creation'],
+      },
+      {
+        title: 'AI Papers',
+        items: ['AI Paper First Draft', 'AI Proposal Report', 'CNKI AI Topic Analysis', 'CNKI AI Topic Review'],
+      },
+      {
+        title: 'AI Writing',
+        items: ['Smart Article Generation', 'Title Generator', 'Paraphrasing Tool', 'AI Summarizer', 'AI Polish', 'Story Generator', 'Sentence Rewriter', 'Paragraph Rewriter', 'Rewrite Tool', 'AI Email Writer', 'AI Co-writing', 'AI Spell Check'],
+      },
+      {
+        title: '',
+        items: ['AI Translation', 'AI Read Aloud', 'AI Contract Review'],
+      },
+      {
+        title: 'Daoke',
+        items: ['AI Cover', 'AI Design', 'AI New'],
+      },
+      {
+        title: '',
+        items: ['AI 3D Generation'],
+      },
+    ],
+  },
+  {
+    title: 'Key Features',
+    blocks: [
+      {
+        title: 'Charts',
+        items: ['Mind Map', 'Flowchart', 'Knowledge Base Mind Map'],
+      },
+      {
+        title: 'Academic Papers',
+        items: ['Paper Formatting', 'Paper AIGC Check', 'Paper Revision Assistant', 'Paper Assistant Web Plugin'],
+      },
+    ],
+  },
+  {
+    title: 'Assets & Beautify',
+    blocks: [
+      {
+        title: 'Text',
+        items: ['Cloud Fonts', 'Online WordArt', 'Online Text Box', 'Text Styles', 'Bullets', 'Online Symbols'],
+      },
+      {
+        title: 'Images',
+        items: ['Gallery'],
+      },
+      {
+        title: 'Charts',
+        items: ['Online Charts'],
+      },
+      {
+        title: 'Spreadsheets',
+        items: ['Online Table Styles'],
+      },
+      {
+        title: 'To PPT',
+        items: ['Mind Map to PPT', 'Word to PPT'],
+      },
+      {
+        title: 'Smart Features',
+        items: ['Smart Animation', 'Online Covers', 'Theme Colors', 'Gradients'],
+      },
+    ],
+  },
+  {
+    title: 'Online Tools',
+    blocks: [
+      {
+        title: 'Conversion Tools',
+        items: ['WEBP to PNG', 'HEIC to JPG', 'WEBP to JPG', 'AVIF to JPG', 'HEIC to PNG', 'AVIF to PNG', 'HEIC to PDF', 'JPG to Excel'],
+      },
+      {
+        title: 'Batch Tools',
+        items: ['Batch Delete', 'Batch Print', 'Batch Rename'],
+      },
+      {
+        title: 'Social Media Tools',
+        items: ['YouTube to MP3', 'YouTube Video Downloader', 'Instagram Video Downloader', 'Facebook Video Downloader', 'Tiktok Video Downloader', 'Twitter Video Downloader', 'Pinterest Video Downloader', 'YouTube Thumbnail Downloader'],
+      },
+      {
+        title: 'Shared Tools',
+        items: ['Help Center', 'Homepage Right Panel', 'Browser Assistant', 'System Context Menu', 'System Document Properties Entry'],
+      },
+    ],
+  },
+  {
+    title: 'Use Cases',
+    blocks: [
+      {
+        title: 'Student Learning',
+        items: ['Read Papers with Chat PDF', 'English Literature Translation Workflow', 'AI-assisted Paper Writing'],
+      },
+      {
+        title: '',
+        items: ['Teacher Lesson Prep', 'AI Lesson Plan Generation', 'One-click Courseware PPT', 'Question Organization & Formatting'],
+      },
+      {
+        title: 'Workplace Productivity',
+        items: ['AI Weekly Report Writing', 'AI Meeting Minutes', 'AI Project Report PPT', 'AI Contract Clause Extraction'],
+      },
+      {
+        title: 'Content Creation',
+        items: ['AI First Draft Generation', 'Multi-language Content Creation', 'Batch Social Media Copywriting'],
+      },
+    ],
+  },
+  {
+    title: 'Help & Support',
+    blocks: [
+      {
+        title: '',
+        items: ['Release Notes'],
+      },
+      {
+        title: 'FAQ',
+        items: ['WPS Basics', 'WPS AI', 'Writer', 'Spreadsheet', 'PPT', 'PDF', 'Smart Docs', 'Smart Sheets', 'Smart Forms', 'Multidim Tables', 'AI Slides', 'Resume'],
+      },
+      {
+        title: '',
+        items: ['Contact Support'],
+      },
+    ],
+  },
 ]
 
 export const docsEnglishContent = {
@@ -142,6 +422,12 @@ export const docsEnglishContent = {
     directoryTitle: 'Directory',
     faqTitle: 'Frequently asked questions',
     backToTopAriaLabel: 'Back to top',
+    overlayBackLabel: '← Back to directory',
+    noResults: 'No matching documentation items found.',
+    emptyDocContent: 'No content available.',
+    unpublishedDoc: 'This document is not published yet.',
+    translationFallbackNotice:
+      'This article is not available in your selected language. Showing {language} instead.',
   },
   quickTabs: docsQuickTabsEn,
   jumpCards: [
@@ -189,8 +475,29 @@ export const docsUiByLanguage = withContentLanguageAliases({
     directoryTitle: '文档目录',
     faqTitle: '常见问题 FAQ',
     backToTopAriaLabel: '回到顶部',
+    overlayBackLabel: '← 返回目录',
+    noResults: '未找到匹配的文档目录项。',
+    emptyDocContent: '暂无内容',
+    unpublishedDoc: '该文档尚未发布。',
+    translationFallbackNotice: '当前语言暂无翻译，已自动切换为 {language}。',
   },
 })
+
+docsUiByLanguage['zh-tw'] = {
+  heroTitle: 'WPS 文件中心',
+  searchSrOnly: '文件搜尋',
+  heroSearchPlaceholder: '請輸入關鍵字搜尋產品文件',
+  heroSearchButton: '搜尋',
+  sidebarSearchPlaceholder: '在目錄中搜尋',
+  directoryTitle: '文件目錄',
+  faqTitle: '常見問題 FAQ',
+  backToTopAriaLabel: '回到頂部',
+  overlayBackLabel: '← 返回目錄',
+  noResults: '未找到符合條件的文件目錄項。',
+  emptyDocContent: '暫無內容',
+  unpublishedDoc: '該文件尚未發布。',
+  translationFallbackNotice: '目前語言暫無翻譯，已自動切換為 {language}。',
+}
 
 export const answersForumFilterSectionsEn = [
   {
