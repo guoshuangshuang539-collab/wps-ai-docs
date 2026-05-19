@@ -661,6 +661,24 @@ export default function DocsCenterPage({
     }, 40)
   }
 
+  useEffect(() => {
+    if (!routeSectionSlug || routeItemSlug || currentDocMeta) {
+      return
+    }
+
+    const sectionTitle = Object.entries(sectionSlugMap).find(([, slug]) => slug === routeSectionSlug)?.[0]
+    if (!sectionTitle) {
+      return
+    }
+
+    const sectionExists = sectionModels.some((section) => section.title === sectionTitle)
+    if (!sectionExists) {
+      return
+    }
+
+    handleScrollToSection(sectionTitle)
+  }, [routeSectionSlug, routeItemSlug, currentDocMeta, sectionSlugMap, sectionModels])
+
   const handleNodeClick = (sourcePathParts) => {
     const meta = staticMetaMap[createDocsPathKey(sourcePathParts)]
     if (!meta?.helpContent || !meta.routeSlug) {

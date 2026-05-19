@@ -4,7 +4,16 @@ import DocsCenterPage from './components/DocsCenterPage'
 import {
   encyclopediaEntriesByLocale,
   encyclopediaUiTextByLocale,
+  resolveEncyclopediaLocale,
+  resolveEncyclopediaEntriesForLocale,
 } from './data/encyclopediaData'
+import {
+  blogCategoryFiltersByLanguage,
+  encyclopediaCategoryBySlug,
+  encyclopediaCategoryDefinitions,
+  encyclopediaCategoryImageMap,
+  resolveBlogPostsForLanguage,
+} from './data/blogData'
 import {
   answersForumFilterSectionsEn,
   answersForumQuestionItemsEn,
@@ -916,158 +925,11 @@ function getDocsSectionBlocks(section, sectionMarkersMap) {
   return splitDocsGroupsWithMarkers(items, markers).filter((block) => block.title || block.items.length > 0)
 }
 
-const blogCategoryFilters = [
-  { id: 'all', label: 'All' },
-  { id: 'product', label: 'Product' },
-  { id: 'ai', label: 'AI & Innovation' },
-  { id: 'tips', label: 'Tips & Tutorials' },
-  { id: 'company', label: 'Company News' },
-]
-
-const blogCategoryFiltersZh = [
-  { id: 'all', label: '全部' },
-  { id: 'product', label: '产品动态' },
-  { id: 'ai', label: 'AI 与创新' },
-  { id: 'tips', label: '技巧与教程' },
-  { id: 'company', label: '公司新闻' },
-]
-
-const blogPosts = [
-  {
-    slug: 'wps-ai-work-trend-2026',
-    featured: true,
-    category: 'ai',
-    date: '2026-05-10',
-    authorName: 'Lin Wei',
-    authorRole: 'VP, WPS AI Product',
-    title: 'How modern teams are redesigning work with WPS AI',
-    excerpt:
-      'From drafting documents to orchestrating multi-step workflows - four collaboration patterns every leader should understand.',
-    tags: ['WPS AI', 'Work Trend'],
-    body: [
-      'Spend time with any team using WPS AI today and you will notice a shift: people are moving from manual drafting to directing agents that execute in the background.',
-      'We see four patterns emerge - Author, Editor, Director, and Orchestrator - each matching a different level of human involvement. The goal is not to automate everything, but to match the pattern to the outcome.',
-      'Our 2026 productivity research shows that 58% of AI users produce work they could not have completed a year ago. Quality control and critical thinking remain the top human skills as agents take on more execution.',
-      'WPS AI is building the infrastructure to connect people, documents, and agents in one flow - with governance, templates, and enterprise controls built in from day one.',
-    ],
-  },
-  {
-    slug: 'copilot-for-wps-writer',
-    featured: true,
-    category: 'product',
-    date: '2026-04-28',
-    authorName: 'Sarah Chen',
-    authorRole: 'Product Lead, WPS Writer',
-    title: 'Introducing AI Co-writing in WPS Writer',
-    excerpt:
-      'Real-time suggestions, tone adjustment, and one-click rewrite - now available for Pro subscribers worldwide.',
-    tags: ['WPS Writer', 'Co-writing'],
-    body: [
-      'WPS Writer now ships AI Co-writing for Pro users: inline suggestions as you type, plus rewrite and summarize actions from the context menu.',
-      'Co-writing respects your document style guide when configured by IT admins. Sensitive content can stay on-device with our optional local inference mode.',
-      'Try it from the AI tab in Writer or press Ctrl+Space to open the assistant panel.',
-    ],
-  },
-  {
-    slug: 'smart-slides-launch',
-    featured: true,
-    category: 'product',
-    date: '2026-04-21',
-    authorName: 'Marcus Holt',
-    authorRole: 'GM, WPS Presentation',
-    title: 'Smart Slides: from outline to deck in minutes',
-    excerpt:
-      'Generate structure, pick a theme, and refine slide-by-slide with AI - without leaving WPS Presentation.',
-    tags: ['Smart Slides', 'Presentation'],
-    body: [
-      'Smart Slides turns a short brief into a full outline, then builds slides with layouts, charts, and speaker notes.',
-      'You stay in control: edit any slide, swap themes, or regenerate a single section without rebuilding the whole deck.',
-      'Available on Windows, macOS, and web for WPS 365 subscribers.',
-    ],
-  },
-  {
-    slug: 'pdf-ai-summarize',
-    featured: true,
-    category: 'ai',
-    date: '2026-04-15',
-    authorName: 'WPS Product Team',
-    authorRole: 'WPS PDF',
-    title: 'Summarize long PDFs with WPS AI in one click',
-    excerpt:
-      'Ask questions across hundred-page reports and export key takeaways to Word or Notes.',
-    tags: ['PDF', 'Summarize'],
-    body: [
-      'Open any PDF in WPS, select AI Summarize, and choose bullet summary, executive brief, or Q&A mode.',
-      'Citations link back to page numbers so reviewers can verify claims quickly.',
-      'Free tier includes 5 summaries per day; Pro unlocks unlimited batch processing.',
-    ],
-  },
-  {
-    slug: 'template-marketplace-update',
-    featured: false,
-    category: 'company',
-    date: '2026-03-30',
-    authorName: 'WPS Corporate',
-    authorRole: 'Newsroom',
-    title: 'Template Marketplace crosses 50,000 community designs',
-    excerpt: 'New categories for resumes, pitch decks, and regional holiday themes.',
-    tags: ['Templates', 'Marketplace'],
-    body: [
-      'The WPS Template Marketplace now hosts over 50,000 community and official designs.',
-      'Creators can publish paid packs with revenue share; enterprises can approve curated catalogs for their org.',
-    ],
-  },
-  {
-    slug: 'excel-formula-ai-tips',
-    featured: false,
-    category: 'tips',
-    date: '2026-03-18',
-    authorName: 'Yuki Tanaka',
-    authorRole: 'WPS Sheets Advocate',
-    title: '5 ways to write better spreadsheet formulas with AI',
-    excerpt: 'Natural language to formula, error explanation, and what-if scenarios in WPS Sheets.',
-    tags: ['Sheets', 'Formulas'],
-    body: [
-      'Describe the outcome you want in plain language; WPS Sheets proposes a formula with a short explanation.',
-      'When a cell shows #REF! or #VALUE!, AI explains the root cause and suggests a fix.',
-      'Use scenario mode to test assumptions without duplicating entire worksheets.',
-    ],
-  },
-  {
-    slug: 'security-whitepaper-2026',
-    featured: false,
-    category: 'company',
-    date: '2026-03-05',
-    authorName: 'WPS Trust Center',
-    authorRole: 'Security & Compliance',
-    title: 'WPS publishes 2026 Trust & Security whitepaper',
-    excerpt: 'Encryption, data residency, and admin controls for regulated industries.',
-    tags: ['Security', 'Compliance'],
-    body: [
-      'The 2026 whitepaper details encryption at rest and in transit, regional data residency options, and audit logging for enterprise tenants.',
-      'Download the PDF from the Trust Center or request a briefing for your security team.',
-    ],
-  },
-  {
-    slug: 'mobile-ai-scan',
-    featured: false,
-    category: 'product',
-    date: '2026-02-20',
-    authorName: 'Mobile Team',
-    authorRole: 'WPS Mobile',
-    title: 'Scan, OCR, and edit on mobile with WPS AI',
-    excerpt: 'Turn paper notes into editable documents from your phone.',
-    tags: ['Mobile', 'OCR'],
-    body: [
-      'The latest WPS mobile update adds camera scan with OCR and layout preservation.',
-      'After scan, AI can clean noise, detect tables, and export to Writer or PDF.',
-    ],
-  },
-]
-
 const blogCategoryAccentClassMap = {
   product: 'blog-card-accent--product',
   ai: 'blog-card-accent--ai',
+  enterprise: 'blog-card-accent--company',
+  stories: 'blog-card-accent--tips',
   tips: 'blog-card-accent--tips',
   company: 'blog-card-accent--company',
 }
@@ -1988,94 +1850,6 @@ function formatBlogDate(dateString, locale = 'en-us') {
   })
 }
 
-const encyclopediaLetterCollator = new Intl.Collator('en', { sensitivity: 'base' })
-const encyclopediaPinyinCollator = new Intl.Collator(
-  ['zh-Hans-CN-u-co-pinyin', 'zh-CN-u-co-pinyin', 'zh-CN', 'en'],
-  { sensitivity: 'base' },
-)
-const encyclopediaPinyinInitialBoundaries = [
-  ['A', '阿'],
-  ['B', '八'],
-  ['C', '嚓'],
-  ['D', '哒'],
-  ['E', '妸'],
-  ['F', '发'],
-  ['G', '旮'],
-  ['H', '哈'],
-  ['J', '击'],
-  ['K', '喀'],
-  ['L', '垃'],
-  ['M', '妈'],
-  ['N', '拿'],
-  ['O', '哦'],
-  ['P', '啪'],
-  ['Q', '期'],
-  ['R', '然'],
-  ['S', '撒'],
-  ['T', '塌'],
-  ['W', '挖'],
-  ['X', '昔'],
-  ['Y', '压'],
-  ['Z', '匝'],
-]
-
-function compareEncyclopediaLetters(a, b) {
-  if (a === '#') return 1
-  if (b === '#') return -1
-  return encyclopediaLetterCollator.compare(a, b)
-}
-
-function getChinesePinyinInitial(text) {
-  const firstChar = `${text ?? ''}`.trim().charAt(0)
-  if (!firstChar) {
-    return '#'
-  }
-
-  const latinLetter = firstChar.toUpperCase()
-  if (/^[A-Z]$/.test(latinLetter)) {
-    return latinLetter
-  }
-
-  if (/^[0-9]$/.test(firstChar)) {
-    return '#'
-  }
-
-  for (let index = encyclopediaPinyinInitialBoundaries.length - 1; index >= 0; index -= 1) {
-    const [letter, boundary] = encyclopediaPinyinInitialBoundaries[index]
-    if (encyclopediaPinyinCollator.compare(firstChar, boundary) >= 0) {
-      return letter
-    }
-  }
-
-  return '#'
-}
-
-function getEncyclopediaLetter(entry, shouldUsePinyinSort) {
-  if (shouldUsePinyinSort) {
-    return getChinesePinyinInitial(entry.title)
-  }
-
-  const explicitLetter = `${entry?.letter ?? ''}`.trim().charAt(0).toUpperCase()
-  if (/^[A-Z]$/.test(explicitLetter)) {
-    return explicitLetter
-  }
-
-  const titleLetter = `${entry?.title ?? ''}`.trim().charAt(0).toUpperCase()
-  return /^[A-Z]$/.test(titleLetter) ? titleLetter : '#'
-}
-
-function compareEncyclopediaEntryTitles(a, b, shouldUsePinyinSort) {
-  const primaryCompare = shouldUsePinyinSort
-    ? encyclopediaPinyinCollator.compare(a.title, b.title)
-    : encyclopediaLetterCollator.compare(a.title, b.title)
-
-  if (primaryCompare !== 0) {
-    return primaryCompare
-  }
-
-  return encyclopediaLetterCollator.compare(a.slug, b.slug)
-}
-
 function highlightEncyclopediaKeyword(text, query) {
   if (!query) {
     return [text]
@@ -2263,6 +2037,7 @@ function App() {
   const [activeBlogAuthor, setActiveBlogAuthor] = useState('')
   const [blogSearchQuery, setBlogSearchQuery] = useState('')
   const [encyclopediaSearchQuery, setEncyclopediaSearchQuery] = useState('')
+  const [activeEncyclopediaCategory, setActiveEncyclopediaCategory] = useState('all')
   const [isBlogShareCopied, setIsBlogShareCopied] = useState(false)
   const [currentLocale, setCurrentLocale] = useState(() =>
     resolveLocaleFromPath(window.location.pathname),
@@ -2509,14 +2284,9 @@ function App() {
     }))
   }, [isZhCnContent, localizeString])
   const localizedBlogCategoryFilters = useMemo(() => {
-    if (isZhCnContent) {
-      return blogCategoryFiltersZh
-    }
-    return blogCategoryFilters.map((tab) => ({
-      ...tab,
-      label: localizeString(tab.label),
-    }))
-  }, [isZhCnContent, localizeString])
+    const filters = blogCategoryFiltersByLanguage[contentLanguage] ?? blogCategoryFiltersByLanguage.en
+    return filters.map((tab) => ({ ...tab }))
+  }, [contentLanguage])
   const localizedAnswersHowToItems = useMemo(() => {
     if (isZhCnContent) {
       return answersHowToItemsZh
@@ -2966,16 +2736,14 @@ function App() {
   }, [currentPathname])
   const localizedBlogPosts = useMemo(
     () =>
-      blogPosts.map((post) => ({
+      resolveBlogPostsForLanguage(contentLanguage, localizeString).map((post) => ({
         ...post,
-        authorName: localizeString(post.authorName),
-        authorRole: localizeString(post.authorRole),
-        title: localizeString(post.title),
-        excerpt: localizeString(post.excerpt),
-        tags: (post.tags ?? []).map((tag) => localizeString(tag)),
-        body: (post.body ?? []).map((paragraph) => localizeString(paragraph)),
+        imageAlt: post.imageAlt ?? post.title,
+        readTime: post.readTime ?? '5 min read',
+        tags: [...(post.tags ?? [])],
+        body: [...(post.body ?? [])],
       })),
-    [localizeString],
+    [contentLanguage, localizeString],
   )
 
   const currentBlogPost = useMemo(() => {
@@ -3025,8 +2793,35 @@ function App() {
     return filteredBlogPosts
   }, [featuredFilteredBlogPosts.length, filteredBlogPosts, showFeaturedBlogSection])
 
-  const blogFeedTitle =
-    showFeaturedBlogSection && featuredFilteredBlogPosts.length ? uiText.blog.moreNews : uiText.blog.featured
+  const blogPrimaryPosts = useMemo(() => {
+    if (showFeaturedBlogSection && featuredFilteredBlogPosts.length) {
+      return featuredFilteredBlogPosts
+    }
+    return blogFeedPosts
+  }, [blogFeedPosts, featuredFilteredBlogPosts, showFeaturedBlogSection])
+
+  const blogCategoryLabelMap = useMemo(
+    () =>
+      Object.fromEntries(
+        localizedBlogCategoryFilters
+          .filter((tab) => tab.id !== 'all')
+          .map((tab) => [tab.id, tab.label]),
+      ),
+    [localizedBlogCategoryFilters],
+  )
+
+  const blogSecondaryPosts =
+    showFeaturedBlogSection && featuredFilteredBlogPosts.length ? blogFeedPosts : []
+
+  const activeBlogCategoryLabel =
+    activeBlogCategory !== 'all'
+      ? localizedBlogCategoryFilters.find((tab) => tab.id === activeBlogCategory)?.label
+      : null
+
+  const blogPrimaryTitle =
+    showFeaturedBlogSection && featuredFilteredBlogPosts.length
+      ? uiText.blog.featured
+      : activeBlogCategoryLabel ?? uiText.blog.moreNews
 
   const blogIsEmpty =
     (showFeaturedBlogSection ? featuredFilteredBlogPosts.length : 0) + blogFeedPosts.length === 0
@@ -3419,34 +3214,78 @@ function App() {
     }
   }, [desktopMainNavItems])
 
-  const encyclopediaBaseLanguage = isZhCnContent ? 'zh' : 'en'
-  const encyclopediaUiLocale = encyclopediaUiTextByLocale[contentLanguage]
-    ? contentLanguage
-    : encyclopediaUiTextByLocale[encyclopediaBaseLanguage]
-      ? encyclopediaBaseLanguage
-      : 'en'
-  const encyclopediaUiText = encyclopediaUiTextByLocale[encyclopediaUiLocale] ?? encyclopediaUiTextByLocale.en
-  const shouldUsePinyinEncyclopediaSort = isZhContent
-  const encyclopediaEntriesBase = useMemo(
-    () => encyclopediaEntriesByLocale[encyclopediaBaseLanguage] ?? encyclopediaEntriesByLocale.en ?? [],
-    [encyclopediaBaseLanguage],
+  const encyclopediaLocale = resolveEncyclopediaLocale(currentLocale)
+  const encyclopediaUiBase =
+    encyclopediaUiTextByLocale[encyclopediaLocale] ?? encyclopediaUiTextByLocale.en
+  const encyclopediaUiText = useMemo(
+    () => {
+      const fallback = encyclopediaLocale === 'zh'
+        ? {
+            allTopics: '全部词条',
+            categorySidebar: '分类',
+            featuredTitle: '推荐词条',
+            topicListTitle: '全部内容',
+            openTopic: '查看详情',
+            quickActions: '快捷入口',
+            browseAnswers: '查看问答',
+            continueLearning: '继续了解',
+          }
+        : {
+            allTopics: 'All Topics',
+            categorySidebar: 'Categories',
+            featuredTitle: 'Featured topics',
+            topicListTitle: 'All topics',
+            openTopic: 'Open topic',
+            quickActions: 'Quick actions',
+            browseAnswers: 'Browse Q&A',
+            continueLearning: 'Continue learning',
+          }
+      return {
+        ...fallback,
+        ...(encyclopediaLocale === 'zh' ? encyclopediaUiBase : localizeNestedStrings(encyclopediaUiBase, localizeString)),
+      }
+    },
+    [encyclopediaLocale, encyclopediaUiBase, localizeString],
   )
   const encyclopediaEntries = useMemo(
     () =>
-      encyclopediaEntriesBase.map((entry) => ({
-        ...entry,
-        title: contentLanguage === encyclopediaBaseLanguage ? entry.title : localizeString(entry.title),
-        summary: contentLanguage === encyclopediaBaseLanguage ? entry.summary : localizeString(entry.summary),
-        body:
-          contentLanguage === encyclopediaBaseLanguage
-            ? [...(entry.body ?? [])]
-            : (entry.body ?? []).map((paragraph) => localizeString(paragraph)),
-        related: [...(entry.related ?? [])],
+      resolveEncyclopediaEntriesForLocale(encyclopediaLocale, localizeString).map((entry) => {
+        const category = encyclopediaCategoryBySlug[entry.slug] ?? 'overview'
+        const docsPath = entry.docsSlug ? `${localeDocsPath}${entry.docsSlug}/` : localeDocsPath
+        return {
+          ...entry,
+          category,
+          image: encyclopediaCategoryImageMap[category] ?? encyclopediaCategoryImageMap.overview,
+          docsPath,
+        }
+      }),
+    [encyclopediaLocale, localizeString, localeDocsPath],
+  )
+  const encyclopediaCategoryTabs = useMemo(
+    () =>
+      encyclopediaCategoryDefinitions.map((tab) => ({
+        ...tab,
+        label:
+          tab.id === 'all'
+            ? encyclopediaUiText.allTopics
+            : encyclopediaLocale === 'zh'
+              ? tab.labelZh ?? tab.labelKey
+              : encyclopediaLocale === 'ja'
+                ? tab.labelJa ?? tab.labelKey
+                : encyclopediaLocale === 'ko'
+                  ? tab.labelKo ?? tab.labelKey
+                  : encyclopediaLocale === 'zh-tw'
+                    ? tab.labelZh ?? tab.labelKey
+                    : localizeString(tab.labelKey),
       })),
-    [contentLanguage, encyclopediaBaseLanguage, encyclopediaEntriesBase, localizeString],
+    [encyclopediaLocale, encyclopediaUiText.allTopics, localizeString],
+  )
+  const encyclopediaCategoryLabelMap = useMemo(
+    () => Object.fromEntries(encyclopediaCategoryTabs.map((tab) => [tab.id, tab.label])),
+    [encyclopediaCategoryTabs],
   )
   const normalizedEncyclopediaQuery = encyclopediaSearchQuery.trim().toLowerCase()
-  const filteredEncyclopediaEntries = useMemo(() => {
+  const searchedEncyclopediaEntries = useMemo(() => {
     if (!normalizedEncyclopediaQuery) {
       return encyclopediaEntries
     }
@@ -3458,29 +3297,15 @@ function App() {
       ),
     )
   }, [encyclopediaEntries, normalizedEncyclopediaQuery])
-  const encyclopediaGroupedEntries = useMemo(() => {
-    const groupedMap = new Map()
-    filteredEncyclopediaEntries.forEach((entry) => {
-      const letter = getEncyclopediaLetter(entry, shouldUsePinyinEncyclopediaSort)
-      if (!groupedMap.has(letter)) {
-        groupedMap.set(letter, [])
-      }
-      groupedMap.get(letter).push(entry)
-    })
-    return Array.from(groupedMap.entries())
-      .sort(([a], [b]) => compareEncyclopediaLetters(a, b))
-      .map(([letter, items]) => ({
-        letter,
-        items: [...items].sort((a, b) =>
-          compareEncyclopediaEntryTitles(a, b, shouldUsePinyinEncyclopediaSort),
-        ),
-      }))
-  }, [filteredEncyclopediaEntries, shouldUsePinyinEncyclopediaSort])
-  const encyclopediaLetters = useMemo(
-    () =>
-      [...new Set(encyclopediaEntries.map((entry) => getEncyclopediaLetter(entry, shouldUsePinyinEncyclopediaSort)))]
-        .sort(compareEncyclopediaLetters),
-    [encyclopediaEntries, shouldUsePinyinEncyclopediaSort],
+  const filteredEncyclopediaEntries = useMemo(() => {
+    if (activeEncyclopediaCategory === 'all') {
+      return searchedEncyclopediaEntries
+    }
+    return searchedEncyclopediaEntries.filter((entry) => entry.category === activeEncyclopediaCategory)
+  }, [activeEncyclopediaCategory, searchedEncyclopediaEntries])
+  const featuredEncyclopediaEntries = useMemo(
+    () => filteredEncyclopediaEntries.slice(0, 3),
+    [filteredEncyclopediaEntries],
   )
   const encyclopediaSlugFromRoute = useMemo(() => {
     if (currentSegments[0] !== 'encyclopedia' && currentSegments[0] !== 'academy') {
@@ -3677,67 +3502,71 @@ function App() {
               onMouseEnter={() => openDesktopMenu('products')}
               onMouseLeave={() => scheduleDesktopMenuClose('products')}
             >
-              <div
-                className="home-nav-mega-grid mx-auto grid w-full max-w-[1200px] grid-cols-5"
-              >
-                {productsMegaMenuSections.map((section) => (
-                  <section
-                    key={section.title}
-                    className="home-nav-mega-card min-w-0"
-                  >
-                    <div className="flex items-start gap-2">
-                      <span
-                        className="mt-[4px] inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] text-[9px] font-bold"
-                        style={{
-                          color: section.color,
-                          backgroundColor: `${section.color}1f`,
-                        }}
-                      >
-                        {(section.displayTitle ?? section.title).replace(/\s+/g, '').charAt(0)}
-                      </span>
-                      <div className="min-w-0">
-                        <h3
-                          className="truncate text-[16px] font-semibold leading-[1.1] text-[#261f38]"
-                        >
-                          {section.displayTitle ?? section.title}
-                        </h3>
-                        <p
-                          className="mt-0.5 text-[12px] leading-4 text-[#847a96]"
-                        >
-                          {section.desc}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-2.5 flex flex-col gap-1">
-                      {section.items.slice(0, 6).map((sectionItem) => {
-                        const targetPath = `/${currentLocale}/${sectionItem.path}`
-                        return (
-                          <a
-                            key={sectionItem.name}
-                            href={targetPath}
-                            className="home-nav-mega-link truncate text-[13px]"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              navigateTo(targetPath)
-                            }}
-                          >
-                            {sectionItem.displayName ?? sectionItem.name}
-                          </a>
-                        )
-                      })}
-                    </div>
-                    <a
-                      href={item.path}
-                      className="home-nav-mega-cta mt-2.5 inline-flex text-[12.5px] font-semibold"
-                      onClick={(event) => {
-                        event.preventDefault()
-                        navigateTo(item.path)
-                      }}
+              <div className="mx-auto w-full max-w-[1200px]">
+                <div
+                  className="home-nav-mega-grid grid w-full grid-cols-5"
+                >
+                  {productsMegaMenuSections.map((section) => (
+                    <section
+                      key={section.title}
+                      className="home-nav-mega-card min-w-0"
                     >
-                      {uiText.nav.seeAllTools}
-                    </a>
-                  </section>
-                ))}
+                      <div className="flex items-start gap-2">
+                        <span
+                          className="mt-[4px] inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] text-[9px] font-bold"
+                          style={{
+                            color: section.color,
+                            backgroundColor: `${section.color}1f`,
+                          }}
+                        >
+                          {(section.displayTitle ?? section.title).replace(/\s+/g, '').charAt(0)}
+                        </span>
+                        <div className="min-w-0">
+                          <h3
+                            className="truncate text-[16px] font-semibold leading-[1.1] text-[#261f38]"
+                          >
+                            {section.displayTitle ?? section.title}
+                          </h3>
+                          <p
+                            className="mt-0.5 text-[12px] leading-4 text-[#847a96]"
+                          >
+                            {section.desc}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-2.5 flex flex-col gap-1">
+                        {section.items.slice(0, 6).map((sectionItem) => {
+                          const targetPath = `/${currentLocale}/${sectionItem.path}`
+                          return (
+                            <a
+                              key={sectionItem.name}
+                              href={targetPath}
+                              className="home-nav-mega-link truncate text-[13px]"
+                              onClick={(event) => {
+                                event.preventDefault()
+                                navigateTo(targetPath)
+                              }}
+                            >
+                              {sectionItem.displayName ?? sectionItem.name}
+                            </a>
+                          )
+                        })}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+                <div className="flex justify-end px-[18px] pb-4">
+                  <a
+                    href={item.path}
+                    className="home-nav-mega-cta inline-flex text-[12.5px] font-semibold"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      navigateTo(item.path)
+                    }}
+                  >
+                    {uiText.nav.seeAllTools}
+                  </a>
+                </div>
               </div>
             </div>
           )}
@@ -4405,107 +4234,133 @@ function App() {
             </div>
 
             <div id="blog-main" className="blog-main blog-center-container">
-              {showFeaturedBlogSection && featuredFilteredBlogPosts.length ? (
-                <section className="blog-section" id="blogFeaturedSection">
-                  <h2 className="blog-section-title">{uiText.blog.featured}</h2>
-                  <div className="blog-featured-grid">
-                    {featuredFilteredBlogPosts.map((post) => (
-                      <article
-                        key={`featured-${post.slug}`}
-                        className="blog-card blog-card--featured"
-                        onClick={() => navigateTo(`/${currentLocale}/blog/${post.slug}/`)}
-                      >
-                        <div
-                          className={`blog-card-accent ${blogCategoryAccentClassMap[post.category] ?? blogCategoryAccentClassMap.ai}`}
-                        />
-                        <div className="blog-card-body">
-                          <p className="blog-card-meta">
-                            <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
-                            <span className="blog-card-sep">|</span>
-                            <a
-                              href="#"
-                              className="blog-author-link"
-                              onClick={(event) => {
-                                event.preventDefault()
-                                event.stopPropagation()
-                                setActiveBlogAuthor(post.authorName)
-                                setActiveBlogCategory('all')
-                                setBlogSearchQuery('')
-                              }}
-                            >
-                              {post.authorName}
-                            </a>
-                            <span className="blog-card-role"> - {post.authorRole}</span>
-                          </p>
-                          <h3 className="blog-card-title">
-                            <a
-                              href={`/${currentLocale}/blog/${post.slug}/`}
-                              onClick={(event) => {
-                                event.preventDefault()
-                                event.stopPropagation()
-                                navigateTo(`/${currentLocale}/blog/${post.slug}/`)
-                              }}
-                            >
-                              {post.title}
-                            </a>
-                          </h3>
-                          <p className="blog-card-excerpt">{post.excerpt}</p>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
+              {blogIsEmpty ? (
+                <p className="blog-empty">{uiText.blog.noResults}</p>
+              ) : (
+                <div className={`blog-home-grid${blogSecondaryPosts.length ? '' : ' blog-home-grid--single'}`}>
+                  <section className="blog-section blog-section--primary" id="blogFeaturedSection">
+                    <h2 className="blog-section-title">{blogPrimaryTitle}</h2>
+                    <div className="blog-primary-list">
+                      {blogPrimaryPosts.map((post) => (
+                        <article
+                          key={`primary-${post.slug}`}
+                          className="blog-card blog-card--primary"
+                          onClick={() => navigateTo(`/${currentLocale}/blog/${post.slug}/`)}
+                        >
+                          <div
+                            className={`blog-card-accent ${blogCategoryAccentClassMap[post.category] ?? blogCategoryAccentClassMap.ai}`}
+                          />
+                          {post.image ? (
+                            <div className="blog-card-media">
+                              <img src={post.image} alt={post.imageAlt ?? post.title} loading="lazy" />
+                            </div>
+                          ) : null}
+                          <div className="blog-card-body">
+                            <p className="blog-card-meta">
+                              {activeBlogCategory === 'all' ? (
+                                <span className="blog-card-category-chip">
+                                  {blogCategoryLabelMap[post.category] ?? localizeString('All')}
+                                </span>
+                              ) : null}
+                              <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
+                              <span className="blog-card-sep">|</span>
+                              <span>{post.readTime}</span>
+                              <span className="blog-card-sep">|</span>
+                              <a
+                                href="#"
+                                className="blog-author-link"
+                                onClick={(event) => {
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  setActiveBlogAuthor(post.authorName)
+                                  setActiveBlogCategory('all')
+                                  setBlogSearchQuery('')
+                                }}
+                              >
+                                {post.authorName}
+                              </a>
+                              <span className="blog-card-role"> - {post.authorRole}</span>
+                            </p>
+                            <h3 className="blog-card-title">
+                              <a
+                                href={`/${currentLocale}/blog/${post.slug}/`}
+                                onClick={(event) => {
+                                  event.preventDefault()
+                                  event.stopPropagation()
+                                  navigateTo(`/${currentLocale}/blog/${post.slug}/`)
+                                }}
+                              >
+                                {post.title}
+                              </a>
+                            </h3>
+                            <p className="blog-card-excerpt">{post.excerpt}</p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
 
-              <section className="blog-section" id="blogMoreSection">
-                <h2 className="blog-section-title">{blogFeedTitle}</h2>
-                <div className="blog-more-list">
-                  {blogFeedPosts.map((post) => (
-                    <article
-                      key={`more-${post.slug}`}
-                      className="blog-card"
-                      onClick={() => navigateTo(`/${currentLocale}/blog/${post.slug}/`)}
-                    >
-                      <div
-                        className={`blog-card-accent ${blogCategoryAccentClassMap[post.category] ?? blogCategoryAccentClassMap.ai}`}
-                      />
-                      <div className="blog-card-body">
-                        <p className="blog-card-meta">
-                          <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
-                          <span className="blog-card-sep">|</span>
-                          <a
-                            href="#"
-                            className="blog-author-link"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              event.stopPropagation()
-                              setActiveBlogAuthor(post.authorName)
-                              setActiveBlogCategory('all')
-                              setBlogSearchQuery('')
-                            }}
+                  {blogSecondaryPosts.length ? (
+                    <aside className="blog-section blog-section--secondary" id="blogMoreSection">
+                      <h2 className="blog-section-title">{uiText.blog.moreNews}</h2>
+                      <div className="blog-secondary-list">
+                        {blogSecondaryPosts.map((post) => (
+                          <article
+                            key={`secondary-${post.slug}`}
+                            className="blog-card blog-card--secondary"
+                            onClick={() => navigateTo(`/${currentLocale}/blog/${post.slug}/`)}
                           >
-                            {post.authorName}
-                          </a>
-                          <span className="blog-card-role"> - {post.authorRole}</span>
-                        </p>
-                        <h3 className="blog-card-title">
-                          <a
-                            href={`/${currentLocale}/blog/${post.slug}/`}
-                            onClick={(event) => {
-                              event.preventDefault()
-                              event.stopPropagation()
-                              navigateTo(`/${currentLocale}/blog/${post.slug}/`)
-                            }}
-                          >
-                            {post.title}
-                          </a>
-                        </h3>
+                            {post.image ? (
+                              <div className="blog-card-thumb">
+                                <img src={post.image} alt={post.imageAlt ?? post.title} loading="lazy" />
+                              </div>
+                            ) : null}
+                            <div className="blog-card-body">
+                              <p className="blog-card-meta">
+                                {activeBlogCategory === 'all' ? (
+                                  <span className="blog-card-category-chip">
+                                    {blogCategoryLabelMap[post.category] ?? localizeString('All')}
+                                  </span>
+                                ) : null}
+                                <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
+                                <span className="blog-card-sep">|</span>
+                                <span>{post.readTime}</span>
+                                <span className="blog-card-sep">|</span>
+                                <a
+                                  href="#"
+                                  className="blog-author-link"
+                                  onClick={(event) => {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+                                    setActiveBlogAuthor(post.authorName)
+                                    setActiveBlogCategory('all')
+                                    setBlogSearchQuery('')
+                                  }}
+                                >
+                                  {post.authorName}
+                                </a>
+                              </p>
+                              <h3 className="blog-card-title">
+                                <a
+                                  href={`/${currentLocale}/blog/${post.slug}/`}
+                                  onClick={(event) => {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+                                    navigateTo(`/${currentLocale}/blog/${post.slug}/`)
+                                  }}
+                                >
+                                  {post.title}
+                                </a>
+                              </h3>
+                              <p className="blog-card-excerpt">{post.excerpt}</p>
+                            </div>
+                          </article>
+                        ))}
                       </div>
-                    </article>
-                  ))}
+                    </aside>
+                  ) : null}
                 </div>
-                {blogIsEmpty ? <p className="blog-empty">{uiText.blog.noResults}</p> : null}
-              </section>
+              )}
             </div>
 
             <footer className="blog-follow blog-center-container">
@@ -4572,9 +4427,16 @@ function App() {
                           {currentBlogPost.authorName}
                         </a>
                         <span className="blog-card-role"> - {currentBlogPost.authorRole}</span>
+                        <span className="blog-card-sep">|</span>
+                        <span>{currentBlogPost.readTime}</span>
                       </p>
                       <h1>{currentBlogPost.title}</h1>
                       <p className="blog-article-lead">{currentBlogPost.excerpt}</p>
+                      {currentBlogPost.image ? (
+                        <figure className="blog-article-cover">
+                          <img src={currentBlogPost.image} alt={currentBlogPost.imageAlt ?? currentBlogPost.title} />
+                        </figure>
+                      ) : null}
                       <div className="blog-article-body">
                         {currentBlogPost.body.map((paragraph) => (
                           <p key={paragraph}>{paragraph}</p>
@@ -4583,18 +4445,9 @@ function App() {
                       <div className="blog-article-tags">
                         <span>{uiText.blog.tags}</span>
                         {(currentBlogPost.tags ?? []).map((tag) => (
-                          <a
-                            key={`blog-tag-${tag}`}
-                            href="#"
-                            className="blog-tag"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              navigateTo(localeBlogPath)
-                              setBlogSearchQuery(tag)
-                            }}
-                          >
+                          <span key={`blog-tag-${tag}`} className="blog-tag">
                             {tag}
-                          </a>
+                          </span>
                         ))}
                       </div>
                     </article>
@@ -4634,9 +4487,9 @@ function App() {
               <div className="ency-container ency-hero-inner">
                 <h1 className="ency-hero-title">{encyclopediaUiText.heroTitle}</h1>
                 <p className="ency-hero-sub">{encyclopediaUiText.heroSubtitle}</p>
-                <div className="ency-search-wrap">
+                <div className="blog-search-wrap ency-search-wrap">
                   <label
-                    className="ency-search-input-wrap"
+                    className="blog-search-input-wrap"
                     aria-label={encyclopediaUiText.searchPlaceholder}
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -4660,11 +4513,11 @@ function App() {
               <div className="ency-promo-inner">
                 <p className="ency-promo-text">{encyclopediaUiText.promoTitle}</p>
                 <a
-                  href={localePricingPath}
+                  href={getLocaleDocsPath(currentLocale, 'wps-ai')}
                   className="ency-btn ency-btn--primary ency-btn--sm"
                   onClick={(event) => {
                     event.preventDefault()
-                    navigateTo(localePricingPath)
+                    navigateTo(getLocaleDocsPath(currentLocale, 'wps-ai'), { scrollToTop: false })
                   }}
                 >
                   {encyclopediaUiText.promoCta}
@@ -4672,65 +4525,94 @@ function App() {
               </div>
             </section>
 
-            <nav
-              className="ency-letter-nav ency-container"
-              id="encyLetterNav"
-              aria-label={encyclopediaUiText.letterNavLabel}
-            >
-              {encyclopediaLetters.map((letter) => (
-                <a
-                  key={`ency-letter-pill-${letter}`}
-                  href={`#ency-letter-${letter}`}
-                  className="ency-letter-pill"
-                  onClick={(event) => {
-                    event.preventDefault()
-                    document
-                      .getElementById(`ency-letter-${letter}`)
-                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }}
-                >
-                  {letter}
-                </a>
-              ))}
-            </nav>
-
             <div id="ency-main" className="ency-main ency-container">
-              <div id="encyGrid" className="ency-grid" role="region" aria-live="polite">
-                {encyclopediaGroupedEntries.map((group) => (
-                  <section
-                    key={`ency-group-${group.letter}`}
-                    className="ency-letter-col"
-                    id={`ency-letter-${group.letter}`}
-                    aria-labelledby={`ency-h-${group.letter}`}
-                  >
-                    <h2 className="ency-letter-heading" id={`ency-h-${group.letter}`}>
-                      {group.letter}
-                    </h2>
-                    <ul className="ency-link-list">
-                      {group.items.map((entry) => (
-                        <li key={entry.slug}>
-                          <a
-                            href={`${localeEncyclopediaPath}${entry.slug}/`}
-                            className="ency-link"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              navigateTo(`${localeEncyclopediaPath}${entry.slug}/`)
-                            }}
-                          >
-                            {highlightEncyclopediaKeyword(entry.title, normalizedEncyclopediaQuery)}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ))}
-              </div>
+              <div className="ency-layout">
+                <aside className="ency-sidebar" aria-label={encyclopediaUiText.categorySidebar}>
+                  <p className="ency-sidebar-label">{encyclopediaUiText.categorySidebar}</p>
+                  {encyclopediaCategoryTabs.map((tab) => {
+                    const count =
+                      tab.id === 'all'
+                        ? encyclopediaEntries.length
+                        : encyclopediaEntries.filter((entry) => entry.category === tab.id).length
+                    return (
+                      <button
+                        key={`ency-sidebar-${tab.id}`}
+                        type="button"
+                        className={`ency-sidebar-item${activeEncyclopediaCategory === tab.id ? ' active' : ''}`}
+                        onClick={() => setActiveEncyclopediaCategory(tab.id)}
+                      >
+                        <span className="ency-sidebar-item-label">{tab.label}</span>
+                        <span className="ency-sidebar-item-count">{count}</span>
+                      </button>
+                    )
+                  })}
+                </aside>
 
-              {encyclopediaGroupedEntries.length === 0 && (
-                <p id="encyEmpty" className="ency-empty">
-                  {encyclopediaUiText.noResults}
-                </p>
-              )}
+                <div className="ency-content">
+                  {filteredEncyclopediaEntries.length > 0 ? (
+                    <>
+                      {activeEncyclopediaCategory === 'all' ? (
+                        <section className="ency-section">
+                          <h2 className="ency-section-title">{encyclopediaUiText.featuredTitle}</h2>
+                          <div className="ency-featured-grid">
+                            {featuredEncyclopediaEntries.map((entry) => (
+                              <article
+                                key={`ency-featured-${entry.slug}`}
+                                className="ency-topic-card ency-topic-card--featured"
+                                onClick={() => navigateTo(`${localeEncyclopediaPath}${entry.slug}/`)}
+                              >
+                                <div className="ency-topic-media">
+                                  <img src={entry.image} alt={entry.title} loading="lazy" />
+                                </div>
+                                <div className="ency-topic-body">
+                                  <span className="ency-topic-chip">
+                                    {encyclopediaCategoryLabelMap[entry.category] ?? encyclopediaUiText.allTopics}
+                                  </span>
+                                  <h3>{highlightEncyclopediaKeyword(entry.title, normalizedEncyclopediaQuery)}</h3>
+                                  <p>{entry.summary}</p>
+                                  <button type="button" className="ency-topic-link">
+                                    {encyclopediaUiText.openTopic}
+                                  </button>
+                                </div>
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+                      ) : null}
+
+                      <section className="ency-section">
+                        <h2 className="ency-section-title">{encyclopediaUiText.topicListTitle}</h2>
+                        <div className="ency-topic-grid" role="region" aria-live="polite">
+                          {filteredEncyclopediaEntries.map((entry) => (
+                            <article
+                              key={`ency-topic-${entry.slug}`}
+                              className="ency-topic-card"
+                              onClick={() => navigateTo(`${localeEncyclopediaPath}${entry.slug}/`)}
+                            >
+                              <div className="ency-topic-body">
+                                <div className="ency-topic-meta">
+                                  {activeEncyclopediaCategory === 'all' ? (
+                                    <span className="ency-topic-chip">
+                                      {encyclopediaCategoryLabelMap[entry.category] ?? encyclopediaUiText.allTopics}
+                                    </span>
+                                  ) : null}
+                                  <span>{encyclopediaUiText.lastUpdated} {entry.updated}</span>
+                                </div>
+                                <h3>{highlightEncyclopediaKeyword(entry.title, normalizedEncyclopediaQuery)}</h3>
+                                <p>{entry.summary}</p>
+                              </div>
+                            </article>
+                          ))}
+                        </div>
+                      </section>
+                    </>
+                  ) : (
+                    <p id="encyEmpty" className="ency-empty">
+                      {encyclopediaUiText.noResults}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div
@@ -4767,14 +4649,58 @@ function App() {
                       </p>
                       <h1>{currentEncyclopediaEntry.title}</h1>
                       <p className="ency-article-lead">{currentEncyclopediaEntry.summary}</p>
+                      <figure className="ency-article-cover">
+                        <img src={currentEncyclopediaEntry.image} alt={currentEncyclopediaEntry.title} />
+                      </figure>
                       <div className="ency-article-body">
-                        {currentEncyclopediaEntry.body.map((paragraph) => (
-                          <p key={`${currentEncyclopediaEntry.slug}-${paragraph}`}>{paragraph}</p>
+                        {currentEncyclopediaEntry.body.map((paragraph, index) => (
+                          <p
+                            key={`${currentEncyclopediaEntry.slug}-p${index}`}
+                            className="ency-article-paragraph"
+                            style={{ whiteSpace: 'pre-line' }}
+                          >
+                            {paragraph}
+                          </p>
                         ))}
+                      </div>
+                      <div className="ency-article-actions">
+                        <h3>{encyclopediaUiText.quickActions}</h3>
+                        <div className="ency-article-action-grid">
+                          <a
+                            href={currentEncyclopediaEntry.docsPath ?? localeDocsPath}
+                            className="ency-article-action-link"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              navigateTo(currentEncyclopediaEntry.docsPath ?? localeDocsPath)
+                            }}
+                          >
+                            {encyclopediaUiText.browseDocs}
+                          </a>
+                          <a
+                            href={localeAnswersPath}
+                            className="ency-article-action-link"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              navigateTo(localeAnswersPath)
+                            }}
+                          >
+                            {encyclopediaUiText.browseAnswers}
+                          </a>
+                          <a
+                            href={localePricingPath}
+                            className="ency-article-action-link"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              navigateTo(localePricingPath)
+                            }}
+                          >
+                            {localizeString('Plans & Pricing')}
+                          </a>
+                        </div>
                       </div>
                     </article>
                     <aside className="ency-related" id="encyRelated">
-                      <h2>{encyclopediaUiText.relatedTopics}</h2>
+                      <h2>{encyclopediaUiText.continueLearning}</h2>
                       <ul id="encyRelatedList" className="ency-related-list">
                         {currentEncyclopediaRelatedEntries.length > 0 ? (
                           currentEncyclopediaRelatedEntries.map((entry) => (

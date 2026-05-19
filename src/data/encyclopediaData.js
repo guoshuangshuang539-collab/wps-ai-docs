@@ -1,3 +1,6 @@
+import { translateOfflinePhrase } from './offlinePhraseTranslations.js'
+import { localizeEncyclopediaEntryFields, NATIVE_ENCYCLOPEDIA_LOCALES } from './contentLocale.js'
+
 const encyclopediaEntriesEn = [
   {
     letter: 'A',
@@ -259,7 +262,175 @@ const encyclopediaEntriesEn = [
     updated: '2026-03-08',
     related: ['wps-writer', 'ai-assistant'],
   },
-]
+
+  {
+    letter: 'O',
+    slug: 'wps-office-overview',
+    title: 'WPS Office overview',
+    summary: 'A complete office suite for documents, spreadsheets, presentations, PDF, cloud, and AI work.',
+    body: [
+      'WPS Office brings Writer, Spreadsheets, Presentation, PDF, cloud storage, templates, and AI assistance into one workspace.',
+      'The suite is designed for personal productivity, education, and business collaboration across desktop, web, and mobile.',
+      'Start from a blank file, a template, or an existing Microsoft Office document and keep formatting compatible across teams.',
+    ],
+    updated: '2026-05-15',
+    related: ['wps-writer', 'wps-spreadsheets', 'wps-pdf'],
+    docsSlug: 'getting-started',
+  },
+  {
+    letter: 'C',
+    slug: 'wps-copilot',
+    title: 'WPS Copilot',
+    summary: 'AI assistance for drafting, rewriting, summarizing, extracting insights, and creating slides.',
+    body: [
+      'WPS Copilot works inside WPS apps so you can ask for help without moving content into a separate tool.',
+      'It can rewrite selected paragraphs, summarize PDFs, explain spreadsheet data, and turn outlines into presentation drafts.',
+      'Enterprise plans can apply admin controls, usage limits, and data policies for managed AI adoption.',
+    ],
+    updated: '2026-05-12',
+    related: ['ai-assistant', 'smart-sheets', 'smart-slides'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'I',
+    slug: 'install-setup',
+    title: 'Install and setup',
+    summary: 'Download WPS, sign in, choose defaults, and prepare apps for daily work.',
+    body: [
+      'Download the installer for Windows or macOS, or install the mobile app from the official app store.',
+      'After installation, sign in to sync cloud files, templates, and subscription status across devices.',
+      'You can set WPS as the default app for Office and PDF formats during setup or from system settings.',
+    ],
+    updated: '2026-05-10',
+    related: ['system-requirements', 'account-login', 'mobile-apps'],
+    docsSlug: 'install',
+  },
+  {
+    letter: 'S',
+    slug: 'system-requirements',
+    title: 'System requirements',
+    summary: 'Supported operating systems, browsers, storage, and device recommendations.',
+    body: [
+      'WPS supports current Windows, macOS, iOS, Android, and modern web browsers for WPS Web.',
+      'For large spreadsheets or AI-heavy workflows, use a device with sufficient memory and a stable network connection.',
+      'Keep WPS updated to receive compatibility improvements, security patches, and new AI capabilities.',
+    ],
+    updated: '2026-04-30',
+    related: ['install-setup', 'mobile-apps'],
+    docsSlug: 'install',
+  },
+  {
+    letter: 'L',
+    slug: 'account-login',
+    title: 'Account login',
+    summary: 'Sign in, recover access, and manage account security for WPS services.',
+    body: [
+      'Use your email, phone number, or supported third-party account to sign in to WPS.',
+      'If you forget your password, start recovery from the login page and verify your email or phone.',
+      'Enable stronger account protection where available, especially for shared business environments.',
+    ],
+    updated: '2026-04-22',
+    related: ['account-billing', 'security-privacy'],
+    docsSlug: 'account',
+  },
+  {
+    letter: 'S',
+    slug: 'subscription-plans',
+    title: 'Subscription plans',
+    summary: 'Compare free, Pro, family, and business plan capabilities.',
+    body: [
+      'Free users can edit common files and try selected AI and cloud features with daily limits.',
+      'Pro plans unlock higher AI limits, premium PDF tools, more cloud storage, and advanced templates.',
+      'Business plans add admin management, team billing, security controls, and centralized deployment options.',
+    ],
+    updated: '2026-05-01',
+    related: ['account-billing', 'wps-365'],
+    docsSlug: 'pricing',
+  },
+  {
+    letter: 'V',
+    slug: 'version-history',
+    title: 'Version history',
+    summary: 'Recover earlier file versions and understand how cloud saves are tracked.',
+    body: [
+      'Files stored in WPS Drive can keep previous versions so you can restore from accidental edits.',
+      'Version retention depends on your plan and workspace policy.',
+      'For team files, combine version history with permissions and comments to keep collaboration traceable.',
+    ],
+    updated: '2026-04-24',
+    related: ['cloud-sync', 'collaboration'],
+    docsSlug: 'cloud',
+  },
+  {
+    letter: 'S',
+    slug: 'security-privacy',
+    title: 'Security and privacy',
+    summary: 'Protect files, control sharing, and understand WPS privacy safeguards.',
+    body: [
+      'WPS provides permission controls, password protection for PDFs, and secure cloud sharing options.',
+      'Business administrators can manage access policies, user seats, and organization-level security settings.',
+      'Review privacy settings before sharing sensitive files or enabling AI features in regulated workflows.',
+    ],
+    updated: '2026-05-03',
+    related: ['account-login', 'wps-pdf', 'cloud-sync'],
+    docsSlug: 'security',
+  },
+  {
+    letter: 'O',
+    slug: 'office-compatibility',
+    title: 'Office compatibility',
+    summary: 'Open, edit, and export Microsoft Office files with layout fidelity.',
+    body: [
+      'WPS supports common DOCX, XLSX, PPTX, PDF, CSV, and template formats used in daily office work.',
+      'Fonts, charts, formulas, comments, and tracked changes are preserved in most common workflows.',
+      'When sharing externally, export to PDF for fixed layout or keep native Office formats for editable collaboration.',
+    ],
+    updated: '2026-04-16',
+    related: ['wps-writer', 'wps-spreadsheets', 'wps-presentation'],
+    docsSlug: 'compatibility',
+  },
+  {
+    letter: 'P',
+    slug: 'pdf-compatibility',
+    title: 'PDF compatibility',
+    summary: 'Read, annotate, convert, protect, and export PDFs across devices.',
+    body: [
+      'WPS PDF supports standard PDFs, scanned documents with OCR, annotations, signatures, and page operations.',
+      'Conversion tools help move content between PDF, Word, Excel, PowerPoint, and images.',
+      'Use password protection and redaction before sending documents that include private information.',
+    ],
+    updated: '2026-04-18',
+    related: ['wps-pdf', 'pdf-convert', 'pdf-edit'],
+    docsSlug: 'pdf',
+  },
+  {
+    letter: 'F',
+    slug: 'faq-account-billing',
+    title: 'FAQ: account and billing',
+    summary: 'Common answers about login, subscriptions, invoices, renewals, and refunds.',
+    body: [
+      'If your subscription does not appear after purchase, sign in with the account used at checkout and refresh plan status.',
+      'Invoices and payment methods can be managed from the account center where supported.',
+      'For team plans, contact the workspace administrator before changing seats or billing ownership.',
+    ],
+    updated: '2026-05-06',
+    related: ['account-billing', 'subscription-plans'],
+    docsSlug: 'faq',
+  },
+  {
+    letter: 'F',
+    slug: 'faq-files-formats',
+    title: 'FAQ: files and formats',
+    summary: 'Answers about opening files, preserving formatting, converting PDFs, and recovering documents.',
+    body: [
+      'If a file looks different after opening, check missing fonts, embedded objects, or advanced macros from the source app.',
+      'Use PDF export when layout must remain fixed for printing or external review.',
+      'Cloud-saved files can often be recovered from recent files, recycle bin, or version history depending on the plan.',
+    ],
+    updated: '2026-05-06',
+    related: ['office-compatibility', 'pdf-compatibility', 'version-history'],
+    docsSlug: 'faq',
+  },]
 
 const encyclopediaEntriesZh = [
   {
@@ -408,7 +579,7 @@ const encyclopediaEntriesZh = [
   {
     letter: 'S',
     slug: 'smart-sheets',
-    title: 'Smart Sheets（AI）',
+    title: '智能表格（AI）',
     summary: '在电子表格中使用 AI 公式、分析与图表生成。',
     body: [
       '用自然语言描述您需要的分析。',
@@ -421,7 +592,7 @@ const encyclopediaEntriesZh = [
   {
     letter: 'S',
     slug: 'smart-slides',
-    title: 'Smart Slides',
+    title: '智能幻灯片',
     summary: '根据简短需求自动生成大纲和整套演示文稿。',
     body: [
       '输入主题、受众和篇幅即可生成大纲。',
@@ -522,11 +693,569 @@ const encyclopediaEntriesZh = [
     updated: '2026-03-08',
     related: ['wps-writer', 'ai-assistant'],
   },
+
+  {
+    letter: 'W',
+    slug: 'wps-office-overview',
+    title: 'WPS Office 概览',
+    summary: '覆盖文档、表格、演示、PDF、云协作和 AI 办公的一体化办公套件。',
+    body: [
+      'WPS Office 将文字、表格、演示、PDF、云文档、模板和 AI 助手整合在一个工作空间中。',
+      '它适用于个人办公、教育学习和企业协作，并支持桌面端、网页端和移动端连续使用。',
+      '你可以从空白文件、模板或已有 Microsoft Office 文档开始，并在团队协作中保持格式兼容。',
+    ],
+    updated: '2026-05-15',
+    related: ['wps-writer', 'wps-spreadsheets', 'wps-pdf'],
+    docsSlug: 'getting-started',
+  },
+  {
+    letter: 'W',
+    slug: 'wps-copilot',
+    title: 'WPS Copilot',
+    summary: '用于起草、改写、总结、提取洞察和生成演示的 AI 办公助手。',
+    body: [
+      'WPS Copilot 直接工作在 WPS 应用内部，减少在文档和独立工具之间来回复制内容。',
+      '它可以改写选中文段、总结 PDF、解释表格数据，并把大纲转成演示初稿。',
+      '企业套餐可配置管理策略、使用额度和数据规则，便于受控地落地 AI 办公。',
+    ],
+    updated: '2026-05-12',
+    related: ['ai-assistant', 'smart-sheets', 'smart-slides'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'A',
+    slug: 'install-setup',
+    title: '安装与初始化设置',
+    summary: '下载 WPS、登录账号、设置默认打开方式，并完成日常办公准备。',
+    body: [
+      '可下载 Windows 或 macOS 安装包，也可从官方应用商店安装移动端应用。',
+      '安装后登录账号，即可同步云文件、模板收藏和订阅状态。',
+      '你可以在安装流程或系统设置中，将 WPS 设置为 Office 与 PDF 文件的默认打开方式。',
+    ],
+    updated: '2026-05-10',
+    related: ['system-requirements', 'account-login', 'mobile-apps'],
+    docsSlug: 'install',
+  },
+  {
+    letter: 'X',
+    slug: 'system-requirements',
+    title: '系统要求',
+    summary: '了解支持的操作系统、浏览器、存储空间和设备建议。',
+    body: [
+      'WPS 支持主流 Windows、macOS、iOS、Android 版本，并支持在现代浏览器中使用 WPS Web。',
+      '处理大型表格或频繁使用 AI 功能时，建议使用内存更充足、网络更稳定的设备。',
+      '保持 WPS 为最新版本，可持续获得兼容性优化、安全修复和新的 AI 能力。',
+    ],
+    updated: '2026-04-30',
+    related: ['install-setup', 'mobile-apps'],
+    docsSlug: 'install',
+  },
+  {
+    letter: 'Z',
+    slug: 'account-login',
+    title: '账号登录',
+    summary: '登录 WPS、找回账号访问权限，并管理账号安全。',
+    body: [
+      '可使用邮箱、手机号或支持的第三方账号登录 WPS。',
+      '忘记密码时，可在登录页发起找回流程，并通过邮箱或手机号完成验证。',
+      '在多人协作或企业环境中，建议开启更强的账号保护能力。',
+    ],
+    updated: '2026-04-22',
+    related: ['account-billing', 'security-privacy'],
+    docsSlug: 'account',
+  },
+  {
+    letter: 'D',
+    slug: 'subscription-plans',
+    title: '订阅套餐',
+    summary: '比较免费版、Pro、家庭版和企业版的能力差异。',
+    body: [
+      '免费用户可编辑常见文件，并在每日额度内体验部分 AI 与云能力。',
+      'Pro 套餐提供更高 AI 使用额度、高级 PDF 工具、更多云空间和高级模板。',
+      '企业套餐增加管理员、团队计费、安全控制和集中部署能力。',
+    ],
+    updated: '2026-05-01',
+    related: ['account-billing', 'wps-365'],
+    docsSlug: 'pricing',
+  },
+  {
+    letter: 'B',
+    slug: 'version-history',
+    title: '版本历史',
+    summary: '恢复文件早期版本，并了解云端保存记录的工作方式。',
+    body: [
+      '保存在 WPS 云盘中的文件可保留历史版本，便于从误改中恢复。',
+      '版本保留时长取决于你的套餐和工作区策略。',
+      '团队文件可结合版本历史、权限和评论，让协作过程更可追溯。',
+    ],
+    updated: '2026-04-24',
+    related: ['cloud-sync', 'collaboration'],
+    docsSlug: 'cloud',
+  },
+  {
+    letter: 'A',
+    slug: 'security-privacy',
+    title: '安全与隐私',
+    summary: '保护文件、控制分享范围，并了解 WPS 的隐私保护能力。',
+    body: [
+      'WPS 提供权限控制、PDF 密码保护和安全的云端共享选项。',
+      '企业管理员可管理访问策略、用户席位和组织级安全设置。',
+      '分享敏感文件或在受监管流程中启用 AI 功能前，建议先确认隐私与权限设置。',
+    ],
+    updated: '2026-05-03',
+    related: ['account-login', 'wps-pdf', 'cloud-sync'],
+    docsSlug: 'security',
+  },
+  {
+    letter: 'J',
+    slug: 'office-compatibility',
+    title: 'Office 兼容性',
+    summary: '以较高版式一致性打开、编辑和导出 Microsoft Office 文件。',
+    body: [
+      'WPS 支持日常办公常用的 DOCX、XLSX、PPTX、PDF、CSV 和模板格式。',
+      '在常见工作流中，字体、图表、公式、评论和修订记录都能尽量保持一致。',
+      '对外分享时，可导出 PDF 固定版式，也可保留 Office 原生格式便于继续编辑。',
+    ],
+    updated: '2026-04-16',
+    related: ['wps-writer', 'wps-spreadsheets', 'wps-presentation'],
+    docsSlug: 'compatibility',
+  },
+  {
+    letter: 'P',
+    slug: 'pdf-compatibility',
+    title: 'PDF 兼容性',
+    summary: '跨设备阅读、批注、转换、保护和导出 PDF 文件。',
+    body: [
+      'WPS PDF 支持标准 PDF、带 OCR 的扫描文档、批注、签名和页面操作。',
+      '转换工具可帮助你在 PDF、Word、Excel、PowerPoint 和图片之间迁移内容。',
+      '发送包含隐私信息的文档前，建议使用密码保护或敏感信息涂抹。',
+    ],
+    updated: '2026-04-18',
+    related: ['wps-pdf', 'pdf-convert', 'pdf-edit'],
+    docsSlug: 'pdf',
+  },
+  {
+    letter: 'C',
+    slug: 'faq-account-billing',
+    title: '常见问题：账号与计费',
+    summary: '关于登录、订阅、发票、续费和退款的常见回答。',
+    body: [
+      '如果购买后未显示订阅，请确认使用购买时的账号登录，并刷新套餐状态。',
+      '在支持地区，可从账号中心管理发票和支付方式。',
+      '团队套餐调整席位或账单归属前，建议先联系工作区管理员。',
+    ],
+    updated: '2026-05-06',
+    related: ['account-billing', 'subscription-plans'],
+    docsSlug: 'faq',
+  },
+  {
+    letter: 'C',
+    slug: 'faq-files-formats',
+    title: '常见问题：文件与格式',
+    summary: '关于打开文件、保持格式、转换 PDF 和恢复文档的常见回答。',
+    body: [
+      '如果打开后版式不同，可先检查缺失字体、嵌入对象或源应用中的高级宏。',
+      '当打印或外部审阅需要固定版式时，建议导出为 PDF。',
+      '云端保存的文件通常可根据套餐从最近文件、回收站或版本历史中恢复。',
+    ],
+    updated: '2026-05-06',
+    related: ['office-compatibility', 'pdf-compatibility', 'version-history'],
+    docsSlug: 'faq',
+  },
 ]
+
+const encyclopediaEntriesJaOverrides = {
+  accessibility: {
+    title: 'アクセシビリティ',
+    summary: 'WPS アプリのスクリーンリーダー、高コントラスト、キーボード操作のサポート。',
+    body: [
+      'WPS は Windows Narrator、macOS VoiceOver、Web の一般的なスクリーンリーダーに対応しています。',
+      '高コントラストテーマは「設定 → アクセシビリティ」から有効にできます。',
+      '主な操作はヘルプに記載されたキーボードショートカットから実行できます。',
+    ],
+  },
+  'account-billing': {
+    title: 'アカウントと請求',
+    summary: 'WPS のサブスクリプション、請求書、支払い方法を管理します。',
+    body: [
+      'account.wps.ai にサインインすると、現在のプランと更新日を確認できます。',
+      'プランと請求画面から、文書を失うことなくアップグレードやダウングレードができます。',
+      '法人管理者は管理センターでユーザー席を管理できます。',
+    ],
+  },
+  'ai-assistant': {
+    title: 'WPS AI アシスタント',
+    summary: '文章作成、要約、翻訳に使えるアプリ横断の AI パネル。',
+    body: [
+      '対応アプリではリボンから AI パネルを開くか、ショートカットで呼び出せます。',
+      '選択中の文書内容をもとに、文脈に合った提案を表示します。',
+      '有料プランではより高い利用上限と優先モデルを利用できます。',
+    ],
+  },
+  'cloud-sync': {
+    title: 'クラウド同期と WPS Drive',
+    summary: 'WPS Drive でファイルを保存、同期、共有します。',
+    body: [
+      'サインインすると、WPS Drive 内のファイルはデバイス間で自動同期されます。',
+      '共有リンクには閲覧・編集権限や有効期限を設定できます。',
+      'プランに応じてバージョン履歴を保持し、以前の状態に戻せます。',
+    ],
+  },
+  collaboration: {
+    title: 'リアルタイム共同編集',
+    summary: '文書、表計算、スライドをチームで同時編集できます。',
+    body: [
+      '共有ボタンからメールまたはリンクで共同編集者を招待できます。',
+      'Writer、Spreadsheets、Presentation でライブカーソルやコメントを確認できます。',
+      '校閲モードでは変更履歴を追跡し、承認または却下できます。',
+    ],
+  },
+  'excel-templates': {
+    title: '表計算テンプレート',
+    summary: '予算、カレンダー、プロジェクト管理向けの WPS 表計算テンプレート。',
+    body: [
+      '新規作成画面またはテンプレートセンターからテンプレートを探せます。',
+      'AI が業種や地域に合わせてサンプルデータを入力できます。',
+      'テンプレートは .xlsx として書き出したり、チームライブラリに共有できます。',
+    ],
+  },
+  'forms-surveys': {
+    title: 'フォームとアンケート',
+    summary: 'フォームを作成し、回答を表計算に連携します。',
+    body: [
+      '複数の質問形式や分岐ロジックを使ってフォームを作成できます。',
+      '回答は表計算に同期され、グラフやフィルターで分析できます。',
+      'フォームは Web サイトに埋め込むか、QR コードで共有できます。',
+    ],
+  },
+  'mobile-apps': {
+    title: 'WPS モバイルアプリ',
+    summary: '外出先で文書を扱える iOS / Android アプリ。',
+    body: [
+      'スマートフォンやタブレットで文書編集、スキャン、PDF 署名ができます。',
+      'オフラインモードでは最近使ったファイルをキャッシュして編集できます。',
+      'スキャン to PDF は端末上の OCR でテキストを抽出します。',
+    ],
+  },
+  'pdf-convert': {
+    title: 'PDF 変換と書き出し',
+    summary: 'PDF を Word、Excel、PPT、画像に変換します。',
+    body: [
+      'PDF を WPS PDF にドラッグするか、wps.ai のオンラインツールを利用できます。',
+      '一括変換は Pro および Business プランで利用できます。',
+      'スキャンページが検出されると OCR が自動的に実行されます。',
+    ],
+  },
+  'pdf-edit': {
+    title: 'PDF 編集と注釈',
+    summary: 'PDF のテキスト編集、結合、分割、署名、注釈付けを行います。',
+    body: [
+      'ハイライト、スタンプ、手書き注釈を追加できます。',
+      'Word に変換しなくても、ネイティブ PDF のテキストを直接編集できます。',
+      'ページサムネイルからページの結合や並べ替えができます。',
+    ],
+  },
+  'presentation-themes': {
+    title: 'プレゼンテーションテーマ',
+    summary: 'WPS Presentation 用のデザインテーマとレイアウト。',
+    body: [
+      'デザインタブからテーマを適用すると、色とフォントが全体に反映されます。',
+      'Smart Slides はスライド内容に応じてレイアウトを提案します。',
+      '動画や PDF 配布資料として書き出せます。',
+    ],
+  },
+  'smart-sheets': {
+    title: 'Smart Sheets（AI）',
+    summary: '表計算で AI 数式、分析、グラフ生成を利用します。',
+    body: [
+      '必要な分析内容を自然な文章で入力できます。',
+      '監査しやすい説明付きで数式を生成します。',
+      '選択範囲からダッシュボードをワンクリックで作成できます。',
+    ],
+  },
+  'smart-slides': {
+    title: 'Smart Slides',
+    summary: '短い指示からアウトラインとスライドを AI 生成します。',
+    body: [
+      'テーマ、対象者、枚数を入力するとアウトラインを生成できます。',
+      '全体を作り直さずに、個別のスライドだけを再生成できます。',
+      '各スライドの発表者ノートも自動で下書きされます。',
+    ],
+  },
+  'template-center': {
+    title: 'テンプレートセンター',
+    summary: '履歴書、契約書、プレゼン資料などのテンプレートを入手できます。',
+    body: [
+      '多数の無料・有料テンプレートをカテゴリ別に探せます。',
+      'ダウンロード前にプレビューでき、有料プランでは商用利用ライセンスも利用できます。',
+      'お気に入りをクラウドライブラリに保存して再利用できます。',
+    ],
+  },
+  'wps-365': {
+    title: 'WPS プラン',
+    summary: 'AI、クラウドストレージ、プレミアムテンプレートを含むサブスクリプション。',
+    body: [
+      'Writer、Spreadsheets、Presentation、PDF、AI クレジットをまとめて利用できます。',
+      '個人、ファミリー、ビジネス向けのプランを選択できます。',
+      '料金ページまたはアプリ内のアップグレード画面でプランを比較できます。',
+    ],
+  },
+  'wps-pdf': {
+    title: 'WPS PDF',
+    summary: '閲覧、編集、変換、署名、保護に対応した PDF ツール。',
+    body: [
+      'エクスプローラー、Finder、ドラッグ＆ドロップから PDF を開けます。',
+      'AI 要約はページ番号付きで要点を抽出します。',
+      '共有前にパスワード保護や機密部分の墨消しができます。',
+    ],
+  },
+  'wps-presentation': {
+    title: 'WPS Presentation',
+    summary: 'スライド、アニメーション、動画・PDF 書き出しを作成します。',
+    body: [
+      '.pptx と互換性があり、Teams や Zoom と組み合わせて発表できます。',
+      '対応環境ではモーフ切り替えや 3D モデルも利用できます。',
+      'ナレーション付きスライドショーを録画して非同期共有できます。',
+    ],
+  },
+  'wps-spreadsheets': {
+    title: 'WPS Spreadsheets',
+    summary: '数式、ピボットテーブル、データツールを備えた表計算アプリ。',
+    body: [
+      'XLSX、CSV、大規模データセットに対応し、パフォーマンスモードも利用できます。',
+      'ピボットテーブル、条件付き書式、データ検証を標準搭載しています。',
+      'Business プランでは外部データソースに接続できます。',
+    ],
+  },
+  'wps-writer': {
+    title: 'WPS Writer',
+    summary: 'AI 共同執筆、スタイル、差し込み印刷に対応した文書作成ツール。',
+    body: [
+      'Microsoft Word と互換性のある DOCX を作成・編集できます。',
+      'AI 共同執筆はインライン提案やトーン調整を提供します。',
+      '差し込み印刷は Sheets または CSV と連携できます。',
+    ],
+  },
+  'ai-translate': {
+    title: 'AI 翻訳',
+    summary: '文書全体や選択範囲を 100 以上の言語に翻訳します。',
+    body: [
+      '可能な限りレイアウトを保ったまま文書全体を翻訳できます。',
+      '法人向けには用語集で専門用語を統一できます。',
+      '左右並列表示で原文と訳文を比較できます。',
+    ],
+  },
+  'wps-office-overview': {
+    title: 'WPS Office 概要',
+    summary: '文書、表計算、プレゼン、PDF、クラウド、AI を統合したオフィススイート。',
+    body: [
+      'WPS Office は Writer、Spreadsheets、Presentation、PDF、クラウド、テンプレート、AI を 1 つの作業環境にまとめます。',
+      '個人作業、教育、ビジネス共同作業に対応し、デスクトップ、Web、モバイルで利用できます。',
+      '空白ファイル、テンプレート、既存の Microsoft Office 文書から作業を開始できます。',
+    ],
+  },
+  'wps-copilot': {
+    title: 'WPS Copilot',
+    summary: '下書き、書き換え、要約、分析、スライド作成を支援する AI 機能。',
+    body: [
+      'WPS Copilot は WPS アプリ内で動作するため、別ツールへ内容を移す必要がありません。',
+      '選択文の書き換え、PDF 要約、表計算データの説明、アウトラインからのスライド作成を支援します。',
+      '法人向けには管理者設定、利用上限、データポリシーを適用できます。',
+    ],
+  },
+  'install-setup': {
+    title: 'インストールと初期設定',
+    summary: 'WPS のダウンロード、サインイン、既定アプリ設定を行います。',
+    body: [
+      'Windows または macOS 用インストーラーをダウンロードし、モバイル版は公式ストアから入手できます。',
+      'インストール後にサインインすると、クラウドファイル、テンプレート、プラン状態が同期されます。',
+      'Office 形式や PDF の既定アプリは、セットアップ中またはシステム設定から変更できます。',
+    ],
+  },
+  'system-requirements': {
+    title: 'システム要件',
+    summary: '対応 OS、ブラウザー、ストレージ、推奨デバイスを確認します。',
+    body: [
+      'WPS は最新の Windows、macOS、iOS、Android と主要ブラウザーに対応しています。',
+      '大きな表計算や AI 機能を多用する場合は、十分なメモリと安定したネットワークを推奨します。',
+      '互換性改善、セキュリティ修正、新しい AI 機能のため、常に最新版を利用してください。',
+    ],
+  },
+  'account-login': {
+    title: 'アカウントログイン',
+    summary: 'WPS へのサインイン、アカウント復旧、セキュリティ管理。',
+    body: [
+      'メール、電話番号、対応する外部アカウントで WPS にサインインできます。',
+      'パスワードを忘れた場合は、ログイン画面からメールまたは電話で本人確認します。',
+      '共同利用や法人環境では、より強いアカウント保護を有効にすることを推奨します。',
+    ],
+  },
+  'subscription-plans': {
+    title: 'サブスクリプションプラン',
+    summary: '無料、Pro、ファミリー、ビジネスプランの違いを比較します。',
+    body: [
+      '無料ユーザーは一般的なファイル編集と一部の AI・クラウド機能を試せます。',
+      'Pro プランでは AI 利用上限、PDF ツール、クラウド容量、プレミアムテンプレートが拡張されます。',
+      'ビジネスプランでは管理者機能、チーム請求、セキュリティ制御、集中配布に対応します。',
+    ],
+  },
+  'version-history': {
+    title: 'バージョン履歴',
+    summary: '以前のファイル状態を復元し、クラウド保存履歴を確認します。',
+    body: [
+      'WPS Drive に保存したファイルは過去バージョンを保持でき、誤編集から復元できます。',
+      '保持期間はプランやワークスペース設定によって異なります。',
+      'チームファイルでは履歴、権限、コメントを組み合わせて変更経緯を追跡できます。',
+    ],
+  },
+  'security-privacy': {
+    title: 'セキュリティとプライバシー',
+    summary: 'ファイル保護、共有制御、WPS のプライバシー設定を確認します。',
+    body: [
+      'WPS は権限管理、PDF パスワード保護、安全なクラウド共有を提供します。',
+      '法人管理者はアクセス方針、ユーザー席、組織レベルのセキュリティ設定を管理できます。',
+      '機密ファイル共有や AI 機能利用の前に、プライバシーと権限設定を確認してください。',
+    ],
+  },
+  'office-compatibility': {
+    title: 'Office 互換性',
+    summary: 'Microsoft Office ファイルを高い再現性で開き、編集、書き出しできます。',
+    body: [
+      'WPS は DOCX、XLSX、PPTX、PDF、CSV、テンプレート形式に対応しています。',
+      '多くの一般的な作業で、フォント、グラフ、数式、コメント、変更履歴を保持します。',
+      '外部共有では、固定レイアウトには PDF、編集継続には Office 形式を選べます。',
+    ],
+  },
+  'pdf-compatibility': {
+    title: 'PDF 互換性',
+    summary: 'デバイスをまたいで PDF の閲覧、注釈、変換、保護、書き出しを行います。',
+    body: [
+      'WPS PDF は標準 PDF、OCR 付きスキャン文書、注釈、署名、ページ操作に対応します。',
+      '変換ツールで PDF、Word、Excel、PowerPoint、画像の間で内容を移行できます。',
+      '個人情報を含む文書を送る前に、パスワード保護や墨消しを利用してください。',
+    ],
+  },
+  'faq-account-billing': {
+    title: 'FAQ：アカウントと請求',
+    summary: 'ログイン、契約、請求書、更新、返金に関するよくある質問。',
+    body: [
+      '購入後にプランが表示されない場合は、購入時のアカウントでサインインして状態を更新してください。',
+      '対応地域では、アカウントセンターから請求書と支払い方法を管理できます。',
+      'チームプランの席数や請求所有者を変更する前に、管理者へ確認してください。',
+    ],
+  },
+  'faq-files-formats': {
+    title: 'FAQ：ファイルと形式',
+    summary: 'ファイルを開く、書式保持、PDF 変換、文書復元に関する回答。',
+    body: [
+      '表示が崩れる場合は、未インストールのフォント、埋め込みオブジェクト、高度なマクロを確認してください。',
+      '印刷や外部レビューでレイアウトを固定したい場合は PDF 書き出しを利用します。',
+      'クラウド保存ファイルは、プランに応じて最近使ったファイル、ゴミ箱、バージョン履歴から復元できます。',
+    ],
+  },
+}
+
+const encyclopediaEntriesJa = encyclopediaEntriesEn.map((entry) => ({
+  ...entry,
+  ...(encyclopediaEntriesJaOverrides[entry.slug] ?? {}),
+  body: encyclopediaEntriesJaOverrides[entry.slug]?.body ?? entry.body,
+}))
+
+const encyclopediaEntriesKoText = {
+  accessibility: ['접근성', 'WPS 앱의 스크린 리더, 고대비, 키보드 탐색 지원.', ['WPS는 Windows Narrator, macOS VoiceOver 및 웹의 주요 스크린 리더를 지원합니다.', '고대비 테마는 설정의 접근성 메뉴에서 켤 수 있습니다.', '주요 작업은 도움말에 안내된 키보드 단축키로 실행할 수 있습니다.']],
+  'account-billing': ['계정 및 결제', 'WPS 구독, 청구서, 결제 수단을 관리합니다.', ['account.wps.ai에 로그인하면 현재 플랜과 갱신일을 확인할 수 있습니다.', '문서를 잃지 않고 플랜과 결제 화면에서 업그레이드하거나 다운그레이드할 수 있습니다.', '기업 관리자는 관리 센터에서 사용자 좌석을 관리할 수 있습니다.']],
+  'ai-assistant': ['WPS AI 도우미', '작성, 요약, 번역을 지원하는 앱 통합 AI 패널.', ['지원되는 앱에서 리본 메뉴나 단축키로 AI 패널을 열 수 있습니다.', '현재 선택한 문서 내용을 기반으로 문맥에 맞는 제안을 제공합니다.', '유료 플랜에서는 더 높은 사용 한도와 우선 모델을 사용할 수 있습니다.']],
+  'cloud-sync': ['클라우드 동기화와 WPS Drive', 'WPS Drive로 파일을 저장, 동기화, 공유합니다.', ['로그인하면 WPS Drive의 파일이 여러 장치에서 자동으로 동기화됩니다.', '공유 링크에는 보기/편집 권한과 만료 시간을 설정할 수 있습니다.', '플랜에 따라 버전 기록을 보관하여 이전 상태로 복원할 수 있습니다.']],
+  collaboration: ['실시간 공동 편집', '문서, 스프레드시트, 슬라이드를 팀원과 동시에 편집합니다.', ['공유 버튼에서 이메일이나 링크로 공동 작업자를 초대할 수 있습니다.', 'Writer, Spreadsheets, Presentation에서 실시간 커서와 댓글을 확인할 수 있습니다.', '검토 모드에서 변경 내용을 추적하고 승인하거나 거절할 수 있습니다.']],
+  'excel-templates': ['스프레드시트 템플릿', '예산, 캘린더, 프로젝트 관리를 위한 WPS 스프레드시트 템플릿.', ['새 파일 화면이나 템플릿 센터에서 템플릿을 찾아볼 수 있습니다.', 'AI가 업종과 지역에 맞춰 샘플 데이터를 채울 수 있습니다.', '템플릿을 .xlsx로 내보내거나 팀 라이브러리에 공유할 수 있습니다.']],
+  'forms-surveys': ['양식 및 설문', '양식을 만들고 응답을 스프레드시트와 연결합니다.', ['여러 질문 유형과 분기 로직으로 양식을 만들 수 있습니다.', '응답은 스프레드시트에 동기화되어 차트와 필터로 분석할 수 있습니다.', '양식은 웹사이트에 삽입하거나 QR 코드로 공유할 수 있습니다.']],
+  'mobile-apps': ['WPS 모바일 앱', '이동 중 문서를 다루는 iOS 및 Android 앱.', ['휴대폰이나 태블릿에서 문서 편집, 스캔, PDF 서명을 할 수 있습니다.', '오프라인 모드는 최근 파일을 캐시하여 네트워크 없이도 편집할 수 있게 합니다.', '스캔 to PDF는 기기 내 OCR로 텍스트를 추출합니다.']],
+  'pdf-convert': ['PDF 변환 및 내보내기', 'PDF를 Word, Excel, PPT, 이미지로 변환합니다.', ['PDF를 WPS PDF로 끌어오거나 wps.ai의 온라인 도구를 사용할 수 있습니다.', '일괄 변환은 Pro 및 Business 플랜에서 사용할 수 있습니다.', '스캔 페이지가 감지되면 OCR이 자동으로 실행됩니다.']],
+  'pdf-edit': ['PDF 편집 및 주석', 'PDF 텍스트 편집, 병합, 분할, 서명, 주석을 처리합니다.', ['하이라이트, 스탬프, 자유 그리기 주석을 추가할 수 있습니다.', 'Word로 변환하지 않고 기본 PDF의 텍스트를 직접 편집할 수 있습니다.', '페이지 썸네일 창에서 페이지를 병합하고 순서를 바꿀 수 있습니다.']],
+  'presentation-themes': ['프레젠테이션 테마', 'WPS Presentation용 디자인 테마와 레이아웃.', ['디자인 탭에서 테마를 적용하면 색상과 글꼴이 전체에 반영됩니다.', 'Smart Slides는 슬라이드 내용에 맞는 레이아웃을 제안합니다.', '동영상이나 PDF 배포 자료로 내보낼 수 있습니다.']],
+  'smart-sheets': ['Smart Sheets(AI)', '스프레드시트에서 AI 수식, 분석, 차트 생성을 사용합니다.', ['필요한 분석 내용을 자연어로 입력할 수 있습니다.', '검토하기 쉬운 설명과 함께 수식을 생성합니다.', '선택한 범위에서 대시보드를 한 번에 만들 수 있습니다.']],
+  'smart-slides': ['스마트 슬라이드', '짧은 설명으로 개요와 슬라이드를 AI로 생성합니다.', ['주제, 대상, 분량을 입력하면 개요를 만들 수 있습니다.', '전체 덱을 다시 만들지 않고 개별 슬라이드만 재생성할 수 있습니다.', '각 슬라이드의 발표자 노트도 자동으로 초안 작성됩니다.']],
+  'template-center': ['템플릿 센터', '이력서, 계약서, 프레젠테이션 템플릿을 내려받을 수 있습니다.', ['다양한 무료 및 프리미엄 템플릿을 카테고리별로 찾을 수 있습니다.', '다운로드 전에 미리 볼 수 있으며 Pro는 상업적 사용 라이선스를 제공합니다.', '즐겨찾기를 클라우드 라이브러리에 저장해 빠르게 재사용할 수 있습니다.']],
+  'wps-365': ['WPS 플랜', 'AI, 클라우드 저장소, 프리미엄 템플릿이 포함된 구독.', ['Writer, Spreadsheets, Presentation, PDF와 AI 크레딧을 함께 이용할 수 있습니다.', '개인, 가족, 비즈니스 플랜을 필요에 맞게 선택할 수 있습니다.', '가격 페이지나 앱 내 업그레이드 화면에서 플랜을 비교할 수 있습니다.']],
+  'wps-pdf': ['WPS PDF 도구', '읽기, 편집, 변환, 서명, 보호를 지원하는 PDF 도구.', ['탐색기, Finder 또는 드래그 앤 드롭으로 PDF를 열 수 있습니다.', 'AI 요약은 페이지 인용과 함께 핵심 내용을 추출합니다.', '공유 전에 비밀번호 보호나 민감 정보 가리기를 적용할 수 있습니다.']],
+  'wps-presentation': ['WPS 프레젠테이션', '슬라이드, 애니메이션, 동영상/PDF 내보내기를 만듭니다.', ['.pptx와 호환되며 Teams 및 Zoom과 함께 발표할 수 있습니다.', '지원 환경에서는 모프 전환과 3D 모델도 사용할 수 있습니다.', '내레이션이 포함된 슬라이드쇼를 녹화해 비동기 공유할 수 있습니다.']],
+  'wps-spreadsheets': ['WPS 스프레드시트', '수식, 피벗 테이블, 데이터 도구를 갖춘 스프레드시트 앱.', ['XLSX, CSV와 대용량 데이터셋을 지원하며 성능 모드도 제공합니다.', '피벗 테이블, 조건부 서식, 데이터 유효성 검사가 기본 제공됩니다.', 'Business 플랜에서는 외부 데이터 소스에 연결할 수 있습니다.']],
+  'wps-writer': ['WPS 문서', 'AI 공동 작성, 스타일, 메일 병합을 지원하는 문서 작성 도구.', ['Microsoft Word와 호환되는 DOCX를 만들고 편집할 수 있습니다.', 'AI 공동 작성은 인라인 제안과 톤 조정을 제공합니다.', '메일 병합은 Sheets 또는 CSV와 연결해 대량 편지를 만들 수 있습니다.']],
+  'ai-translate': ['AI 번역', '문서 전체와 선택 영역을 100개 이상의 언어로 번역합니다.', ['가능한 한 레이아웃을 유지하면서 문서 전체를 번역할 수 있습니다.', '기업용 용어집으로 전문 용어를 일관되게 유지할 수 있습니다.', '나란히 보기로 원문과 번역문을 비교할 수 있습니다.']],
+  'wps-office-overview': ['WPS Office 개요', '문서, 스프레드시트, 프레젠테이션, PDF, 클라우드, AI를 통합한 오피스 제품군.', ['WPS Office는 Writer, Spreadsheets, Presentation, PDF, 클라우드, 템플릿, AI를 하나의 작업 환경에 모읍니다.', '개인 생산성, 교육, 비즈니스 협업에 맞게 데스크톱, 웹, 모바일에서 사용할 수 있습니다.', '빈 파일, 템플릿 또는 기존 Microsoft Office 문서에서 작업을 시작할 수 있습니다.']],
+  'wps-copilot': ['WPS 코파일럿', '초안 작성, 다시 쓰기, 요약, 분석, 슬라이드 생성을 돕는 AI 기능.', ['WPS Copilot은 WPS 앱 안에서 작동하므로 별도 도구로 내용을 옮길 필요가 없습니다.', '선택한 문단을 다시 쓰고, PDF를 요약하고, 스프레드시트 데이터를 설명하며, 개요에서 슬라이드를 만들 수 있습니다.', '기업 플랜에서는 관리자 설정, 사용 한도, 데이터 정책을 적용할 수 있습니다.']],
+  'install-setup': ['설치 및 초기 설정', 'WPS 다운로드, 로그인, 기본 앱 설정을 완료합니다.', ['Windows 또는 macOS 설치 프로그램을 다운로드하거나 모바일 앱은 공식 스토어에서 설치할 수 있습니다.', '설치 후 로그인하면 클라우드 파일, 템플릿, 구독 상태가 동기화됩니다.', '설치 과정이나 시스템 설정에서 Office 및 PDF 형식의 기본 앱을 WPS로 지정할 수 있습니다.']],
+  'system-requirements': ['시스템 요구 사항', '지원 운영 체제, 브라우저, 저장소, 권장 장치를 확인합니다.', ['WPS는 최신 Windows, macOS, iOS, Android와 주요 웹 브라우저를 지원합니다.', '대용량 스프레드시트나 AI 작업이 많다면 충분한 메모리와 안정적인 네트워크가 필요합니다.', '호환성 개선, 보안 수정, 새 AI 기능을 위해 WPS를 최신 상태로 유지하세요.']],
+  'account-login': ['계정 로그인', 'WPS 로그인, 계정 복구, 계정 보안을 관리합니다.', ['이메일, 전화번호 또는 지원되는 외부 계정으로 WPS에 로그인할 수 있습니다.', '비밀번호를 잊은 경우 로그인 화면에서 이메일이나 전화로 본인 확인을 진행합니다.', '공유 업무나 기업 환경에서는 더 강력한 계정 보호를 켜는 것이 좋습니다.']],
+  'subscription-plans': ['구독 플랜', '무료, Pro, 가족, 비즈니스 플랜의 차이를 비교합니다.', ['무료 사용자는 일반 파일 편집과 일부 AI 및 클라우드 기능을 체험할 수 있습니다.', 'Pro 플랜은 AI 사용 한도, PDF 도구, 클라우드 용량, 프리미엄 템플릿을 확장합니다.', '비즈니스 플랜은 관리자 기능, 팀 결제, 보안 제어, 중앙 배포를 제공합니다.']],
+  'version-history': ['버전 기록', '이전 파일 상태를 복원하고 클라우드 저장 기록을 확인합니다.', ['WPS Drive에 저장된 파일은 이전 버전을 보관해 실수한 편집을 복원할 수 있습니다.', '보관 기간은 플랜과 워크스페이스 정책에 따라 달라집니다.', '팀 파일은 기록, 권한, 댓글을 함께 사용해 변경 과정을 추적할 수 있습니다.']],
+  'security-privacy': ['보안 및 개인정보 보호', '파일 보호, 공유 제어, WPS 개인정보 설정을 확인합니다.', ['WPS는 권한 관리, PDF 비밀번호 보호, 안전한 클라우드 공유를 제공합니다.', '기업 관리자는 접근 정책, 사용자 좌석, 조직 수준 보안 설정을 관리할 수 있습니다.', '민감한 파일을 공유하거나 AI 기능을 사용하기 전에 개인정보와 권한 설정을 확인하세요.']],
+  'office-compatibility': ['Office 호환성', 'Microsoft Office 파일을 높은 재현성으로 열고 편집하고 내보냅니다.', ['WPS는 DOCX, XLSX, PPTX, PDF, CSV, 템플릿 형식을 지원합니다.', '일반적인 작업에서 글꼴, 차트, 수식, 댓글, 변경 기록을 최대한 유지합니다.', '외부 공유 시 고정 레이아웃에는 PDF를, 계속 편집하려면 Office 형식을 사용할 수 있습니다.']],
+  'pdf-compatibility': ['PDF 호환성', '여러 장치에서 PDF 읽기, 주석, 변환, 보호, 내보내기를 지원합니다.', ['WPS PDF는 표준 PDF, OCR 스캔 문서, 주석, 서명, 페이지 작업을 지원합니다.', '변환 도구로 PDF, Word, Excel, PowerPoint, 이미지 간 내용을 이동할 수 있습니다.', '개인정보가 포함된 문서를 보내기 전에 비밀번호 보호나 가리기 기능을 사용하세요.']],
+  'faq-account-billing': ['FAQ: 계정 및 결제', '로그인, 구독, 청구서, 갱신, 환불에 관한 자주 묻는 질문.', ['구매 후 플랜이 보이지 않으면 구매한 계정으로 로그인한 뒤 상태를 새로 고치세요.', '지원 지역에서는 계정 센터에서 청구서와 결제 수단을 관리할 수 있습니다.', '팀 플랜의 좌석 수나 결제 소유자를 변경하기 전에 워크스페이스 관리자에게 문의하세요.']],
+  'faq-files-formats': ['FAQ: 파일 및 형식', '파일 열기, 서식 유지, PDF 변환, 문서 복구에 관한 답변.', ['파일 표시가 달라 보이면 누락된 글꼴, 포함 개체 또는 원본 앱의 고급 매크로를 확인하세요.', '인쇄나 외부 검토에서 레이아웃을 고정해야 한다면 PDF 내보내기를 사용하세요.', '클라우드 저장 파일은 플랜에 따라 최근 파일, 휴지통, 버전 기록에서 복구할 수 있습니다.']],
+}
+
+const encyclopediaEntriesKo = encyclopediaEntriesEn.map((entry) => {
+  const [title, summary, body] = encyclopediaEntriesKoText[entry.slug] ?? []
+  return {
+    ...entry,
+    title: title ?? entry.title,
+    summary: summary ?? entry.summary,
+    body: body ?? entry.body,
+    related: [...(entry.related ?? [])],
+  }
+})
+
+const encyclopediaContentLanguages = [
+  'es',
+  'de',
+  'fr',
+  'pt',
+  'ar',
+  'it',
+  'nl',
+  'pl',
+  'tr',
+  'id',
+  'th',
+  'vi',
+  'ms',
+  'zh-tw',
+  'ru',
+]
+
+function localizeEncyclopediaEntries(entries, language) {
+  return entries.map((entry) => ({
+    ...entry,
+    title: translateOfflinePhrase(language, entry.title),
+    summary: translateOfflinePhrase(language, entry.summary),
+    body: (entry.body ?? []).map((paragraph) => translateOfflinePhrase(language, paragraph)),
+    related: [...(entry.related ?? [])],
+  }))
+}
+
+const localizedEncyclopediaEntriesByLanguage = Object.fromEntries(
+  encyclopediaContentLanguages.map((language) => [
+    language,
+    localizeEncyclopediaEntries(language === 'zh-tw' ? encyclopediaEntriesZh : encyclopediaEntriesEn, language),
+  ]),
+)
 
 export const encyclopediaEntriesByLocale = {
   en: encyclopediaEntriesEn,
   zh: encyclopediaEntriesZh,
+  ja: encyclopediaEntriesJa,
+  ko: encyclopediaEntriesKo,
+  ...localizedEncyclopediaEntriesByLanguage,
+}
+
+export function resolveEncyclopediaEntriesForLocale(locale, localizeFn) {
+  const source = NATIVE_ENCYCLOPEDIA_LOCALES.has(locale)
+    ? (encyclopediaEntriesByLocale[locale] ?? encyclopediaEntriesByLocale.en)
+    : encyclopediaEntriesByLocale.en
+
+  return source.map((entry) => localizeEncyclopediaEntryFields(entry, locale, localizeFn))
 }
 
 export const encyclopediaUiTextByLocale = {
@@ -534,7 +1263,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'WPS products & app support',
     heroSubtitle: 'Find feature guides, FAQs, and getting-started topics for every WPS product.',
     searchPlaceholder: 'Search products or features...',
-    promoTitle: 'Get AI-powered features in WPS 365',
+    promoTitle: 'Get AI-powered features in WPS',
     promoCta: 'Try for free',
     promoSectionLabel: 'Promotion',
     letterNavLabel: 'Jump to letter',
@@ -549,7 +1278,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'WPS 产品与应用支持',
     heroSubtitle: '查找适用于各类 WPS 产品的功能指南、常见问题和入门主题。',
     searchPlaceholder: '搜索产品或功能...',
-    promoTitle: '在 WPS 365 中体验 AI 驱动功能',
+    promoTitle: '在 WPS 中学习 AI 驱动功能',
     promoCta: '免费试用',
     promoSectionLabel: '推广',
     letterNavLabel: '按字母跳转',
@@ -559,12 +1288,20 @@ export const encyclopediaUiTextByLocale = {
     browseDocs: '文档中心',
     lastUpdated: '更新于',
     skipToMain: '跳转到主要内容',
+    allTopics: '全部词条',
+    categorySidebar: '分类',
+    featuredTitle: '推荐词条',
+    topicListTitle: '全部词条',
+    openTopic: '打开词条',
+    quickActions: '快捷入口',
+    browseAnswers: '查看问答',
+    continueLearning: '继续了解',
   },
   'zh-tw': {
     heroTitle: 'WPS 產品與應用支援',
     heroSubtitle: '查找適用於各類 WPS 產品的功能指南、常見問題與入門主題。',
     searchPlaceholder: '搜尋產品或功能...',
-    promoTitle: '在 WPS 365 中體驗 AI 驅動功能',
+    promoTitle: '在 WPS 中體驗 AI 驅動功能',
     promoCta: '免費試用',
     promoSectionLabel: '推廣',
     letterNavLabel: '按字母跳轉',
@@ -574,12 +1311,20 @@ export const encyclopediaUiTextByLocale = {
     browseDocs: '文件中心',
     lastUpdated: '更新於',
     skipToMain: '跳轉到主要內容',
+    allTopics: '全部詞條',
+    categorySidebar: '分類',
+    featuredTitle: '推薦詞條',
+    topicListTitle: '全部詞條',
+    openTopic: '開啟詞條',
+    quickActions: '快速入口',
+    browseAnswers: '查看問答',
+    continueLearning: '繼續了解',
   },
   es: {
     heroTitle: 'Soporte para productos y aplicaciones de WPS',
     heroSubtitle: 'Encuentra guias de funciones, preguntas frecuentes y temas para empezar de cada producto de WPS.',
     searchPlaceholder: 'Buscar productos o funciones...',
-    promoTitle: 'Consigue funciones con IA en WPS 365',
+    promoTitle: 'Consigue funciones con IA en WPS',
     promoCta: 'Probar gratis',
     promoSectionLabel: 'Promocion',
     letterNavLabel: 'Saltar por letra',
@@ -594,7 +1339,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Support fur WPS-Produkte und Apps',
     heroSubtitle: 'Finde Funktionsanleitungen, FAQs und Einstiegsthemen fur jedes WPS-Produkt.',
     searchPlaceholder: 'Produkte oder Funktionen suchen...',
-    promoTitle: 'KI-Funktionen in WPS 365 erhalten',
+    promoTitle: 'KI-Funktionen in WPS erhalten',
     promoCta: 'Kostenlos testen',
     promoSectionLabel: 'Hinweis',
     letterNavLabel: 'Zu Buchstaben springen',
@@ -609,7 +1354,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Support des produits et applications WPS',
     heroSubtitle: 'Trouvez des guides de fonctionnalites, des FAQ et des sujets de prise en main pour chaque produit WPS.',
     searchPlaceholder: 'Rechercher des produits ou des fonctionnalites...',
-    promoTitle: 'Profitez des fonctionnalites IA dans WPS 365',
+    promoTitle: 'Profitez des fonctionnalites IA dans WPS',
     promoCta: 'Essayer gratuitement',
     promoSectionLabel: 'Promotion',
     letterNavLabel: 'Aller a la lettre',
@@ -624,7 +1369,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'WPS 製品とアプリのサポート',
     heroSubtitle: 'すべての WPS 製品向けに、機能ガイド、FAQ、使い始めの情報を探せます。',
     searchPlaceholder: '製品や機能を検索...',
-    promoTitle: 'WPS 365 で AI 機能を使う',
+    promoTitle: 'WPS で AI 機能を使う',
     promoCta: '無料で試す',
     promoSectionLabel: 'プロモーション',
     letterNavLabel: '文字へ移動',
@@ -634,12 +1379,20 @@ export const encyclopediaUiTextByLocale = {
     browseDocs: 'ドキュメントセンター',
     lastUpdated: '更新日',
     skipToMain: 'メイン コンテンツへスキップ',
+    allTopics: 'すべてのトピック',
+    categorySidebar: 'カテゴリー',
+    featuredTitle: '注目トピック',
+    topicListTitle: 'すべてのコンテンツ',
+    openTopic: 'トピックを開く',
+    quickActions: 'クイックアクション',
+    browseAnswers: 'Q&A を見る',
+    continueLearning: 'さらに学ぶ',
   },
   ko: {
     heroTitle: 'WPS 제품 및 앱 지원',
     heroSubtitle: '모든 WPS 제품에 대한 기능 가이드, FAQ, 시작하기 정보를 찾아보세요.',
     searchPlaceholder: '제품 또는 기능 검색...',
-    promoTitle: 'WPS 365에서 AI 기능 사용하기',
+    promoTitle: 'WPS에서 AI 기능 사용하기',
     promoCta: '무료로 사용해 보기',
     promoSectionLabel: '프로모션',
     letterNavLabel: '문자로 이동',
@@ -649,12 +1402,20 @@ export const encyclopediaUiTextByLocale = {
     browseDocs: '문서 센터',
     lastUpdated: '업데이트',
     skipToMain: '주요 콘텐츠로 건너뛰기',
+    allTopics: '전체 주제',
+    categorySidebar: '카테고리',
+    featuredTitle: '추천 주제',
+    topicListTitle: '전체 콘텐츠',
+    openTopic: '주제 열기',
+    quickActions: '빠른 작업',
+    browseAnswers: 'Q&A 보기',
+    continueLearning: '계속 알아보기',
   },
   pt: {
     heroTitle: 'Suporte para produtos e apps do WPS',
     heroSubtitle: 'Encontre guias de recursos, perguntas frequentes e topicos de introducao para cada produto WPS.',
     searchPlaceholder: 'Buscar produtos ou recursos...',
-    promoTitle: 'Tenha recursos com IA no WPS 365',
+    promoTitle: 'Tenha recursos com IA no WPS',
     promoCta: 'Experimentar gratis',
     promoSectionLabel: 'Promocao',
     letterNavLabel: 'Ir para a letra',
@@ -669,7 +1430,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'دعم منتجات وتطبيقات WPS',
     heroSubtitle: 'اعثر على أدلة الميزات والأسئلة الشائعة وموضوعات البدء لكل منتج من منتجات WPS.',
     searchPlaceholder: 'ابحث عن منتجات أو ميزات...',
-    promoTitle: 'احصل على ميزات مدعومة بالذكاء الاصطناعي في WPS 365',
+    promoTitle: 'احصل على ميزات مدعومة بالذكاء الاصطناعي في WPS',
     promoCta: 'جرّبه مجانًا',
     promoSectionLabel: 'عرض ترويجي',
     letterNavLabel: 'الانتقال إلى الحرف',
@@ -684,7 +1445,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Supporto per prodotti e app WPS',
     heroSubtitle: 'Trova guide alle funzionalita, FAQ e argomenti introduttivi per ogni prodotto WPS.',
     searchPlaceholder: 'Cerca prodotti o funzionalita...',
-    promoTitle: 'Ottieni funzionalita AI in WPS 365',
+    promoTitle: 'Ottieni funzionalita AI in WPS',
     promoCta: 'Prova gratis',
     promoSectionLabel: 'Promozione',
     letterNavLabel: 'Vai alla lettera',
@@ -699,7 +1460,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Ondersteuning voor WPS-producten en apps',
     heroSubtitle: 'Vind functiegidsen, veelgestelde vragen en startersinformatie voor elk WPS-product.',
     searchPlaceholder: 'Zoek producten of functies...',
-    promoTitle: 'Krijg AI-functies in WPS 365',
+    promoTitle: 'Krijg AI-functies in WPS',
     promoCta: 'Gratis proberen',
     promoSectionLabel: 'Promotie',
     letterNavLabel: 'Ga naar letter',
@@ -714,7 +1475,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Wsparcie dla produktow i aplikacji WPS',
     heroSubtitle: 'Znajdz przewodniki po funkcjach, FAQ i tematy na start dla kazdego produktu WPS.',
     searchPlaceholder: 'Szukaj produktow lub funkcji...',
-    promoTitle: 'Korzystaj z funkcji AI w WPS 365',
+    promoTitle: 'Korzystaj z funkcji AI w WPS',
     promoCta: 'Wyprobuj za darmo',
     promoSectionLabel: 'Promocja',
     letterNavLabel: 'Przejdz do litery',
@@ -729,7 +1490,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'WPS urunleri ve uygulamalari icin destek',
     heroSubtitle: "Her WPS urunu icin ozellik kilavuzlarini, SSS'leri ve baslangic konularini bulun.",
     searchPlaceholder: 'Urun veya ozellik ara...',
-    promoTitle: 'WPS 365te yapay zeka ozelliklerini edinin',
+    promoTitle: 'WPS yapay zeka ozelliklerini edinin',
     promoCta: 'Ucretsiz deneyin',
     promoSectionLabel: 'Tanitim',
     letterNavLabel: 'Harfe git',
@@ -744,7 +1505,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Dukungan produk dan aplikasi WPS',
     heroSubtitle: 'Temukan panduan fitur, FAQ, dan topik memulai untuk setiap produk WPS.',
     searchPlaceholder: 'Cari produk atau fitur...',
-    promoTitle: 'Dapatkan fitur AI di WPS 365',
+    promoTitle: 'Dapatkan fitur AI di WPS',
     promoCta: 'Coba gratis',
     promoSectionLabel: 'Promosi',
     letterNavLabel: 'Lompat ke huruf',
@@ -759,7 +1520,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'การสนับสนุนผลิตภัณฑ์และแอป WPS',
     heroSubtitle: 'ค้นหาคู่มือฟีเจอร์ คำถามที่พบบ่อย และหัวข้อเริ่มต้นใช้งานสำหรับทุกผลิตภัณฑ์ WPS',
     searchPlaceholder: 'ค้นหาผลิตภัณฑ์หรือฟีเจอร์...',
-    promoTitle: 'รับฟีเจอร์ AI ใน WPS 365',
+    promoTitle: 'รับฟีเจอร์ AI ใน WPS',
     promoCta: 'ทดลองใช้ฟรี',
     promoSectionLabel: 'โปรโมชัน',
     letterNavLabel: 'ไปยังตัวอักษร',
@@ -774,7 +1535,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Ho tro san pham va ung dung WPS',
     heroSubtitle: 'Tim huong dan tinh nang, cau hoi thuong gap va chu de bat dau cho moi san pham WPS.',
     searchPlaceholder: 'Tim san pham hoac tinh nang...',
-    promoTitle: 'Nhan tinh nang AI trong WPS 365',
+    promoTitle: 'Nhan tinh nang AI trong WPS',
     promoCta: 'Dung thu mien phi',
     promoSectionLabel: 'Khuyen mai',
     letterNavLabel: 'Chuyen den chu cai',
@@ -789,7 +1550,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Sokongan produk dan aplikasi WPS',
     heroSubtitle: 'Cari panduan ciri, soalan lazim dan topik permulaan untuk setiap produk WPS.',
     searchPlaceholder: 'Cari produk atau ciri...',
-    promoTitle: 'Dapatkan ciri AI dalam WPS 365',
+    promoTitle: 'Dapatkan ciri AI dalam WPS',
     promoCta: 'Cuba secara percuma',
     promoSectionLabel: 'Promosi',
     letterNavLabel: 'Pergi ke huruf',
@@ -804,7 +1565,7 @@ export const encyclopediaUiTextByLocale = {
     heroTitle: 'Поддержка продуктов и приложений WPS',
     heroSubtitle: 'Найдите руководства по функциям, FAQ и материалы для быстрого старта по каждому продукту WPS.',
     searchPlaceholder: 'Поиск продуктов или функций...',
-    promoTitle: 'Получите функции на базе ИИ в WPS 365',
+    promoTitle: 'Получите функции на базе ИИ в WPS',
     promoCta: 'Попробовать бесплатно',
     promoSectionLabel: 'Промо',
     letterNavLabel: 'Перейти к букве',
@@ -816,6 +1577,25 @@ export const encyclopediaUiTextByLocale = {
     skipToMain: 'Перейти к основному содержимому',
   },
 }
+
+const encyclopediaUiTextRequiredFields = {
+  allTopics: 'All Topics',
+  categorySidebar: 'Categories',
+  featuredTitle: 'Featured topics',
+  topicListTitle: 'All topics',
+  openTopic: 'Open topic',
+  quickActions: 'Quick actions',
+  browseAnswers: 'Browse Q&A',
+  continueLearning: 'Continue learning',
+}
+
+Object.entries(encyclopediaUiTextByLocale).forEach(([language, uiText]) => {
+  Object.entries(encyclopediaUiTextRequiredFields).forEach(([key, fallbackValue]) => {
+    if (!uiText[key]) {
+      uiText[key] = translateOfflinePhrase(language, fallbackValue)
+    }
+  })
+})
 
 export function resolveEncyclopediaLocale(locale = 'en') {
   const normalized = `${locale}`.toLowerCase().replace(/_/g, '-')

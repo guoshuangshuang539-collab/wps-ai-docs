@@ -1,4 +1,5 @@
-import { offlinePhraseTranslationRepairsByLanguage } from './offlinePhraseTranslationRepairs'
+import { offlinePhraseTranslationRepairsByLanguage } from './offlinePhraseTranslationRepairs.js'
+import { phraseExtensionsByLanguage } from './phraseExtensions/index.js'
 
 export const offlinePhraseTranslationsByLanguage = 
 {
@@ -10172,7 +10173,7 @@ export const offlinePhraseTranslationsByLanguage =
     "WPS Image": "WPS 圖像",
     "Personal Knowledge Base": "個人知識庫",
     "WPS Captalk": "WPS Captalk",
-    "WPS AI Tools": "WPS AI 工具",
+    "WPS AI Tools": "WPS AI工具",
     "Key Features": "核心特色",
     "Assets & Beautify": "素材與美化",
     "Online Tools": "線上工具",
@@ -10842,7 +10843,7 @@ export const offlinePhraseTranslationsByLanguage =
     "WPS Image": "WPS 图片",
     "Personal Knowledge Base": "个人知识库",
     "WPS Captalk": "WPS听记",
-    "WPS AI Tools": "WPS AI 工具",
+    "WPS AI Tools": "WPS AI工具",
     "Key Features": "特色功能",
     "Assets & Beautify": "素材美化",
     "Online Tools": "拓展工具",
@@ -11417,6 +11418,13 @@ function isCorruptedTranslation(value) {
   return /<[^>]+>/.test(value) || /\?{2,}/.test(value) || /[A-Za-z]\?[A-Za-z]/.test(value)
 }
 
+Object.entries(phraseExtensionsByLanguage).forEach(([language, phrases]) => {
+  offlinePhraseTranslationsByLanguage[language] = {
+    ...(offlinePhraseTranslationsByLanguage[language] ?? {}),
+    ...phrases,
+  }
+})
+
 export function translateOfflinePhrase(language, value) {
   if (typeof value !== 'string' || !value) {
     return value
@@ -11424,6 +11432,11 @@ export function translateOfflinePhrase(language, value) {
   const repaired = offlinePhraseTranslationRepairsByLanguage[language]?.[value]
   if (typeof repaired === 'string' && !isCorruptedTranslation(repaired)) {
     return repaired
+  }
+
+  const extended = phraseExtensionsByLanguage[language]?.[value]
+  if (typeof extended === 'string' && !isCorruptedTranslation(extended)) {
+    return extended
   }
 
   const translated = offlinePhraseTranslationsByLanguage[language]?.[value]

@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:content-phrases": "node scripts/generate-blog-encyclopedia-phrases.mjs",
+    "build:phrase-json": "node scripts/jsonl-to-phrase-json.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",
