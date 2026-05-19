@@ -3115,6 +3115,13 @@ function App() {
         path: localeAnswersPath,
         isCurrent: pageType === 'answers' || pageType === 'answers-forum',
       },
+      {
+        key: 'community',
+        type: 'external',
+        label: uiText.nav.community,
+        path: 'https://bbs.wps.cn/',
+        isCurrent: false,
+      },
     ],
     [
       currentContentRoot,
@@ -3131,6 +3138,7 @@ function App() {
       localePricingPath,
       pageType,
       uiText.nav.blog,
+      uiText.nav.community,
       uiText.nav.docsCenter,
       uiText.nav.download,
       uiText.nav.encyclopedia,
@@ -3669,9 +3677,39 @@ function App() {
                   </section>
                 ))}
               </div>
+              {/* All Templates CTA row */}
+              <div className="mx-auto w-full max-w-[1200px] border-t border-[#f0ecf9] px-4 py-3 flex justify-end">
+                <a
+                  href={localeAllTemplatesPath}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#c4bae8] bg-white px-4 py-1.5 text-[13px] font-semibold text-[#5a51c9] transition hover:bg-[#f3f0fc] hover:border-[#9e8fe0]"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    navigateTo(localeAllTemplatesPath)
+                  }}
+                >
+                  {uiText.nav.allTemplates}
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </a>
+              </div>
             </div>
           )}
         </div>
+      )
+    }
+
+    if (item.type === 'external') {
+      return (
+        <a
+          key={item.key}
+          className="home-page-header-link flex h-full shrink-0 items-center whitespace-nowrap border-x border-transparent px-[14px] text-[14px] font-medium transition home-page-header-link--idle"
+          href={item.path}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {item.label}
+        </a>
       )
     }
 
@@ -3963,7 +4001,19 @@ function App() {
               <p className="text-[15px] font-semibold text-[#1a202c]">{uiText.nav.menu}</p>
             </div>
             <nav className="mt-3 flex flex-col gap-1">
-              {desktopMainNavItems.map((item) => (
+              {desktopMainNavItems.map((item) =>
+                item.type === 'external' ? (
+                  <a
+                    key={`mobile-${item.key}`}
+                    className="rounded-[10px] px-4 py-3 text-[15px] font-medium transition text-[#4a5568] hover:bg-[#f6f5ff] hover:text-[#1a202c]"
+                    href={item.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
                 <a
                   key={`mobile-${item.key}`}
                   className={`rounded-[10px] px-4 py-3 text-[15px] font-medium transition ${
@@ -3980,7 +4030,8 @@ function App() {
                 >
                   {item.label}
                 </a>
-              ))}
+                )
+              )}
             </nav>
             <div className="mt-4 border-t border-[#eef1f6] px-1 pt-4">
               <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.06em] text-[#98a2b3]">

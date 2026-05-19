@@ -17,6 +17,8 @@ export const uiTextByLanguage = {
       blog: 'Blog',
       encyclopedia: 'Encyclopedia',
       qa: 'Q&A',
+      community: 'WPS Community',
+      allTemplates: 'All Templates',
     },
     home: {
       trustedBadge: 'Trusted by 500M+ users worldwide',
@@ -70,8 +72,8 @@ export const uiTextByLanguage = {
       compareFeatures: 'Compare features',
     },
     guides: {
-      title: 'WPS Guides & Tutorials',
-      desc: 'Master WPS Office with step-by-step guides, tips, and best practices.',
+      title: 'WPS How-To Guides',
+      desc: 'Step-by-step tutorials to help you get things done faster with WPS AI — from formatting documents to building AI-powered workflows.',
       readGuide: 'Read Guide',
       minRead: 'min read',
       backToGuides: '← Back to all guides',
@@ -160,6 +162,8 @@ export const uiTextByLanguage = {
       blog: '博客',
       encyclopedia: '百科',
       qa: '问答',
+      community: 'WPS 社区',
+      allTemplates: '全部模板',
     },
     home: {
       trustedBadge: '全球超5亿用户的信赖之选',
@@ -212,8 +216,8 @@ export const uiTextByLanguage = {
       compareFeatures: '功能对比',
     },
     guides: {
-      title: 'WPS 指南与教程',
-      desc: '通过分步指南、技巧和最佳实践掌握 WPS Office。',
+      title: 'WPS 操作指南',
+      desc: '分步骤教程，帮助你快速完成具体任务——从文档排版到构建 AI 驱动的工作流，每篇都有明确的操作目标。',
       readGuide: '阅读指南',
       minRead: '分钟阅读',
       backToGuides: '← 返回所有指南',
