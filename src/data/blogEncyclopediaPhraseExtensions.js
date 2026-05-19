@@ -417,6 +417,11 @@ export const blogEncyclopediaPhraseExtensionsByLanguage = {
     "Speaker notes are drafted automatically for each slide.": "Speaker notes are drafted automatically for each slide.",
     "Resume, contract, and presentation templates for download.": "Resume, contract, and presentation templates for download.",
     "Thousands of free and premium templates across categories.": "Thousands of free and premium templates across categories.",
-    "Preview before download; Pro unlocks commercial-use licenses.": "Preview before download; Pro unlocks commercial-use licenses."
+    "Preview before download; Pro unlocks commercial-use licenses.": "Preview before download; Pro unlocks commercial-use licenses.",
+    "Save favorites to your cloud library for quick reuse.": "Save favorites to your cloud library for quick reuse.",
+    "WPS 365": "WPS 365",
+    "Subscription bundle with AI, cloud storage, and premium templates.": "Subscription bundle with AI, cloud storage, and premium templates.",
+    "Includes Writer, Spreadsheets, Presentation, PDF, and AI credits.": "Includes Writer, Spreadsheets, Presentation, PDF, and AI credits.",
+    "Choose Personal, Family, or Business with per-seat billing.": "Choose Personal, Family, or Business with per-seat billing."
   }
 }
