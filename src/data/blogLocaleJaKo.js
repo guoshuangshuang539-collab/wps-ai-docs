@@ -1,20 +1,22 @@
 export function buildBlogLocaleJaKo(blogPosts) {
   const blogCategoryFiltersJa = [
+  { id: 'featured', label: '注目' },
   { id: 'all', label: 'すべて' },
-  { id: 'product', label: '製品' },
-  { id: 'ai', label: 'AI とイノベーション' },
-  { id: 'enterprise', label: 'エンタープライズ' },
-  { id: 'stories', label: '導入事例' },
-  { id: 'company', label: '会社ニュース' },
+  { id: 'product-updates', label: '製品アップデート' },
+  { id: 'industry-trends', label: '業界トレンド' },
+  { id: 'customer-stories', label: '導入事例' },
+  { id: 'viewpoints', label: '専門家インサイト' },
+  { id: 'events', label: 'イベント' },
 ]
 
   const blogCategoryFiltersKo = [
+  { id: 'featured', label: '추천' },
   { id: 'all', label: '전체' },
-  { id: 'product', label: '제품' },
-  { id: 'ai', label: 'AI와 혁신' },
-  { id: 'enterprise', label: '엔터프라이즈' },
-  { id: 'stories', label: '고객 사례' },
-  { id: 'company', label: '회사 소식' },
+  { id: 'product-updates', label: '제품 업데이트' },
+  { id: 'industry-trends', label: '업계 동향' },
+  { id: 'customer-stories', label: '고객 사례' },
+  { id: 'viewpoints', label: '전문가 인사이트' },
+  { id: 'events', label: '이벤트' },
 ]
 
   const blogPostsJaOverrides = {

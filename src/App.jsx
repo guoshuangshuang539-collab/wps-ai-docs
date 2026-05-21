@@ -514,7 +514,7 @@ const docsJumpCards = [
   { title: '产品介绍', sub: '产品定位与下载安装', section: '新手入门', linkKey: 'all-products' },
   { title: '套餐与费用', sub: '套餐分类与功能对比表', section: '新手入门', linkKey: 'pricing' },
   { title: '学习中心', sub: '典型场景视频教程', section: '文档', linkKey: 'guides' },
-  { title: '社区中心', sub: '用户社群交流讨论', section: 'PDF', linkKey: 'answers' },
+  { title: '社区中心', sub: '用户社群交流讨论', section: 'PDF', linkKey: 'community' },
   { title: '模板中心', sub: '海量模板资源下载', section: '简历', linkKey: 'all-templates' },
 ]
 
@@ -925,13 +925,99 @@ function getDocsSectionBlocks(section, sectionMarkersMap) {
   return splitDocsGroupsWithMarkers(items, markers).filter((block) => block.title || block.items.length > 0)
 }
 
+const BLOG_POSTS_PER_PAGE = 4
+
 const blogCategoryAccentClassMap = {
-  product: 'blog-card-accent--product',
-  ai: 'blog-card-accent--ai',
-  enterprise: 'blog-card-accent--company',
-  stories: 'blog-card-accent--tips',
-  tips: 'blog-card-accent--tips',
-  company: 'blog-card-accent--company',
+  'product-updates': 'blog-card-accent--product',
+  'industry-trends': 'blog-card-accent--ai',
+  'customer-stories': 'blog-card-accent--tips',
+  viewpoints: 'blog-card-accent--company',
+  events: 'blog-card-accent--company',
+}
+
+const blogCategoryJourneyStageMap = {
+  'industry-trends': 'awareness',
+  viewpoints: 'awareness',
+  'product-updates': 'consideration',
+  'customer-stories': 'evaluation',
+  events: 'conversion',
+}
+
+const blogInlineLinkRules = [
+  {
+    kind: 'encyclopedia',
+    slug: 'ocr',
+    terms: ['OCR', '光学字符识别'],
+  },
+  {
+    kind: 'encyclopedia',
+    slug: 'prompt-engineering',
+    terms: ['Prompt Engineering', '提示词工程'],
+  },
+  {
+    kind: 'encyclopedia',
+    slug: 'context-window',
+    terms: ['Context Window', '上下文窗口'],
+  },
+  {
+    kind: 'guide-detail',
+    slug: 'how-to-convert-pdf-to-word.html',
+    terms: ['Convert PDF to Word', 'PDF to Word', 'PDF 转 Word', 'PDF转Word'],
+  },
+  {
+    kind: 'guide-detail',
+    slug: 'compress-pdf-without-quality-loss.html',
+    terms: ['Compress PDF', '压缩 PDF', '压缩PDF'],
+  },
+  {
+    kind: 'guide-detail',
+    slug: 'merge-split-pdf-guide.html',
+    terms: ['Merge PDF', 'Split PDF', '合并 PDF', '拆分 PDF', '合并PDF', '拆分PDF'],
+  },
+  {
+    kind: 'guide-detail',
+    slug: 'ai-writer-getting-started.html',
+    terms: ['AI Writer', 'AI 写作', '快速上手', 'getting started'],
+  },
+  {
+    kind: 'docs-article',
+    section: 'wps-ai',
+    item: 'ai-writing',
+    terms: ['AI Rewrite', 'AI 改写', 'rewrite', '改写'],
+  },
+  {
+    kind: 'docs-article',
+    section: 'wps-ai',
+    item: 'ai-sheets',
+    terms: ['AI Sheets', 'AI 表格'],
+  },
+  {
+    kind: 'docs-article',
+    section: 'wps-ai',
+    item: 'ai-ppt',
+    terms: ['AI Slides', 'AI 幻灯片'],
+  },
+  {
+    kind: 'docs-article',
+    section: 'pdf',
+    item: 'ai-pdf',
+    terms: ['PDF summary', 'PDF 摘要', 'AI PDF'],
+  },
+  {
+    kind: 'docs-section',
+    section: 'wps-ai',
+    terms: ['WPS AI', 'Copilot'],
+  },
+]
+
+const encyclopediaDocsSectionAliasMap = {
+  compatibility: 'features',
+  security: 'help',
+  install: 'getting-started',
+  account: 'getting-started',
+  pricing: 'getting-started',
+  cloud: 'getting-started',
+  faq: 'help',
 }
 
 const blogSocialLinks = [
@@ -1163,66 +1249,82 @@ const answersHotCategories = [
 
 const answersHotCategoryZhTextByTitle = {
   'WPS Writer': {
+    title: 'WPS 文字',
     meta: '文档编辑',
     desc: '涵盖排版样式、目录、批注与长文写作等常见问题。',
   },
   'WPS Spreadsheet': {
+    title: 'WPS 表格',
     meta: '数据与公式',
     desc: '聚焦公式报错、透视表、图表分析、数据清洗与导入流程。',
   },
   'WPS Presentation': {
+    title: 'WPS 演示',
     meta: '演示与表达',
     desc: '包含主题设置、动画节奏、演讲者视图与设计实践。',
   },
   'WPS PDF': {
+    title: 'WPS PDF',
     meta: 'PDF 工具',
     desc: '支持转换、合并、压缩、签名和加密等交付场景。',
   },
   'WPS AI': {
+    title: 'WPS AI',
     meta: 'AI 助手',
     desc: '提供提示词技巧、改写、总结与任务自动化实践。',
   },
   Templates: {
+    title: '模板',
     meta: '现成模板',
     desc: '涉及模板定制、品牌统一与多语言协作规范。',
   },
   'Cloud & Sync': {
+    title: '云与同步',
     meta: '云端存储',
     desc: '处理同步冲突、版本历史、共享文件夹与备份策略。',
   },
   'Team Collaboration': {
+    title: '团队协作',
     meta: '多人协作',
     desc: '关注权限设置、评审评论、@提及和审批流程。',
   },
   'Account & Billing': {
+    title: '账号与订阅',
     meta: '账号订阅',
     desc: '覆盖套餐升级、发票、授权绑定与支付异常。',
   },
   'WPS for Windows': {
+    title: 'WPS Windows 版',
     meta: '桌面客户端',
     desc: '解决安装问题、启动异常、插件冲突和性能调优。',
   },
   'WPS for macOS': {
+    title: 'WPS macOS 版',
     meta: '桌面客户端',
     desc: '聚焦权限、字体、快捷键与 Apple Silicon 兼容性。',
   },
   'WPS for Linux': {
+    title: 'WPS Linux 版',
     meta: '桌面客户端',
     desc: '包含安装包依赖、渲染问题与本地化环境配置。',
   },
   'Mobile App': {
+    title: '移动端应用',
     meta: 'Android 与 iOS',
     desc: '涵盖文件同步、账号绑定、扫描与移动编辑技巧。',
   },
   'Forms & Surveys': {
+    title: '表单与调研',
     meta: '数据采集',
     desc: '涉及表单逻辑、分享权限、结果导出与协同处理。',
   },
   Automation: {
+    title: '自动化',
     meta: '宏与流程',
     desc: '通过公式、脚本与快捷流程自动化重复办公任务。',
   },
   'API & Integrations': {
+    title: 'API 与集成',
     meta: '开发集成',
     desc: '帮助将 WPS 连接到内部系统、机器人和企业平台。',
   },
@@ -1649,9 +1751,55 @@ function getBlogRouteInfo(normalizedSegments) {
   if (normalizedSegments[0] !== 'blog') {
     return null
   }
+
+  const parsePage = (value) => {
+    const parsed = Number.parseInt(value ?? '', 10)
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1
+  }
+
+  if (!normalizedSegments[1]) {
+    return {
+      kind: 'home',
+      page: 1,
+    }
+  }
+
+  if (normalizedSegments[1] === 'all') {
+    const page = normalizedSegments[2] === 'page'
+      ? parsePage(normalizedSegments[3])
+      : 1
+    return {
+      kind: 'all',
+      page,
+    }
+  }
+
+  if (normalizedSegments[1] === 'category' && normalizedSegments[2]) {
+    const page = normalizedSegments[3] === 'page'
+      ? parsePage(normalizedSegments[4])
+      : 1
+    return {
+      kind: 'category',
+      categoryId: normalizedSegments[2],
+      page,
+    }
+  }
+
+  if (normalizedSegments[1] === 'tag' && normalizedSegments[2]) {
+    const page = normalizedSegments[3] === 'page'
+      ? parsePage(normalizedSegments[4])
+      : 1
+    return {
+      kind: 'tag',
+      tagSlug: normalizedSegments[2],
+      page,
+    }
+  }
+
   return {
-    kind: normalizedSegments[1] ? 'detail' : 'index',
+    kind: 'detail',
     slug: normalizedSegments[1] ?? null,
+    page: 1,
   }
 }
 
@@ -1705,7 +1853,7 @@ function getPageType(pathname) {
   if (blogRoute?.kind === 'detail') {
     return 'blog-detail'
   }
-  if (blogRoute?.kind === 'index') {
+  if (blogRoute) {
     return 'blog'
   }
   if (normalizedSegments[0] === 'encyclopedia' || normalizedSegments[0] === 'academy') {
@@ -1776,6 +1924,37 @@ function getLocaleBlogPath(locale) {
   return `/${locale}/blog/`
 }
 
+function getLocaleBlogAllPath(locale, page = 1) {
+  return page > 1
+    ? `/${locale}/blog/all/page/${page}/`
+    : `/${locale}/blog/all/`
+}
+
+function getLocaleBlogCategoryPath(locale, categoryId, page = 1) {
+  return page > 1
+    ? `/${locale}/blog/category/${categoryId}/page/${page}/`
+    : `/${locale}/blog/category/${categoryId}/`
+}
+
+function getLocaleBlogTagPath(locale, tagSlug, page = 1) {
+  return page > 1
+    ? `/${locale}/blog/tag/${tagSlug}/page/${page}/`
+    : `/${locale}/blog/tag/${tagSlug}/`
+}
+
+function toBlogTagSlug(value = '') {
+  const input = `${value}`.trim()
+  if (!input) {
+    return ''
+  }
+  const ascii = input
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return ascii || encodeURIComponent(input)
+}
+
 function getLocaleEncyclopediaPath(locale) {
   return `/${locale}/encyclopedia/`
 }
@@ -1825,6 +2004,8 @@ function getDocsJumpCardPath(locale, linkKey = '') {
       return getLocaleGuidesPath(locale)
     case 'answers':
       return getLocaleAnswersPath(locale)
+    case 'community':
+      return 'https://bbs.wps.cn/'
     case 'all-templates':
       return getLocaleAllTemplatesPath(locale)
     default:
@@ -2022,6 +2203,17 @@ function localizeNestedStrings(value, localizeString) {
   return value
 }
 
+function normalizeModuleSearchQuery(raw) {
+  return `${raw ?? ''}`.trim().toLowerCase()
+}
+
+function moduleSearchMatches(value, normalizedQuery) {
+  if (!normalizedQuery) {
+    return true
+  }
+  return `${value ?? ''}`.toLowerCase().includes(normalizedQuery)
+}
+
 function App() {
   const [isLangOpen, setIsLangOpen] = useState(false)
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(false)
@@ -2029,14 +2221,19 @@ function App() {
   const [isResourcesMenuOpen, setIsResourcesMenuOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [visibleDesktopNavCount, setVisibleDesktopNavCount] = useState(0)
-  const [allProductsTab, setAllProductsTab] = useState('category')
-  const [allTemplatesTab, setAllTemplatesTab] = useState('category')
+  const [activeAllProductsCategory, setActiveAllProductsCategory] = useState('')
+  const [allProductsSearchQuery, setAllProductsSearchQuery] = useState('')
+  const [activeAllTemplatesCategory, setActiveAllTemplatesCategory] = useState('')
+  const [allTemplatesSearchQuery, setAllTemplatesSearchQuery] = useState('')
   const [activeGuideCategory, setActiveGuideCategory] = useState('all')
+  const [guidesSearchQuery, setGuidesSearchQuery] = useState('')
   const [activeTemplateFilter, setActiveTemplateFilter] = useState('All')
-  const [activeBlogCategory, setActiveBlogCategory] = useState('all')
+  const [, setActiveBlogCategory] = useState('featured')
   const [activeBlogAuthor, setActiveBlogAuthor] = useState('')
   const [blogSearchQuery, setBlogSearchQuery] = useState('')
   const [encyclopediaSearchQuery, setEncyclopediaSearchQuery] = useState('')
+  const [answersSearchQuery, setAnswersSearchQuery] = useState('')
+  const [answersForumSearchQuery, setAnswersForumSearchQuery] = useState('')
   const [activeEncyclopediaCategory, setActiveEncyclopediaCategory] = useState('all')
   const [isBlogShareCopied, setIsBlogShareCopied] = useState(false)
   const [currentLocale, setCurrentLocale] = useState(() =>
@@ -2312,12 +2509,14 @@ function App() {
       return answersHotCategories.map((item) => ({
         ...item,
         ...(answersHotCategoryZhTextByTitle[item.title] ?? {}),
-        displayTitle: item.title,
+        sourceTitle: item.title,
+        displayTitle: answersHotCategoryZhTextByTitle[item.title]?.title ?? item.title,
         displayMeta: answersHotCategoryZhTextByTitle[item.title]?.meta ?? item.meta,
       }))
     }
     return answersHotCategories.map((item) => ({
       ...item,
+      sourceTitle: item.title,
       displayTitle: localizeString(item.title),
       displayMeta: localizeString(item.meta),
       desc: localizeString(item.desc),
@@ -2468,39 +2667,46 @@ function App() {
     }))
   }, [localizedWorldwideGroups])
 
-  const allProductsAlphabetGroups = useMemo(() => {
-    const deduped = new Map()
-    localizedAllProductsSections.forEach((section) => {
-      section.items.forEach((item) => {
-        if (!deduped.has(item.name)) {
-          deduped.set(item.name, item)
-        }
-      })
-    })
+  const activeAllProductsSection = useMemo(
+    () =>
+      localizedAllProductsSections.find((section) => section.title === activeAllProductsCategory)
+      ?? localizedAllProductsSections[0]
+      ?? null,
+    [activeAllProductsCategory, localizedAllProductsSections],
+  )
+  const normalizedAllProductsSearch = normalizeModuleSearchQuery(allProductsSearchQuery)
+  const allProductsDisplayItems = useMemo(
+    () =>
+      localizedAllProductsSections.flatMap((section) =>
+        section.items.map((item) => ({
+          ...item,
+          sectionDisplayTitle: section.displayTitle ?? section.title,
+        }))),
+    [localizedAllProductsSections],
+  )
+  const activeAllProductsDisplayItems = useMemo(() => {
+    if (normalizedAllProductsSearch) {
+      return allProductsDisplayItems.filter((item) =>
+        (item.displayName ?? item.name).toLowerCase().includes(normalizedAllProductsSearch))
+    }
+    if (!activeAllProductsSection) {
+      return []
+    }
+    return activeAllProductsSection.items
+  }, [activeAllProductsSection, allProductsDisplayItems, normalizedAllProductsSearch])
 
-    const groups = new Map()
-    deduped.forEach((item) => {
-      const firstChar = item.name.trim().charAt(0).toUpperCase()
-      const letter = /^[A-Z]$/.test(firstChar) ? firstChar : '#'
-      if (!groups.has(letter)) {
-        groups.set(letter, [])
+  useEffect(() => {
+    if (!localizedAllProductsSections.length) {
+      if (activeAllProductsCategory) {
+        setActiveAllProductsCategory('')
       }
-      groups.get(letter).push(item)
-    })
-
-    return Array.from(groups.entries())
-      .sort(([a], [b]) => {
-        if (a === '#') return 1
-        if (b === '#') return -1
-        return a.localeCompare(b)
-      })
-      .map(([letter, items]) => ({
-        letter,
-        items: items.sort((a, b) =>
-          a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
-        ),
-      }))
-  }, [localizedAllProductsSections])
+      return
+    }
+    const hasCurrent = localizedAllProductsSections.some((section) => section.title === activeAllProductsCategory)
+    if (!hasCurrent) {
+      setActiveAllProductsCategory(localizedAllProductsSections[0].title)
+    }
+  }, [activeAllProductsCategory, localizedAllProductsSections])
 
   const allTemplatesSections = useMemo(
     () =>
@@ -2513,43 +2719,46 @@ function App() {
       })),
     [currentLocale, localizedTemplateMenuSections],
   )
+  const activeAllTemplatesSection = useMemo(
+    () =>
+      allTemplatesSections.find((section) => section.title === activeAllTemplatesCategory)
+      ?? allTemplatesSections[0]
+      ?? null,
+    [activeAllTemplatesCategory, allTemplatesSections],
+  )
+  const normalizedAllTemplatesSearch = normalizeModuleSearchQuery(allTemplatesSearchQuery)
+  const allTemplatesDisplayItems = useMemo(
+    () =>
+      allTemplatesSections.flatMap((section) =>
+        section.items.map((item) => ({
+          ...item,
+          sectionDisplayTitle: section.displayTitle ?? section.title,
+        }))),
+    [allTemplatesSections],
+  )
+  const activeAllTemplatesDisplayItems = useMemo(() => {
+    if (normalizedAllTemplatesSearch) {
+      return allTemplatesDisplayItems.filter((item) =>
+        (item.displayName ?? item.name).toLowerCase().includes(normalizedAllTemplatesSearch))
+    }
+    if (!activeAllTemplatesSection) {
+      return []
+    }
+    return activeAllTemplatesSection.items
+  }, [activeAllTemplatesSection, allTemplatesDisplayItems, normalizedAllTemplatesSearch])
 
-  const allTemplatesAlphabetGroups = useMemo(() => {
-    const deduped = new Map()
-    localizedTemplateMenuSections.forEach((section) => {
-      section.items.forEach((item) => {
-        if (!deduped.has(item.name)) {
-          deduped.set(item.name, item)
-        }
-      })
-    })
-
-    const groups = new Map()
-    deduped.forEach((item) => {
-      const firstChar = item.name.trim().charAt(0).toUpperCase()
-      const letter = /^[A-Z]$/.test(firstChar) ? firstChar : '#'
-      if (!groups.has(letter)) {
-        groups.set(letter, [])
+  useEffect(() => {
+    if (!allTemplatesSections.length) {
+      if (activeAllTemplatesCategory) {
+        setActiveAllTemplatesCategory('')
       }
-      groups.get(letter).push({
-        ...item,
-        targetPath: resolveTemplateTargetPath(item.path, currentLocale),
-      })
-    })
-
-    return Array.from(groups.entries())
-      .sort(([a], [b]) => {
-        if (a === '#') return 1
-        if (b === '#') return -1
-        return a.localeCompare(b)
-      })
-      .map(([letter, items]) => ({
-        letter,
-        items: items.sort((a, b) =>
-          a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }),
-        ),
-      }))
-  }, [currentLocale, localizedTemplateMenuSections])
+      return
+    }
+    const hasCurrent = allTemplatesSections.some((section) => section.title === activeAllTemplatesCategory)
+    if (!hasCurrent) {
+      setActiveAllTemplatesCategory(allTemplatesSections[0].title)
+    }
+  }, [activeAllTemplatesCategory, allTemplatesSections])
 
   const productsMegaMenuSections = useMemo(
     () => {
@@ -2623,6 +2832,96 @@ function App() {
     const normalizedPath = `${normalizedSegments[0]}/${normalizedSegments[1]}/`
     return toolDemoByPath.get(normalizedPath) ?? null
   }, [currentPathname, toolDemoByPath])
+  const isAiDetectorEmailWriterDemo = currentToolDemo?.path === 'ai-tools/ai-detector/'
+  const aiEmailWriterContent = useMemo(() => {
+    if (isZhContent) {
+      return {
+        title: 'AI 邮件写作',
+        desc: '从一个简短想法快速生成清晰邮件。可选择输出长度，生成可直接复制发送的草稿。',
+        meta: '免费不限次 · 无需注册 · 节省时间 · 无广告',
+        optionsLabel: '高级选项 · 试用示例文本',
+        writeLabel: '写作',
+        inputPlaceholder: '输入你的邮件意图...',
+        outputPlaceholder: '生成的邮件草稿...',
+        howToTitle: '如何使用 AI 邮件写作',
+        steps: [
+          {
+            title: '步骤 1：输入你的邮件意图',
+            desc: '可输入请求、回复、致谢、跟进、道歉等场景说明，系统会基于你的意图生成邮件草稿。',
+          },
+          {
+            title: '步骤 2：选择输出长度',
+            desc: '根据场景选择简短回复或详细说明，让生成结果更符合你的实际沟通需求。',
+          },
+          {
+            title: '步骤 3：复制并发送',
+            desc: '检查并微调生成内容后，可复制到 Gmail、Outlook 或其他办公与沟通平台直接发送。',
+          },
+        ],
+        featureBlocks: [
+          {
+            title: '更快写出表达清晰的邮件',
+            desc: '当你知道要说什么却难以组织语言时，AI 邮件写作可把零散想法快速整理为结构清晰的邮件草稿。',
+          },
+          {
+            title: '解决“不会开头”和语气拿捏难题',
+            desc: '在正式、友好、直接或礼貌等不同语气场景下，工具可帮助你更快形成可用初稿并降低改写成本。',
+          },
+          {
+            title: '让邮件长度更贴合场景',
+            desc: '支持先选长度再生成，避免邮件过短信息不足或过长重点不清，提高沟通效率。',
+          },
+          {
+            title: '从想法到发送更顺滑',
+            desc: '输入意图、生成草稿、快速检查并复制发送，减少重复修改步骤，让邮件处理更轻量。',
+          },
+        ],
+      }
+    }
+    return {
+      title: 'AI Email Writer',
+      desc: 'Write clear emails from a short idea. Use the AI email writer to choose output length, generate a polished draft, and copy it for work, school, or daily communication.',
+      meta: 'Free and Unlimited · No Signup Required · Save Time · No Ads',
+      optionsLabel: 'Advanced Options · Try Sample Text',
+      writeLabel: 'Write',
+      inputPlaceholder: 'Write an email about...',
+      outputPlaceholder: 'Generated email draft...',
+      howToTitle: 'How to Use the AI Email Writer',
+      steps: [
+        {
+          title: 'Step 1: Enter Your Message Idea in the AI Email Writer',
+          desc: 'Type what you want to say, such as a request, reply, apology, follow-up, thank-you note, or business message.',
+        },
+        {
+          title: 'Step 2: Choose the AI Email Writer Output Length',
+          desc: 'Select the email length that fits your situation, from a short reply to a more detailed message with context and explanation.',
+        },
+        {
+          title: 'Step 3: Copy Your AI Email Writer Draft',
+          desc: 'Review the generated email, make any final edits, then copy it into Gmail, Outlook, school platforms, work tools, or messaging apps.',
+        },
+      ],
+      featureBlocks: [
+        {
+          title: 'AI Email Writer Helps You Say the Right Thing Faster',
+          desc: 'Writing emails can take longer than expected when you know the message but cannot find the right wording. The AI email writer turns your rough idea into a clear draft, helping you avoid awkward phrasing, missing context, and unclear requests.',
+        },
+        {
+          title: 'AI Email Writer Fixes Blank Page and Tone Problems',
+          desc: 'Many people waste time deciding how formal, friendly, direct, or detailed an email should be. The AI email writer shapes your message into a usable draft based on what you want to express.',
+        },
+        {
+          title: 'AI Email Writer Creates The Right Length for Your Message',
+          desc: 'Some emails should be short and direct, while others need more explanation. The AI email writer lets you choose output length first, so the final draft better fits your communication goal.',
+        },
+        {
+          title: 'AI Email Writer Makes Emails Easy to Copy and Send',
+          desc: 'After generating your email, you can copy the draft and paste it into the platform you already use. This reduces repeated rewriting and helps you move from idea to finished email with less friction.',
+        },
+      ],
+    }
+  }, [isZhContent])
+  const aiEmailWriterHeroImage = 'https://image.thum.io/get/width/1400/crop/780/https://www.wps.com/tools/ai-email-writer/'
 
   const currentTemplateRoute = useMemo(() => {
     const { normalizedSegments } = splitPath(currentPathname)
@@ -2753,17 +3052,75 @@ function App() {
     return localizedBlogPosts.find((post) => post.slug === currentBlogRoute.slug) ?? null
   }, [currentBlogRoute, localizedBlogPosts])
 
+  const activeBlogTabId = useMemo(() => {
+    if (!currentBlogRoute) {
+      return 'featured'
+    }
+    if (currentBlogRoute.kind === 'home') {
+      return 'featured'
+    }
+    if (currentBlogRoute.kind === 'all') {
+      return 'all'
+    }
+    if (currentBlogRoute.kind === 'category') {
+      return currentBlogRoute.categoryId
+    }
+    return ''
+  }, [currentBlogRoute])
+
+  const currentBlogTagRouteValue = currentBlogRoute?.kind === 'tag'
+    ? (currentBlogRoute.tagSlug ?? '')
+    : ''
+
+  const currentBlogTagSlug = useMemo(() => {
+    if (currentBlogRoute?.kind !== 'tag') {
+      return ''
+    }
+    try {
+      return decodeURIComponent(currentBlogRoute.tagSlug ?? '')
+    } catch {
+      return currentBlogRoute.tagSlug ?? ''
+    }
+  }, [currentBlogRoute])
+
+  const currentBlogTagLabel = useMemo(() => {
+    if (currentBlogRoute?.kind !== 'tag') {
+      return ''
+    }
+    const matchedTag = localizedBlogPosts
+      .flatMap((post) => post.tags ?? [])
+      .find((tag) => {
+        const tagSlug = toBlogTagSlug(tag)
+        return (
+          tagSlug.toLowerCase() === currentBlogTagRouteValue.toLowerCase()
+          || `${tag}`.toLowerCase() === currentBlogTagSlug.toLowerCase()
+        )
+      })
+    return matchedTag ?? currentBlogTagSlug
+  }, [currentBlogRoute, currentBlogTagRouteValue, currentBlogTagSlug, localizedBlogPosts])
+
   const filteredBlogPosts = useMemo(() => {
     const query = blogSearchQuery.trim().toLowerCase()
     return localizedBlogPosts.filter((post) => {
-      if (activeBlogCategory !== 'all' && post.category !== activeBlogCategory) {
-        return false
-      }
-      if (activeBlogAuthor && post.authorName !== activeBlogAuthor) {
-        return false
-      }
       if (!query) {
-        return true
+        if (currentBlogRoute?.kind === 'category' && post.category !== currentBlogRoute.categoryId) {
+          return false
+        }
+        if (currentBlogRoute?.kind === 'tag') {
+          const matchesTag = (post.tags ?? []).some((tag) => {
+            const tagSlug = toBlogTagSlug(tag)
+            return (
+              tagSlug.toLowerCase() === currentBlogTagRouteValue.toLowerCase()
+              || `${tag}`.toLowerCase() === currentBlogTagSlug.toLowerCase()
+            )
+          })
+          if (!matchesTag) {
+            return false
+          }
+        }
+        if (activeBlogAuthor && post.authorName !== activeBlogAuthor) {
+          return false
+        }
       }
       const haystack = [
         post.title,
@@ -2776,15 +3133,21 @@ function App() {
         .toLowerCase()
       return haystack.includes(query)
     })
-  }, [activeBlogAuthor, activeBlogCategory, blogSearchQuery, localizedBlogPosts])
+  }, [activeBlogAuthor, blogSearchQuery, currentBlogRoute, currentBlogTagRouteValue, currentBlogTagSlug, localizedBlogPosts])
 
   const featuredFilteredBlogPosts = useMemo(
     () => filteredBlogPosts.filter((post) => post.featured),
     [filteredBlogPosts],
   )
 
+  const isBlogHomeRoute = currentBlogRoute?.kind === 'home'
+  const isBlogListRoute =
+    currentBlogRoute?.kind === 'all'
+    || currentBlogRoute?.kind === 'category'
+    || currentBlogRoute?.kind === 'tag'
+
   const showFeaturedBlogSection =
-    activeBlogCategory === 'all' && !activeBlogAuthor && !blogSearchQuery.trim()
+    isBlogHomeRoute && !activeBlogAuthor && !blogSearchQuery.trim()
 
   const blogFeedPosts = useMemo(() => {
     if (showFeaturedBlogSection && featuredFilteredBlogPosts.length) {
@@ -2793,51 +3156,252 @@ function App() {
     return filteredBlogPosts
   }, [featuredFilteredBlogPosts.length, filteredBlogPosts, showFeaturedBlogSection])
 
-  const blogPrimaryPosts = useMemo(() => {
-    if (showFeaturedBlogSection && featuredFilteredBlogPosts.length) {
-      return featuredFilteredBlogPosts
-    }
-    return blogFeedPosts
-  }, [blogFeedPosts, featuredFilteredBlogPosts, showFeaturedBlogSection])
+  const blogSecondaryPosts =
+    showFeaturedBlogSection && featuredFilteredBlogPosts.length ? blogFeedPosts.slice(0, 4) : []
+
+  const blogHomePrimaryPosts = showFeaturedBlogSection && featuredFilteredBlogPosts.length
+    ? featuredFilteredBlogPosts
+    : blogFeedPosts
 
   const blogCategoryLabelMap = useMemo(
     () =>
       Object.fromEntries(
         localizedBlogCategoryFilters
-          .filter((tab) => tab.id !== 'all')
+          .filter((tab) => tab.id !== 'featured' && tab.id !== 'all')
           .map((tab) => [tab.id, tab.label]),
       ),
     [localizedBlogCategoryFilters],
   )
 
-  const blogSecondaryPosts =
-    showFeaturedBlogSection && featuredFilteredBlogPosts.length ? blogFeedPosts : []
-
   const activeBlogCategoryLabel =
-    activeBlogCategory !== 'all'
-      ? localizedBlogCategoryFilters.find((tab) => tab.id === activeBlogCategory)?.label
+    currentBlogRoute?.kind === 'category'
+      ? localizedBlogCategoryFilters.find((tab) => tab.id === currentBlogRoute.categoryId)?.label
       : null
 
   const blogPrimaryTitle =
     showFeaturedBlogSection && featuredFilteredBlogPosts.length
       ? uiText.blog.featured
-      : activeBlogCategoryLabel ?? uiText.blog.moreNews
+      : currentBlogRoute?.kind === 'all'
+        ? uiText.blog.allPosts
+        : currentBlogRoute?.kind === 'tag'
+          ? uiText.blog.taggedPosts.replace('{tag}', currentBlogTagLabel)
+          : activeBlogCategoryLabel ?? uiText.blog.moreNews
+
+  const showBlogCategoryChipInList =
+    currentBlogRoute?.kind === 'all' || currentBlogRoute?.kind === 'tag'
+
+  const blogListSourcePosts = isBlogListRoute ? filteredBlogPosts : []
+  const blogRoutePage = Math.max(1, currentBlogRoute?.page ?? 1)
+  const blogTotalPages = Math.max(
+    1,
+    Math.ceil((isBlogListRoute ? blogListSourcePosts.length : 0) / BLOG_POSTS_PER_PAGE),
+  )
+  const blogCurrentPage = Math.min(blogRoutePage, blogTotalPages)
+  const blogPaginatedPosts = useMemo(() => {
+    if (!isBlogListRoute) {
+      return []
+    }
+    const start = (blogCurrentPage - 1) * BLOG_POSTS_PER_PAGE
+    return blogListSourcePosts.slice(start, start + BLOG_POSTS_PER_PAGE)
+  }, [blogCurrentPage, blogListSourcePosts, isBlogListRoute])
+
+  const blogPaginationItems = useMemo(() => {
+    if (blogTotalPages <= 1) {
+      return []
+    }
+    const items = []
+    const pushPage = (page) => {
+      if (!items.some((item) => item.type === 'page' && item.page === page)) {
+        items.push({ type: 'page', page })
+      }
+    }
+    pushPage(1)
+    for (let page = blogCurrentPage - 1; page <= blogCurrentPage + 1; page += 1) {
+      if (page > 1 && page < blogTotalPages) {
+        pushPage(page)
+      }
+    }
+    if (blogTotalPages > 1) {
+      pushPage(blogTotalPages)
+    }
+    items.sort((a, b) => (a.page ?? 0) - (b.page ?? 0))
+
+    const withEllipsis = []
+    items.forEach((item, index) => {
+      const prev = items[index - 1]
+      if (prev && item.page - prev.page > 1) {
+        withEllipsis.push({ type: 'ellipsis', key: `ellipsis-${prev.page}-${item.page}` })
+      }
+      withEllipsis.push(item)
+    })
+    return withEllipsis
+  }, [blogCurrentPage, blogTotalPages])
 
   const blogIsEmpty =
-    (showFeaturedBlogSection ? featuredFilteredBlogPosts.length : 0) + blogFeedPosts.length === 0
+    isBlogListRoute
+      ? blogListSourcePosts.length === 0
+      : (showFeaturedBlogSection ? featuredFilteredBlogPosts.length : 0) + blogFeedPosts.length === 0
+
+  const getBlogLinkPathByRule = useCallback((rule) => {
+    if (rule.kind === 'encyclopedia' && rule.slug) {
+      return `${getLocaleEncyclopediaPath(currentLocale)}${rule.slug}/`
+    }
+    if (rule.kind === 'guide-detail' && rule.slug) {
+      return `/${currentLocale}/guides/${rule.slug}/`
+    }
+    if (rule.kind === 'docs-section' && rule.section) {
+      return getLocaleDocsPath(currentLocale, rule.section ?? '')
+    }
+    if (rule.kind === 'docs-article' && rule.section && rule.item) {
+      return getLocaleDocsPath(currentLocale, rule.section, rule.item)
+    }
+    return ''
+  }, [currentLocale, getLocaleDocsPath])
+
+  const linkifyBlogParagraph = useCallback((paragraph, postSlug, paragraphIndex) => {
+    const text = `${paragraph ?? ''}`
+    if (!text.trim()) {
+      return text
+    }
+
+    const matches = []
+    blogInlineLinkRules.forEach((rule, ruleIndex) => {
+      const path = getBlogLinkPathByRule(rule)
+      if (!path) {
+        return
+      }
+      ;(rule.terms ?? []).forEach((term, termIndex) => {
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const isLatinTerm = /[a-z]/i.test(term)
+        const pattern = isLatinTerm
+          ? `(^|[^a-zA-Z0-9])(${escapedTerm})(?=$|[^a-zA-Z0-9])`
+          : `(${escapedTerm})`
+        const regex = new RegExp(pattern, 'gi')
+        let match = regex.exec(text)
+        while (match) {
+          const matchedToken = isLatinTerm ? match[2] : match[1]
+          const start = isLatinTerm ? match.index + match[1].length : match.index
+          const end = start + matchedToken.length
+          matches.push({
+            start,
+            end,
+            label: matchedToken,
+            path,
+            weight: matchedToken.length + (ruleIndex * 0.01) + (termIndex * 0.001),
+          })
+          match = regex.exec(text)
+        }
+      })
+    })
+
+    if (!matches.length) {
+      return text
+    }
+
+    matches.sort((a, b) => {
+      if (a.start !== b.start) {
+        return a.start - b.start
+      }
+      return b.weight - a.weight
+    })
+
+    const selected = []
+    let cursor = -1
+    matches.forEach((match) => {
+      if (match.start >= cursor) {
+        selected.push(match)
+        cursor = match.end
+      }
+    })
+
+    if (!selected.length) {
+      return text
+    }
+
+    const nodes = []
+    let pointer = 0
+    selected.forEach((match, index) => {
+      if (match.start > pointer) {
+        nodes.push(text.slice(pointer, match.start))
+      }
+      nodes.push(
+        <a
+          key={`blog-inline-link-${postSlug}-${paragraphIndex}-${index}`}
+          href={match.path}
+          className="blog-inline-link"
+        >
+          {match.label}
+        </a>,
+      )
+      pointer = match.end
+    })
+    if (pointer < text.length) {
+      nodes.push(text.slice(pointer))
+    }
+    return nodes
+  }, [getBlogLinkPathByRule])
+
+  const currentBlogDetailLinks = useMemo(() => {
+    if (!currentBlogPost) {
+      return []
+    }
+    return [
+      {
+        key: 'community',
+        label: isZhContent ? '社区交流' : 'Community',
+        path: 'https://bbs.wps.cn/',
+        external: true,
+      },
+      {
+        key: 'products',
+        label: isZhContent ? '功能查看' : 'Product Features',
+        path: getLocaleAllProductsPath(currentLocale),
+      },
+      {
+        key: 'encyclopedia',
+        label: isZhContent ? '术语解读' : 'Concepts',
+        path: getLocaleEncyclopediaPath(currentLocale),
+      },
+    ]
+  }, [currentBlogPost, currentLocale, isZhContent])
+
+  const blogTopicIntroByCategory = useMemo(() => ({
+    'industry-trends': isZhContent
+      ? '聚合行业趋势观察与关键洞察，帮助你把握 AI 办公长期方向。'
+      : 'Topic hub for industry trends and practical observations on AI-powered work.',
+    'product-updates': isZhContent
+      ? '聚合版本亮点、功能进展与路线信号，快速了解产品变化。'
+      : 'Topic hub for release highlights, feature updates, and roadmap signals.',
+    viewpoints: isZhContent
+      ? '聚合专家洞察与方法论评测，帮助团队建立可复用认知框架。'
+      : 'Topic hub for expert insights and methodology perspectives.',
+    'customer-stories': isZhContent
+      ? '聚合客户案例与 ROI 实践，沉淀可复制的落地路径。'
+      : 'Topic hub for customer stories, ROI outcomes, and best practices.',
+    events: isZhContent
+      ? '聚合发布会、白皮书与报告，快速追踪关键活动信息。'
+      : 'Topic hub for launch events, whitepapers, and benchmark reports.',
+  }), [isZhContent])
 
   const blogOverlayRelatedPosts = useMemo(() => {
     if (!currentBlogPost) {
       return []
     }
+    const sourceTagSlugs = new Set((currentBlogPost.tags ?? []).map((tag) => toBlogTagSlug(tag)))
+    const sourceStage = blogCategoryJourneyStageMap[currentBlogPost.category] ?? ''
     return localizedBlogPosts
-      .filter(
-        (post) =>
-          post.slug !== currentBlogPost.slug &&
-          (post.category === currentBlogPost.category ||
-            post.authorName === currentBlogPost.authorName),
-      )
-      .slice(0, 3)
+      .filter((post) => post.slug !== currentBlogPost.slug)
+      .map((post) => {
+        const postTagSlugs = (post.tags ?? []).map((tag) => toBlogTagSlug(tag))
+        const hasSameTag = postTagSlugs.some((tagSlug) => sourceTagSlugs.has(tagSlug))
+        const sameStage =
+          (blogCategoryJourneyStageMap[post.category] ?? '') === sourceStage
+        const score = (hasSameTag ? 3 : 0) + (sameStage ? 2 : 0) + (post.category === currentBlogPost.category ? 1 : 0)
+        return { post, score }
+      })
+      .sort((a, b) => b.score - a.score || (a.post.date < b.post.date ? 1 : -1))
+      .map((item) => item.post)
+      .slice(0, 4)
   }, [currentBlogPost, localizedBlogPosts])
 
   const currentTemplateLibrary = useMemo(() => {
@@ -2883,6 +3447,35 @@ function App() {
       }
     )
   }, [currentTemplateRoute, templateLibraryData, localizeString])
+  const isBlueLetterTemplateDetail = currentTemplateRoute?.kind === 'detail'
+    && currentTemplateRoute?.key === 'resume'
+    && currentTemplateDetail?.slug === 'modern-professional'
+  const blueLetterSpecs = useMemo(() => (isZhContent ? [
+    { label: '下载量', value: '44,842' },
+    { label: '格式', value: 'WORD' },
+    { label: '浏览量', value: '231,680' },
+    { label: 'Microsoft Office', value: 'windows / MAC / Android 支持' },
+    { label: '文件大小', value: '968.03KB' },
+    { label: 'WPS Office', value: 'windows / MAC / Android 支持' },
+  ] : [
+    { label: 'Downloads', value: '44,842' },
+    { label: 'Format', value: 'WORD' },
+    { label: 'Views', value: '231,680' },
+    { label: 'Microsoft Office', value: 'windows / MAC / Android supported' },
+    { label: 'File Size', value: '968.03KB' },
+    { label: 'WPS Office', value: 'windows / MAC / Android supported' },
+  ]), [isZhContent])
+  const blueLetterRecommendations = useMemo(() => ([
+    'Simple Yellow Cartoon Animal Letter.doc',
+    'Fresh Green Nature Letter.docx',
+    'Cool Blue Ocean Village Letter.docx',
+    'Blue Fresh Flowers Letter.docx',
+    'Simple Blue&White Plant Letter.docx',
+    'Natural Green Blue Holiday Letter.doc',
+    'Blue and Yellow Letter Paper.docx',
+    'Fresh Blue Flower Letter Paper.docx',
+  ]), [])
+  const blueLetterPreviewImage = 'https://image.thum.io/get/width/1200/crop/1000/https://template.wps.com/detail/Blue-Letter-docx-word-Letters-05c13450/'
 
   const isTemplatesPage = useMemo(() => {
     const { normalizedSegments } = splitPath(currentPathname)
@@ -2906,10 +3499,10 @@ function App() {
   }, [currentTemplateRoute?.kind, currentTemplateRoute?.key])
 
   useEffect(() => {
-    if (currentBlogRoute?.kind === 'index') {
+    if (currentBlogRoute?.kind && currentBlogRoute.kind !== 'detail') {
       return
     }
-    setActiveBlogCategory('all')
+    setActiveBlogCategory('featured')
     setActiveBlogAuthor('')
     setBlogSearchQuery('')
   }, [currentBlogRoute?.kind])
@@ -2994,12 +3587,29 @@ function App() {
   const localePricingPath = getLocalePricingPath(currentLocale)
   const localeDocsPath = getLocaleDocsPath(currentLocale)
   const localeBlogPath = getLocaleBlogPath(currentLocale)
+  const localeBlogAllPath = getLocaleBlogAllPath(currentLocale)
   const localeEncyclopediaPath = getLocaleEncyclopediaPath(currentLocale)
   const localeAnswersPath = getLocaleAnswersPath(currentLocale)
   const localeAllProductsPath = getLocaleAllProductsPath(currentLocale)
   const localeAllTemplatesPath = getLocaleAllTemplatesPath(currentLocale)
   const localeWorldwidePath = getLocaleWorldwidePath(currentLocale)
   const localeGuidesPath = getLocaleGuidesPath(currentLocale)
+
+  const getBlogListPagePath = useCallback((page) => {
+    if (!currentBlogRoute) {
+      return getLocaleBlogAllPath(currentLocale, page)
+    }
+    if (currentBlogRoute.kind === 'all') {
+      return getLocaleBlogAllPath(currentLocale, page)
+    }
+    if (currentBlogRoute.kind === 'category' && currentBlogRoute.categoryId) {
+      return getLocaleBlogCategoryPath(currentLocale, currentBlogRoute.categoryId, page)
+    }
+    if (currentBlogRoute.kind === 'tag' && currentBlogRoute.tagSlug) {
+      return getLocaleBlogTagPath(currentLocale, currentBlogRoute.tagSlug, page)
+    }
+    return getLocaleBlogAllPath(currentLocale, page)
+  }, [currentBlogRoute, currentLocale])
   const footerBlurb = isZhContent
     ? '人人可用的 AI 办公套件。'
     : localizeString('AI-powered office suite for everyone.')
@@ -3015,27 +3625,29 @@ function App() {
     () => [
       { label: uiText.nav.templates, path: localeAllTemplatesPath },
       { label: uiText.nav.guides, path: localeGuidesPath },
-      { label: uiText.nav.blog, path: localeBlogPath },
-      { label: localizeString('API Docs') },
+      { label: uiText.nav.docsCenter, path: localeDocsPath },
+      { label: uiText.nav.encyclopedia, path: localeEncyclopediaPath },
+      { label: uiText.nav.qa, path: localeAnswersPath },
     ],
     [
       localeAllTemplatesPath,
-      localeBlogPath,
+      localeAnswersPath,
+      localeDocsPath,
+      localeEncyclopediaPath,
       localeGuidesPath,
-      localizeString,
-      uiText.nav.blog,
+      uiText.nav.docsCenter,
+      uiText.nav.encyclopedia,
       uiText.nav.guides,
+      uiText.nav.qa,
       uiText.nav.templates,
     ],
   )
   const footerCompanyLinks = useMemo(
     () => [
-      { label: localizeString('About') },
-      { label: localizeString('Careers') },
-      { label: localizeString('Press') },
-      { label: localizeString('Contact') },
+      { label: uiText.nav.blog, path: localeBlogPath },
+      { label: uiText.nav.community, path: 'https://bbs.wps.cn/', external: true },
     ],
-    [localizeString],
+    [localeBlogPath, uiText.nav.blog, uiText.nav.community],
   )
   const footerLegalLinks = useMemo(
     () => [
@@ -3258,16 +3870,17 @@ function App() {
   const encyclopediaEntries = useMemo(
     () =>
       resolveEncyclopediaEntriesForLocale(encyclopediaLocale, localizeString).map((entry) => {
-        const category = encyclopediaCategoryBySlug[entry.slug] ?? 'overview'
-        const docsPath = entry.docsSlug ? `${localeDocsPath}${entry.docsSlug}/` : localeDocsPath
+        const category = entry.categoryId ?? encyclopediaCategoryBySlug[entry.slug] ?? 'terminology'
+        const normalizedDocsSection = encyclopediaDocsSectionAliasMap[entry.docsSlug] ?? entry.docsSlug
+        const docsPath = normalizedDocsSection ? getLocaleDocsPath(currentLocale, normalizedDocsSection) : localeDocsPath
         return {
           ...entry,
           category,
-          image: encyclopediaCategoryImageMap[category] ?? encyclopediaCategoryImageMap.overview,
+          image: encyclopediaCategoryImageMap[category] ?? encyclopediaCategoryImageMap.terminology,
           docsPath,
         }
       }),
-    [encyclopediaLocale, localizeString, localeDocsPath],
+    [currentLocale, encyclopediaLocale, getLocaleDocsPath, localizeString, localeDocsPath],
   )
   const encyclopediaCategoryTabs = useMemo(
     () =>
@@ -3306,11 +3919,14 @@ function App() {
     )
   }, [encyclopediaEntries, normalizedEncyclopediaQuery])
   const filteredEncyclopediaEntries = useMemo(() => {
+    if (normalizedEncyclopediaQuery) {
+      return searchedEncyclopediaEntries
+    }
     if (activeEncyclopediaCategory === 'all') {
       return searchedEncyclopediaEntries
     }
     return searchedEncyclopediaEntries.filter((entry) => entry.category === activeEncyclopediaCategory)
-  }, [activeEncyclopediaCategory, searchedEncyclopediaEntries])
+  }, [activeEncyclopediaCategory, normalizedEncyclopediaQuery, searchedEncyclopediaEntries])
   const featuredEncyclopediaEntries = useMemo(
     () => filteredEncyclopediaEntries.slice(0, 3),
     [filteredEncyclopediaEntries],
@@ -3338,7 +3954,51 @@ function App() {
       .filter(Boolean)
       .slice(0, 4)
   }, [currentEncyclopediaEntry, encyclopediaEntries])
+  const currentEncyclopediaActionLinks = useMemo(() => {
+    if (!currentEncyclopediaEntry) {
+      return []
+    }
+    return [
+      {
+        id: 'blog',
+        label: isZhContent ? '官方博客' : 'Official Blog',
+        path: localeBlogPath,
+      },
+      {
+        id: 'docs',
+        label: isZhContent ? '产品详情' : 'Product Details',
+        path: localeDocsPath,
+      },
+      {
+        id: 'answers',
+        label: isZhContent ? '问答中心' : 'Answers Center',
+        path: localeAnswersPath,
+      },
+    ]
+  }, [
+    currentEncyclopediaEntry,
+    isZhContent,
+    localeAnswersPath,
+    localeBlogPath,
+    localeDocsPath,
+  ])
   const isEncyclopediaOverlayOpen = pageType === 'encyclopedia' && Boolean(currentEncyclopediaEntry)
+
+  const isDocsDetailOpen = useMemo(() => {
+    const { normalizedSegments } = splitPath(currentPathname)
+    return normalizedSegments[0] === 'docs' && Boolean(normalizedSegments[2])
+  }, [currentPathname])
+
+  const showSiteFooter = useMemo(() => {
+    const hiddenPageTypes = new Set(['blog-detail', 'guide-detail', 'template-detail', 'tool-demo'])
+    if (hiddenPageTypes.has(pageType)) {
+      return false
+    }
+    if (isBlogOverlayOpen || isEncyclopediaOverlayOpen || isDocsDetailOpen) {
+      return false
+    }
+    return true
+  }, [pageType, isBlogOverlayOpen, isEncyclopediaOverlayOpen, isDocsDetailOpen])
 
   useEffect(() => {
     document.body.style.overflow =
@@ -3365,7 +4025,7 @@ function App() {
   const answersCategories = useMemo(
     () => localizedAnswersHotCategories.map((item, index) => ({
       ...item,
-      slug: toTopicSlug(item.title),
+      slug: toTopicSlug(item.sourceTitle ?? item.title),
       rank: index,
     })),
     [localizedAnswersHotCategories],
@@ -3448,6 +4108,24 @@ function App() {
     localizedAnswersForumQuestionSeeds,
     localizedAnswersForumTemplates,
   ])
+  const normalizedGuidesSearch = normalizeModuleSearchQuery(guidesSearchQuery)
+  const normalizedAnswersSearch = normalizeModuleSearchQuery(answersSearchQuery)
+  const normalizedAnswersForumSearch = normalizeModuleSearchQuery(answersForumSearchQuery)
+  const filteredAnswersCategories = useMemo(
+    () =>
+      answersCategories.filter((item) =>
+        [item.displayTitle ?? item.title, item.displayMeta ?? item.meta, item.desc]
+          .some((value) => moduleSearchMatches(value, normalizedAnswersSearch))),
+    [answersCategories, normalizedAnswersSearch],
+  )
+  const filteredAnswersForumQuestionItems = useMemo(
+    () =>
+      activeAnswersForumQuestionItems.filter((item) =>
+        [item.title, item.excerpt, item.topic, item.author]
+          .some((value) => moduleSearchMatches(value, normalizedAnswersForumSearch))),
+    [activeAnswersForumQuestionItems, normalizedAnswersForumSearch],
+  )
+  const moduleSearchEmptyText = isZhContent ? '未找到匹配结果。' : 'No matching results found.'
   const activeAnswersForumTotalCount = activeAnswersForumFilterSections[0]?.options[0]?.count ?? '0'
   const answersForumSummaryText = isZhContent
     ? `${activeAnswersForumTotalCount}${answersUiText.forumSummaryMiddle}${activeAnswersForumCategoryDisplayTitle}相关`
@@ -3455,9 +4133,85 @@ function App() {
   const answersForumIntroText = isZhContent
     ? `${answersUiText.forumIntroPrefix}${activeAnswersForumCategoryDisplayMeta}${answersUiText.forumIntroConnector}${activeAnswersForumCategoryDisplayTitle}${answersUiText.forumIntroSuffix}`
     : `${answersUiText.forumIntroPrefix} ${activeAnswersForumCategoryDisplayMeta}${answersUiText.forumIntroConnector} ${activeAnswersForumCategoryDisplayTitle} ${answersUiText.forumIntroSuffix}`
-  const filteredLocalizedGuides = localizedGuideItems.filter(
-    (item) => activeGuideCategory === 'all' || item.category === activeGuideCategory,
+  const filteredLocalizedGuides = useMemo(
+    () =>
+      localizedGuideItems.filter((item) => {
+        const matchesCategory =
+          normalizedGuidesSearch
+            ? true
+            : activeGuideCategory === 'all' || item.category === activeGuideCategory
+        const matchesSearch =
+          moduleSearchMatches(item.title, normalizedGuidesSearch)
+          || moduleSearchMatches(item.desc, normalizedGuidesSearch)
+        return matchesCategory && matchesSearch
+      }),
+    [activeGuideCategory, localizedGuideItems, normalizedGuidesSearch],
   )
+  const moduleJourneyConfigs = useMemo(() => {
+    return {
+      'guide-detail': {
+        links: [
+          { label: isZhContent ? '问答中心' : 'Answers Center', path: localeAnswersPath },
+          { label: isZhContent ? '社区交流' : 'Community', path: 'https://bbs.wps.cn/', external: true },
+          { label: isZhContent ? '立即体验' : 'Try Now', path: localeDownloadPath },
+        ],
+      },
+      'template-detail': {
+        links: [
+          { label: isZhContent ? '套餐方案' : 'Pricing Plans', path: localePricingPath },
+          { label: isZhContent ? '立即体验' : 'Try Now', path: localeDownloadPath },
+          { label: isZhContent ? '社区交流' : 'Community', path: 'https://bbs.wps.cn/', external: true },
+        ],
+      },
+      'tool-demo': {
+        links: [
+          { label: isZhContent ? '问答中心' : 'Answers Center', path: localeAnswersPath },
+          { label: isZhContent ? '指南教程' : 'Guides', path: localeGuidesPath },
+          { label: isZhContent ? '立即体验' : 'Try Now', path: localeDownloadPath },
+        ],
+      },
+    }
+  }, [
+    isZhContent,
+    localeAnswersPath,
+    localeDownloadPath,
+    localeGuidesPath,
+    localePricingPath,
+  ])
+
+  const renderModuleJourneyPanel = (moduleKey) => {
+    const config = moduleJourneyConfigs[moduleKey]
+    if (!config) {
+      return null
+    }
+    return (
+      <section className="px-6 pb-12">
+        <div className="module-deeplink-panel mx-auto w-full max-w-[1160px]">
+          <div className="module-deeplink-inline">
+            <span className="module-deeplink-prefix">{isZhContent ? '继续探索：' : 'Explore next:'}</span>
+            {config.links.map((link) => (
+              <a
+                key={`${moduleKey}-${link.path}-${link.label}`}
+                href={link.path}
+                className="module-deeplink-link"
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                onClick={(event) => {
+                  if (link.external) {
+                    return
+                  }
+                  event.preventDefault()
+                  navigateTo(link.path)
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
   const renderDesktopMainNavItem = (item) => {
     if (item.type === 'products') {
       return (
@@ -3735,7 +4489,7 @@ function App() {
   const isDesktopMegaMenuOpen = isProductsMenuOpen || isTemplatesMenuOpen
 
   return (
-    <div className="home-figma-page min-h-screen overflow-x-clip bg-[#fffdfd] text-[#1a202c]">
+    <div className="home-figma-page flex min-h-screen flex-col overflow-x-clip bg-[#fffdfd] text-[#1a202c]">
       <header className={`sticky top-0 z-20 border-b border-[#e2e8f0] bg-white/95 backdrop-blur-[12px] home-page-header${isDesktopMegaMenuOpen ? ' home-page-header--mega-open' : ''}`}>
         <div className="home-page-header-inner relative mx-auto flex h-[60px] w-full max-w-[1240px] items-center gap-4 px-6">
           <div className="flex shrink-0 items-center justify-start">
@@ -4061,7 +4815,7 @@ function App() {
         </div>
       )}
 
-      <main>
+      <main className="flex-1">
         {pageType === 'home' ? (
           <>
             <section className="home-hero-section px-6 py-[72px] text-center">
@@ -4075,20 +4829,6 @@ function App() {
             <p className="home-hero-desc mx-auto mt-4 max-w-[640px] text-[18px] text-[#4a5568]">
               {uiText.home.heroDesc}
             </p>
-            <div className="home-hero-actions mt-7 flex flex-wrap items-center justify-center gap-3">
-              <button
-                className="home-primary-btn rounded-[10px] bg-[#534ab7] px-7 py-[13px] text-[16px] font-semibold text-white transition hover:bg-[#3c3489]"
-                type="button"
-              >
-                  {uiText.nav.getStartedFree}
-              </button>
-              <button
-                className="home-secondary-btn rounded-[10px] border border-[#e2e8f0] bg-transparent px-7 py-[13px] text-[16px] font-semibold text-[#1a202c] transition hover:border-[#7f77dd] hover:bg-[#eeedfe] hover:text-[#534ab7]"
-                type="button"
-              >
-                {uiText.home.seeHowItWorks}
-              </button>
-        </div>
           </div>
             </section>
 
@@ -4115,6 +4855,15 @@ function App() {
 
             <section className="home-products-section px-6 py-12">
           <div className="home-section-inner mx-auto w-full max-w-[1160px]">
+            <div className="mb-5 flex justify-center">
+              <button
+                className="home-cta-button rounded-[10px] bg-[#534ab7] px-7 py-[13px] text-[16px] font-semibold text-white transition hover:bg-[#3c3489]"
+                type="button"
+                onClick={() => navigateTo(localeDownloadPath)}
+              >
+                {uiText.home.startForFree}
+              </button>
+            </div>
             <h2 className="home-section-title mb-8 text-center text-[clamp(20px,2.5vw,26px)] font-semibold text-[#1a202c]">
               {uiText.home.ourProducts}
             </h2>
@@ -4197,41 +4946,26 @@ function App() {
           </div>
             </section>
 
-            <section className="home-cta-section bg-gradient-to-br from-[#534ab7] to-[#3c3489] px-6 py-16 text-center text-white">
-          <div className="home-cta-card mx-auto w-full max-w-[1160px]">
-            <h2 className="home-cta-title text-[clamp(20px,2.5vw,26px)] font-semibold text-white">
-              {uiText.home.readyToBoost}
-            </h2>
-            <p className="home-cta-desc mb-7 mt-3 text-[16px] text-white/85">
-              {uiText.home.joinUsers}
-            </p>
-        <button
-              className="home-cta-button rounded-[10px] bg-white px-7 py-[13px] text-[16px] font-semibold text-[#534ab7] transition hover:bg-[#f1efe8]"
-          type="button"
-          onClick={() => navigateTo(localeDownloadPath)}
-        >
-              {uiText.home.startForFree}
-        </button>
-          </div>
-            </section>
           </>
         ) : pageType === 'docs-center' ? (
-          <DocsCenterPage
-            currentLocale={currentLocale}
-            currentPathname={currentPathname}
-            navigateTo={navigateTo}
-            getLocaleDocsPath={getLocaleDocsPath}
-            docsUiText={docsUiText}
-            jumpCards={localizedDocsJumpCards}
-            infoPanels={localizedDocsFaqItems}
-            sectionSlugMap={localizedDocsSectionSlugMap}
-            activeSection={activeDocsSection}
-            catalogSections={localizedDocsCatalogSections}
-            sourceCatalogSections={docsCatalogSections}
-            sectionMarkersMap={localizedDocsSectionMarkersMap}
-            sourceSectionMarkersMap={docsSectionMarkersMap}
-            getSectionBlocks={getDocsSectionBlocks}
-          />
+          <>
+            <DocsCenterPage
+              currentLocale={currentLocale}
+              currentPathname={currentPathname}
+              navigateTo={navigateTo}
+              getLocaleDocsPath={getLocaleDocsPath}
+              docsUiText={docsUiText}
+              jumpCards={localizedDocsJumpCards}
+              infoPanels={localizedDocsFaqItems}
+              sectionSlugMap={localizedDocsSectionSlugMap}
+              activeSection={activeDocsSection}
+              catalogSections={localizedDocsCatalogSections}
+              sourceCatalogSections={docsCatalogSections}
+              sectionMarkersMap={localizedDocsSectionMarkersMap}
+              sourceSectionMarkersMap={docsSectionMarkersMap}
+              getSectionBlocks={getDocsSectionBlocks}
+            />
+          </>
         ) : isBlogCenterPage ? (
           <div className="blog-center">
             <a href="#blog-main" className="blog-skip-link">
@@ -4270,10 +5004,17 @@ function App() {
                 <button
                   key={`blog-tab-${tab.id}`}
                   type="button"
-                  className={`blog-filter-btn${activeBlogCategory === tab.id ? ' active' : ''}`}
+                  className={`blog-filter-btn${activeBlogTabId === tab.id ? ' active' : ''}`}
                   role="tab"
-                  aria-selected={activeBlogCategory === tab.id}
+                  aria-selected={activeBlogTabId === tab.id}
                   onClick={() => {
+                    if (tab.id === 'featured') {
+                      navigateTo(localeBlogPath)
+                    } else if (tab.id === 'all') {
+                      navigateTo(localeBlogAllPath)
+                    } else {
+                      navigateTo(getLocaleBlogCategoryPath(currentLocale, tab.id))
+                    }
                     setActiveBlogCategory(tab.id)
                     setActiveBlogAuthor('')
                     setBlogSearchQuery('')
@@ -4287,19 +5028,118 @@ function App() {
             <div id="blog-main" className="blog-main blog-center-container">
               {blogIsEmpty ? (
                 <p className="blog-empty">{uiText.blog.noResults}</p>
+              ) : isBlogListRoute ? (
+                <section className="blog-section blog-section--primary" id="blogListingSection">
+                  <h2 className="blog-section-title">{blogPrimaryTitle}</h2>
+                  {currentBlogRoute?.kind === 'category' ? (
+                    <p className="blog-topic-intro">
+                      {blogTopicIntroByCategory[currentBlogRoute.categoryId] ?? uiText.blog.heroDesc}
+                    </p>
+                  ) : null}
+                  <div className="blog-list-grid">
+                    {blogPaginatedPosts.map((post) => (
+                      <article
+                        key={`listing-${post.slug}`}
+                        className="blog-card blog-card--primary"
+                        onClick={() => navigateTo(`/${currentLocale}/blog/${post.slug}/`)}
+                      >
+                        <div
+                          className={`blog-card-accent ${blogCategoryAccentClassMap[post.category] ?? blogCategoryAccentClassMap['product-updates']}`}
+                        />
+                        {post.image ? (
+                          <div className="blog-card-media">
+                            <img src={post.image} alt={post.imageAlt ?? post.title} loading="lazy" />
+                          </div>
+                        ) : null}
+                        <div className="blog-card-body">
+                          <p className="blog-card-meta">
+                            {showBlogCategoryChipInList ? (
+                              <span className="blog-card-category-chip">
+                                {blogCategoryLabelMap[post.category] ?? uiText.templates.categories}
+                              </span>
+                            ) : null}
+                            <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
+                            <span className="blog-card-sep">|</span>
+                            <span>{post.readTime}</span>
+                            <span className="blog-card-sep">|</span>
+                            <a
+                              href="#"
+                              className="blog-author-link"
+                              onClick={(event) => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                setActiveBlogAuthor(post.authorName)
+                                setBlogSearchQuery('')
+                              }}
+                            >
+                              {post.authorName}
+                            </a>
+                            <span className="blog-card-role"> - {post.authorRole}</span>
+                          </p>
+                          <h3 className="blog-card-title">
+                            <a
+                              href={`/${currentLocale}/blog/${post.slug}/`}
+                              onClick={(event) => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                navigateTo(`/${currentLocale}/blog/${post.slug}/`)
+                              }}
+                            >
+                              {post.title}
+                            </a>
+                          </h3>
+                          <p className="blog-card-excerpt">{post.excerpt}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  {blogTotalPages > 1 ? (
+                    <nav className="blog-pagination" aria-label={localizeString('Pagination')}>
+                      <button
+                        type="button"
+                        className="blog-pagination-btn blog-pagination-btn--nav"
+                        disabled={blogCurrentPage <= 1}
+                        onClick={() => navigateTo(getBlogListPagePath(blogCurrentPage - 1))}
+                      >
+                        {uiText.blog.prevPage}
+                      </button>
+                      {blogPaginationItems.map((item) => item.type === 'ellipsis' ? (
+                        <span key={item.key} className="blog-pagination-ellipsis">...</span>
+                      ) : (
+                        <button
+                          key={`blog-page-${item.page}`}
+                          type="button"
+                          className={`blog-pagination-btn${item.page === blogCurrentPage ? ' active' : ''}`}
+                          onClick={() => navigateTo(getBlogListPagePath(item.page))}
+                        >
+                          {item.page}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        className="blog-pagination-btn blog-pagination-btn--nav"
+                        disabled={blogCurrentPage >= blogTotalPages}
+                        onClick={() => navigateTo(getBlogListPagePath(blogCurrentPage + 1))}
+                      >
+                        {uiText.blog.nextPage}
+                      </button>
+                    </nav>
+                  ) : null}
+                </section>
               ) : (
                 <div className={`blog-home-grid${blogSecondaryPosts.length ? '' : ' blog-home-grid--single'}`}>
                   <section className="blog-section blog-section--primary" id="blogFeaturedSection">
                     <h2 className="blog-section-title">{blogPrimaryTitle}</h2>
                     <div className="blog-primary-list">
-                      {blogPrimaryPosts.map((post) => (
+                      {blogHomePrimaryPosts.map((post) => (
                         <article
                           key={`primary-${post.slug}`}
                           className="blog-card blog-card--primary"
                           onClick={() => navigateTo(`/${currentLocale}/blog/${post.slug}/`)}
                         >
                           <div
-                            className={`blog-card-accent ${blogCategoryAccentClassMap[post.category] ?? blogCategoryAccentClassMap.ai}`}
+                            className={`blog-card-accent ${blogCategoryAccentClassMap[post.category] ?? blogCategoryAccentClassMap['product-updates']}`}
                           />
                           {post.image ? (
                             <div className="blog-card-media">
@@ -4308,9 +5148,9 @@ function App() {
                           ) : null}
                           <div className="blog-card-body">
                             <p className="blog-card-meta">
-                              {activeBlogCategory === 'all' ? (
+                              {isBlogHomeRoute ? (
                                 <span className="blog-card-category-chip">
-                                  {blogCategoryLabelMap[post.category] ?? localizeString('All')}
+                                  {blogCategoryLabelMap[post.category] ?? uiText.templates.categories}
                                 </span>
                               ) : null}
                               <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
@@ -4324,7 +5164,6 @@ function App() {
                                   event.preventDefault()
                                   event.stopPropagation()
                                   setActiveBlogAuthor(post.authorName)
-                                  setActiveBlogCategory('all')
                                   setBlogSearchQuery('')
                                 }}
                               >
@@ -4353,7 +5192,16 @@ function App() {
 
                   {blogSecondaryPosts.length ? (
                     <aside className="blog-section blog-section--secondary" id="blogMoreSection">
-                      <h2 className="blog-section-title">{uiText.blog.moreNews}</h2>
+                      <div className="blog-section-title-row">
+                        <h2 className="blog-section-title">{uiText.blog.moreNews}</h2>
+                        <button
+                          type="button"
+                          className="blog-overlay-btn blog-overlay-btn--ghost blog-overlay-btn--sm blog-view-all-btn"
+                          onClick={() => navigateTo(localeBlogAllPath)}
+                        >
+                          {uiText.blog.viewAll}
+                        </button>
+                      </div>
                       <div className="blog-secondary-list">
                         {blogSecondaryPosts.map((post) => (
                           <article
@@ -4368,9 +5216,9 @@ function App() {
                             ) : null}
                             <div className="blog-card-body">
                               <p className="blog-card-meta">
-                                {activeBlogCategory === 'all' ? (
+                                {isBlogHomeRoute ? (
                                   <span className="blog-card-category-chip">
-                                    {blogCategoryLabelMap[post.category] ?? localizeString('All')}
+                                    {blogCategoryLabelMap[post.category] ?? uiText.templates.categories}
                                   </span>
                                 ) : null}
                                 <time dateTime={post.date}>{formatBlogDate(post.date, currentLocale)}</time>
@@ -4384,7 +5232,6 @@ function App() {
                                     event.preventDefault()
                                     event.stopPropagation()
                                     setActiveBlogAuthor(post.authorName)
-                                    setActiveBlogCategory('all')
                                     setBlogSearchQuery('')
                                   }}
                                 >
@@ -4456,73 +5303,114 @@ function App() {
 
                 {currentBlogPost ? (
                   <>
-                    <article className="blog-article" id="blogArticle">
-                      <p className="blog-article-meta">
-                        <time dateTime={currentBlogPost.date}>
-                          {formatBlogDate(currentBlogPost.date, currentLocale)}
-                        </time>{' '}
-                        |
-                        <a
-                          href="#"
-                          className="blog-author-link"
-                          onClick={(event) => {
-                            event.preventDefault()
-                            setActiveBlogAuthor(currentBlogPost.authorName)
-                            setActiveBlogCategory('all')
-                            setBlogSearchQuery('')
-                            navigateTo(localeBlogPath)
-                            window.scrollTo({ top: 0, behavior: 'smooth' })
-                          }}
-                        >
-                          {' '}
-                          {currentBlogPost.authorName}
-                        </a>
-                        <span className="blog-card-role"> - {currentBlogPost.authorRole}</span>
-                        <span className="blog-card-sep">|</span>
-                        <span>{currentBlogPost.readTime}</span>
-                      </p>
-                      <h1>{currentBlogPost.title}</h1>
-                      <p className="blog-article-lead">{currentBlogPost.excerpt}</p>
-                      {currentBlogPost.image ? (
-                        <figure className="blog-article-cover">
-                          <img src={currentBlogPost.image} alt={currentBlogPost.imageAlt ?? currentBlogPost.title} />
-                        </figure>
-                      ) : null}
-                      <div className="blog-article-body">
-                        {currentBlogPost.body.map((paragraph) => (
-                          <p key={paragraph}>{paragraph}</p>
-                        ))}
-                      </div>
-                      <div className="blog-article-tags">
-                        <span>{uiText.blog.tags}</span>
-                        {(currentBlogPost.tags ?? []).map((tag) => (
-                          <span key={`blog-tag-${tag}`} className="blog-tag">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </article>
-                    <aside className="blog-related" id="blogRelated">
-                      <h3>{uiText.blog.relatedPosts}</h3>
-                      <div id="blogRelatedList" className="blog-related-list">
-                        {blogOverlayRelatedPosts.map((post) => (
+                    <div className="blog-detail-layout">
+                      <article className="blog-article" id="blogArticle">
+                        <p className="blog-article-meta">
+                          <time dateTime={currentBlogPost.date}>
+                            {formatBlogDate(currentBlogPost.date, currentLocale)}
+                          </time>{' '}
+                          |
                           <a
-                            key={`blog-related-${post.slug}`}
-                            href={`/${currentLocale}/blog/${post.slug}/`}
-                            className="blog-related-item"
+                            href="#"
+                            className="blog-author-link"
                             onClick={(event) => {
                               event.preventDefault()
-                              navigateTo(`/${currentLocale}/blog/${post.slug}/`)
+                              setActiveBlogAuthor(currentBlogPost.authorName)
+                              setBlogSearchQuery('')
+                              navigateTo(localeBlogPath)
+                              window.scrollTo({ top: 0, behavior: 'smooth' })
                             }}
                           >
-                            <span className="blog-related-date">
-                              {formatBlogDate(post.date, currentLocale)}
-                            </span>
-                            <span className="blog-related-title">{post.title}</span>
+                            {' '}
+                            {currentBlogPost.authorName}
                           </a>
-                        ))}
-                      </div>
-                    </aside>
+                          <span className="blog-card-role"> - {currentBlogPost.authorRole}</span>
+                          <span className="blog-card-sep">|</span>
+                          <span>{currentBlogPost.readTime}</span>
+                        </p>
+                        <h1>{currentBlogPost.title}</h1>
+                        <p className="blog-article-lead">{currentBlogPost.excerpt}</p>
+                        {currentBlogPost.image ? (
+                          <figure className="blog-article-cover">
+                            <img src={currentBlogPost.image} alt={currentBlogPost.imageAlt ?? currentBlogPost.title} />
+                          </figure>
+                        ) : null}
+                        <div className="blog-article-body">
+                          {currentBlogPost.body.map((paragraph, paragraphIndex) => (
+                            <p key={`${currentBlogPost.slug}-body-${paragraphIndex}`}>{linkifyBlogParagraph(paragraph, currentBlogPost.slug, paragraphIndex)}</p>
+                          ))}
+                        </div>
+                        <div className="blog-article-tags">
+                          <span>{uiText.blog.tags}</span>
+                          {(currentBlogPost.tags ?? []).map((tag) => (
+                            <a
+                              key={`blog-tag-${tag}`}
+                              href={getLocaleBlogTagPath(currentLocale, toBlogTagSlug(tag))}
+                              className="blog-tag"
+                              onClick={(event) => {
+                                event.preventDefault()
+                                navigateTo(getLocaleBlogTagPath(currentLocale, toBlogTagSlug(tag)))
+                              }}
+                            >
+                              {tag}
+                            </a>
+                          ))}
+                        </div>
+                        {currentBlogDetailLinks.length ? (
+                          <section className="module-deeplink-panel module-deeplink-panel--article">
+                            <div className="module-deeplink-inline">
+                              <span className="module-deeplink-prefix">
+                                {isZhContent ? '继续探索：' : 'Explore next:'}
+                              </span>
+                              {currentBlogDetailLinks.map((link) => (
+                                <a
+                                  key={`article-next-${link.key}`}
+                                  href={link.path}
+                                  className="module-deeplink-link"
+                                  target={link.external ? '_blank' : undefined}
+                                  rel={link.external ? 'noopener noreferrer' : undefined}
+                                  onClick={(event) => {
+                                    if (link.external) {
+                                      return
+                                    }
+                                    event.preventDefault()
+                                    navigateTo(link.path)
+                                  }}
+                                >
+                                  {link.label}
+                                </a>
+                              ))}
+                            </div>
+                          </section>
+                        ) : null}
+                      </article>
+                      <aside className="blog-related" id="blogRelated">
+                        <h3>{uiText.blog.relatedPosts}</h3>
+                        <div id="blogRelatedList" className="blog-related-list">
+                          {blogOverlayRelatedPosts.map((post) => (
+                            <a
+                              key={`blog-related-${post.slug}`}
+                              href={`/${currentLocale}/blog/${post.slug}/`}
+                              className="blog-related-item"
+                              onClick={(event) => {
+                                event.preventDefault()
+                                navigateTo(`/${currentLocale}/blog/${post.slug}/`)
+                              }}
+                            >
+                              <span className="blog-related-date">
+                                {formatBlogDate(post.date, currentLocale)}
+                              </span>
+                              {post.image ? (
+                                <span className="blog-related-thumb">
+                                  <img src={post.image} alt={post.imageAlt ?? post.title} loading="lazy" />
+                                </span>
+                              ) : null}
+                              <span className="blog-related-title">{post.title}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </aside>
+                    </div>
                   </>
                 ) : null}
               </div>
@@ -4538,7 +5426,7 @@ function App() {
               <div className="ency-container ency-hero-inner">
                 <h1 className="ency-hero-title">{encyclopediaUiText.heroTitle}</h1>
                 <p className="ency-hero-sub">{encyclopediaUiText.heroSubtitle}</p>
-                <div className="blog-search-wrap ency-search-wrap">
+                <div className="blog-search-wrap ency-search-wrap mx-auto">
                   <label
                     className="blog-search-input-wrap"
                     aria-label={encyclopediaUiText.searchPlaceholder}
@@ -4714,44 +5602,9 @@ function App() {
                           </p>
                         ))}
                       </div>
-                      <div className="ency-article-actions">
-                        <h3>{encyclopediaUiText.quickActions}</h3>
-                        <div className="ency-article-action-grid">
-                          <a
-                            href={currentEncyclopediaEntry.docsPath ?? localeDocsPath}
-                            className="ency-article-action-link"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              navigateTo(currentEncyclopediaEntry.docsPath ?? localeDocsPath)
-                            }}
-                          >
-                            {encyclopediaUiText.browseDocs}
-                          </a>
-                          <a
-                            href={localeAnswersPath}
-                            className="ency-article-action-link"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              navigateTo(localeAnswersPath)
-                            }}
-                          >
-                            {encyclopediaUiText.browseAnswers}
-                          </a>
-                          <a
-                            href={localePricingPath}
-                            className="ency-article-action-link"
-                            onClick={(event) => {
-                              event.preventDefault()
-                              navigateTo(localePricingPath)
-                            }}
-                          >
-                            {localizeString('Plans & Pricing')}
-                          </a>
-                        </div>
-                      </div>
                     </article>
                     <aside className="ency-related" id="encyRelated">
-                      <h2>{encyclopediaUiText.continueLearning}</h2>
+                      <h2>{isZhContent ? '相关词条' : 'Related topics'}</h2>
                       <ul id="encyRelatedList" className="ency-related-list">
                         {currentEncyclopediaRelatedEntries.length > 0 ? (
                           currentEncyclopediaRelatedEntries.map((entry) => (
@@ -4773,6 +5626,24 @@ function App() {
                         )}
                       </ul>
                     </aside>
+                    <div className="ency-article-actions module-deeplink-panel">
+                      <div className="module-deeplink-inline">
+                        <span className="module-deeplink-prefix">{isZhContent ? '继续探索：' : 'Explore next:'}</span>
+                        {currentEncyclopediaActionLinks.map((action) => (
+                          <a
+                            key={`ency-action-${action.id}`}
+                            href={action.path}
+                            className="module-deeplink-link"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              navigateTo(action.path)
+                            }}
+                          >
+                            {action.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -4917,8 +5788,23 @@ function App() {
                   {uiText.guides.title}
                 </h1>
                 <p className="mt-2 text-[15px] text-[#5f6776]">
-                  {uiText.guides.desc}
+                  {isZhContent ? '5分钟快速上手实操内容' : '5-minute quick hands-on tutorials'}
                 </p>
+                <div className="mx-auto mt-5 blog-search-wrap">
+                  <label className="blog-search-input-wrap" aria-label={isZhContent ? '搜索指南' : 'Search guides'}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="search"
+                      placeholder={isZhContent ? '搜索指南标题或描述...' : 'Search guide title or description...'}
+                      autoComplete="off"
+                      value={guidesSearchQuery}
+                      onChange={(event) => setGuidesSearchQuery(event.target.value)}
+                    />
+                  </label>
+                </div>
               </div>
             </section>
 
@@ -4942,10 +5828,19 @@ function App() {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {filteredLocalizedGuides.map((guide) => (
+                  {filteredLocalizedGuides.length ? filteredLocalizedGuides.map((guide) => (
                     <article
                       key={guide.slug}
-                      className="flex h-full flex-col overflow-hidden rounded-[10px] border border-[#e1e4ec] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition hover:-translate-y-[1px] hover:shadow-[0_6px_16px_rgba(15,23,42,0.08)]"
+                      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-[10px] border border-[#e1e4ec] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition hover:-translate-y-[1px] hover:shadow-[0_6px_16px_rgba(15,23,42,0.08)]"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => navigateTo(`/${currentLocale}/guides/${guide.slug}/`)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          navigateTo(`/${currentLocale}/guides/${guide.slug}/`)
+                        }
+                      }}
                     >
                       <div className="px-4 pb-4 pt-4">
                         <span
@@ -4962,45 +5857,19 @@ function App() {
                       </div>
                       <div className="mt-auto flex items-center justify-between border-t border-[#edeff4] bg-[#f4f2ed] px-4 py-3">
                         <span className="text-[11px] text-[#9aa3b3]">{guide.readTime}</span>
-                        <a
-                          href={`/${currentLocale}/guides/${guide.slug}`}
-                          className="text-[12px] font-semibold text-[#5a51c9] transition hover:text-[#3f38a6]"
-                          onClick={(event) => {
-                            event.preventDefault()
-                            navigateTo(`/${currentLocale}/guides/${guide.slug}`)
-                          }}
-                        >
-                          {uiText.guides.readGuide} →
-                        </a>
                       </div>
                     </article>
-                  ))}
+                  )) : (
+                    <p className="rounded-[10px] border border-dashed border-[#cfd6e4] bg-white px-4 py-6 text-[13px] text-[#667085] md:col-span-2 xl:col-span-3">
+                      {moduleSearchEmptyText}
+                    </p>
+                  )}
                 </div>
               </div>
             </section>
           </div>
         ) : pageType === 'guide-detail' && currentGuide ? (
           <div className="bg-transparent">
-            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-4">
-              <div className="mx-auto w-full max-w-[1160px]">
-                <div className="flex items-center gap-2 text-[12px] text-[#7b8395]">
-                  <button type="button" onClick={() => navigateTo(localeHomePath)} className="hover:text-[#534ab7]">
-                    {localizeString('Home')}
-                  </button>
-                  <span>›</span>
-                  <button
-                    type="button"
-                    onClick={() => navigateTo(localeGuidesPath)}
-                    className="hover:text-[#534ab7]"
-                  >
-                    Guides
-                  </button>
-                  <span>›</span>
-                  <span className="font-semibold text-[#2e3442]">{currentGuide.title}</span>
-                </div>
-              </div>
-            </section>
-
             <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-10">
               <div className="mx-auto w-full max-w-[1160px]">
                 <span
@@ -5040,18 +5909,9 @@ function App() {
                   to your device immediately. Files are deleted from our servers within 24 hours.
                 </p>
 
-                <div className="mt-10 rounded-[12px] border border-[#e1e5f0] bg-[#f8f9fc] p-5 text-center">
-                  <h3 className="text-[20px] font-semibold text-[#1f2432]">{uiText.toolDemo.readyToTry}</h3>
-                  <button
-                    type="button"
-                    className="mt-4 rounded-[8px] bg-[#534ab7] px-6 py-2.5 text-[14px] font-semibold text-white transition hover:bg-[#3c3489]"
-                    onClick={() => navigateTo(localeGuidesPath)}
-                  >
-                    {uiText.guides.backToGuides}
-                  </button>
-                </div>
               </div>
             </section>
+            {renderModuleJourneyPanel('guide-detail')}
           </div>
         ) : pageType === 'pricing' ? (
           <div className="site-page-hero site-page-hero--mist px-6 py-16">
@@ -5077,7 +5937,7 @@ function App() {
                   >
                     {plan.featured && (
                       <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#534ab7] px-3 py-1 text-[11px] font-semibold text-white">
-                        Most Popular
+                        {isZhContent ? '最热' : 'Most Popular'}
                       </span>
                     )}
                     <h2 className="text-center text-[24px] font-semibold text-[#1f2432]">
@@ -5121,112 +5981,73 @@ function App() {
           <div className="bg-transparent">
             <section className="site-page-hero site-page-hero--aurora px-6 py-14">
               <div className="mx-auto w-full max-w-[1160px] text-center">
-                <p className="mx-auto inline-flex rounded-[20px] bg-[#ddd8fb] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
-                  {uiText.templates.libraryTitle}
-                </p>
-                <h1 className="mt-4 text-[clamp(30px,4.5vw,48px)] font-extrabold tracking-[-0.03em] text-[#1a202c]">
+                <h1 className="text-[clamp(30px,4.5vw,48px)] font-extrabold tracking-[-0.03em] text-[#1a202c]">
                   {uiText.templates.allTemplatesTitle}
                 </h1>
                 <p className="mx-auto mt-3 max-w-[860px] text-[15px] leading-7 text-[#4a5568]">
                   {uiText.templates.allTemplatesDesc}
                 </p>
+                <div className="mx-auto mt-5 blog-search-wrap">
+                  <label className="blog-search-input-wrap" aria-label={isZhContent ? '搜索模板' : 'Search templates'}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="search"
+                      value={allTemplatesSearchQuery}
+                      onChange={(event) => setAllTemplatesSearchQuery(event.target.value)}
+                      placeholder={isZhContent ? '搜索模板名称...' : 'Search templates...'}
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
               </div>
             </section>
 
             <section className="site-page-transition-section site-page-transition-section--aurora px-6 py-8">
               <div className="site-page-overlap-panel mx-auto w-full max-w-[1160px] overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0] bg-[#fafbfc] px-5 py-4">
-                  <p className="text-[14px] font-semibold text-[#2f3542]">
-                    {allTemplatesTab === 'category'
-                      ? `${uiText.templates.categories} (${allTemplatesSections.length})`
-                      : `${localizeString('A-Z Index')} (${allTemplatesAlphabetGroups.length} ${localizeString('letters')})`}
-                  </p>
-                  <div className="inline-flex overflow-hidden rounded-[10px] border border-[#d8dcef] bg-white">
-                    <button
-                      type="button"
-                      onClick={() => setAllTemplatesTab('category')}
-                      className={`px-4 py-2 text-[12px] font-semibold transition ${
-                        allTemplatesTab === 'category'
-                          ? 'bg-[#534ab7] text-white'
-                          : 'text-[#6a7080] hover:bg-[#f3f4f8] hover:text-[#2f3542]'
-                      }`}
-                    >
-                      {uiText.allProducts.viewByCategory}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAllTemplatesTab('alphabet')}
-                      className={`border-l border-[#d8dde3] px-4 py-2 text-[12px] font-semibold transition ${
-                        allTemplatesTab === 'alphabet'
-                          ? 'bg-[#534ab7] text-white'
-                          : 'text-[#6a7080] hover:bg-[#f3f4f8] hover:text-[#2f3542]'
-                      }`}
-                    >
-                      {uiText.allProducts.viewAZ}
-                    </button>
-                  </div>
-                </div>
-
-                  {allTemplatesTab === 'category'
-                    ? (
-                        <div className="p-4 md:p-6">
-                          {allTemplatesSections.map((section, sectionIndex) => (
-                            <Fragment key={section.title}>
-                              <h2
-                                className={`text-[14px] font-semibold text-[#2f3542]${
-                                  sectionIndex > 0 ? ' mt-6 border-t border-[#eef2f7] pt-6' : ''
-                                }`}
-                              >
-                                {section.displayTitle ?? section.title}
-                              </h2>
-                              <div className="mt-3 grid gap-2 sm:grid-cols-2 md:grid-cols-3">
-                                {section.items.map((item) => (
-                                  <a
-                                    key={item.name}
-                                    href={item.targetPath}
-                                    className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
-                                    onClick={(event) => {
-                                      event.preventDefault()
-                                      navigateTo(item.targetPath)
-                                    }}
-                                  >
-                                    {item.displayName ?? item.name}
-                                  </a>
-                                ))}
-                              </div>
-                            </Fragment>
-                          ))}
-                        </div>
-                      )
-                    : (
-                        <div className="grid gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
-                          {allTemplatesAlphabetGroups.map((group) => (
-                            <section
-                              key={group.letter}
-                              className="rounded-[12px] border border-[#e2e8f0] bg-[#fafbfc] p-4"
-                            >
-                              <h2 className="inline-flex rounded-[8px] bg-[#eeedfe] px-3 py-1 text-[12px] font-semibold tracking-wide text-[#3c3489]">
-                                {group.letter}
-                              </h2>
-                              <div className="mt-3 grid gap-2">
-                                {group.items.map((item) => (
-                                  <a
-                                    key={item.name}
-                                    href={item.targetPath}
-                                    className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
-                                    onClick={(event) => {
-                                      event.preventDefault()
-                                      navigateTo(item.targetPath)
-                                    }}
-                                  >
-                                    {item.displayName ?? item.name}
-                                  </a>
-                                ))}
-                              </div>
-                            </section>
-                          ))}
-                        </div>
+                <div className="grid min-h-[48vh] gap-5 p-4 md:grid-cols-[240px_minmax(0,1fr)] md:p-6">
+                  <aside className="rounded-[12px] border border-[#e6e9f2] bg-[#fafbff] p-3">
+                    <div className="grid gap-1">
+                      {allTemplatesSections.map((section) => (
+                        <button
+                          key={`all-templates-category-${section.title}`}
+                          type="button"
+                          onClick={() => setActiveAllTemplatesCategory(section.title)}
+                          className={`rounded-[8px] px-3 py-2 text-left text-[13px] font-semibold transition ${
+                            activeAllTemplatesSection?.title === section.title
+                              ? 'bg-[#534ab7] text-white'
+                              : 'text-[#596273] hover:bg-[#f1f3fb] hover:text-[#2f3542]'
+                          }`}
+                        >
+                          {section.displayTitle ?? section.title}
+                        </button>
+                      ))}
+                    </div>
+                  </aside>
+                  <section className="rounded-[12px] border border-[#e6e9f2] bg-white p-4 md:p-5">
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {activeAllTemplatesDisplayItems.length ? activeAllTemplatesDisplayItems.map((item) => (
+                        <a
+                          key={item.name}
+                          href={item.targetPath}
+                          className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
+                          onClick={(event) => {
+                            event.preventDefault()
+                            navigateTo(item.targetPath)
+                          }}
+                        >
+                          {item.displayName ?? item.name}
+                        </a>
+                      )) : (
+                        <p className="rounded-[8px] border border-dashed border-[#d6dbea] px-3 py-3 text-[12.5px] text-[#6b7280] sm:col-span-2 lg:col-span-3">
+                          {moduleSearchEmptyText}
+                        </p>
                       )}
+                    </div>
+                  </section>
+                </div>
               </div>
             </section>
           </div>
@@ -5294,362 +6115,423 @@ function App() {
         ) : currentTemplateRoute?.kind === 'detail' && currentTemplateDetail ? (
           <div className="site-page-hero site-page-hero--mist px-6 py-6">
             <section className="mx-auto w-full max-w-[1160px]">
-              <div className="grid gap-6 lg:grid-cols-[0.58fr_0.42fr]">
-                <div className="rounded-[12px] border border-[#d8deea] bg-[#f0f1fb] p-4">
-                  <div className="grid min-h-[520px] place-items-center rounded-[10px] border border-[#d7deea] bg-[#f2f2fc]">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border-2 border-[#9e71c8] text-[18px] text-[#9e71c8]">
-                      ▦
-                    </span>
+              {isBlueLetterTemplateDetail ? (
+                <div className="grid gap-6 lg:grid-cols-[0.62fr_0.38fr]">
+                  <div className="rounded-[12px] border border-[#d8deea] bg-[#f8fbff] p-3">
+                    <h1 className="px-2 pt-1 text-[28px] font-extrabold tracking-[-0.03em] text-[#1a202c]">Blue Letter.docx</h1>
+                    <div className="mt-3 rounded-[10px] border border-[#d7deea] bg-[#d8ecff] p-3">
+                      <img
+                        src={blueLetterPreviewImage}
+                        alt="Blue Letter preview"
+                        className="min-h-[560px] w-full rounded-[8px] border border-[#c6d8ef] object-cover object-top"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                  <aside className="space-y-4">
+                    <div className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                      <p className="text-[13px] leading-6 text-[#5a6374]">
+                        {isZhContent
+                          ? '你可以免费下载该模板，也可解锁更多优质模板资源。'
+                          : 'You are free for this item and thousands of excellent templates.'}
+                      </p>
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          type="button"
+                          className="rounded-[9px] bg-[#4ec57e] px-4 py-2 text-[13px] font-semibold text-white"
+                        >
+                          {isZhContent ? '免费下载' : 'Free Download'}
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-[9px] border border-[#d5dbea] bg-white px-4 py-2 text-[13px] font-semibold text-[#3d4658]"
+                        >
+                          {isZhContent ? '浏览器编辑' : 'Edit in browser'}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                      <h2 className="text-[16px] font-semibold text-[#1f2432]">{isZhContent ? '规格信息' : 'Specifications'}</h2>
+                      <div className="mt-3 grid gap-2">
+                        {blueLetterSpecs.map((spec) => (
+                          <div key={spec.label} className="flex items-start justify-between gap-3 text-[12.5px] text-[#5a6374]">
+                            <span>{spec.label}</span>
+                            <span className="text-right text-[#2f3542]">{spec.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                      <h2 className="text-[16px] font-semibold text-[#1f2432]">{isZhContent ? '你可能喜欢' : 'You May Like'}</h2>
+                      <div className="mt-3 grid gap-2">
+                        {blueLetterRecommendations.map((item) => (
+                          <div key={item} className="rounded-[8px] border border-[#edf0f6] px-3 py-2 text-[12.5px] text-[#4f5666]">
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </aside>
+                </div>
+              ) : (
+                <div className="grid gap-6 lg:grid-cols-[0.58fr_0.42fr]">
+                  <div className="rounded-[12px] border border-[#d8deea] bg-[#f0f1fb] p-4">
+                    <div className="grid min-h-[520px] place-items-center rounded-[10px] border border-[#d7deea] bg-[#f2f2fc]">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-[8px] border-2 border-[#9e71c8] text-[18px] text-[#9e71c8]">
+                        ▦
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-1">
+                    <h1 className="text-[32px] font-extrabold leading-[1.08] tracking-[-0.03em] text-[#1a202c]">
+                      {currentTemplateDetail.displayName ?? currentTemplateDetail.name}
+                    </h1>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[13px] text-[#6b7280]">
+                      <span className="rounded-[4px] bg-[#e7f7f0] px-2 py-1 text-[12px] font-semibold text-[#188c63]">
+                        {uiText.templates.free}
+                      </span>
+                      <span className="rounded-[4px] bg-[#e9f1f8] px-2 py-1 text-[12px] font-semibold text-[#376e93]">
+                        {currentTemplateRoute.key === 'resume'
+                          ? localizeString('ATS-Friendly')
+                          : currentTemplateRoute.key === 'presentation'
+                            ? localizeString('Business')
+                            : localizeString('Finance')}
+                      </span>
+                      <span className="text-[13px] text-[#6b7280]">{currentTemplateDetail.displayMeta ?? currentTemplateDetail.meta}</span>
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-5">
+                      <button
+                        type="button"
+                        className="rounded-[9px] bg-[#534ab7] px-6 py-2.5 text-[15px] font-semibold text-white transition hover:bg-[#3c3489]"
+                      >
+                        {localizeString('Use Template')}
+                      </button>
+                      <button
+                        type="button"
+                        className="text-[16px] font-semibold text-[#4b5563] transition hover:text-[#1f2937]"
+                      >
+                        {uiText.templates.preview}
+                      </button>
+                    </div>
+                    <p className="mt-2.5 text-[13px] text-[#a3aab8]">
+                      {localizeString('Ready in one click with editable sections.')}
+                    </p>
                   </div>
                 </div>
-
-                <div className="pt-1">
-                  <h1 className="text-[32px] font-extrabold leading-[1.08] tracking-[-0.03em] text-[#1a202c]">
-                    {currentTemplateDetail.displayName ?? currentTemplateDetail.name}
-                  </h1>
-                  <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[13px] text-[#6b7280]">
-                    <span className="rounded-[4px] bg-[#e7f7f0] px-2 py-1 text-[12px] font-semibold text-[#188c63]">
-                      {uiText.templates.free}
-                    </span>
-                    <span className="rounded-[4px] bg-[#e9f1f8] px-2 py-1 text-[12px] font-semibold text-[#376e93]">
-                      {currentTemplateRoute.key === 'resume'
-                        ? localizeString('ATS-Friendly')
-                        : currentTemplateRoute.key === 'presentation'
-                          ? localizeString('Business')
-                          : localizeString('Finance')}
-                    </span>
-                    <span className="text-[13px] text-[#6b7280]">{currentTemplateDetail.displayMeta ?? currentTemplateDetail.meta}</span>
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-5">
-                    <button
-                      type="button"
-                      className="rounded-[9px] bg-[#534ab7] px-6 py-2.5 text-[15px] font-semibold text-white transition hover:bg-[#3c3489]"
-                    >
-                      {localizeString('Use Template')}
-                    </button>
-                    <button
-                      type="button"
-                      className="text-[16px] font-semibold text-[#4b5563] transition hover:text-[#1f2937]"
-                    >
-                      {uiText.templates.preview}
-                    </button>
-                  </div>
-                  <p className="mt-2.5 text-[13px] text-[#a3aab8]">
-                    {localizeString('Ready in one click with editable sections.')}
-                  </p>
-                </div>
-              </div>
+              )}
             </section>
+            {renderModuleJourneyPanel('template-detail')}
           </div>
         ) : pageType === 'tool-demo' && currentToolDemo ? (
           <div className="bg-transparent">
-            <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-4">
-              <div className="mx-auto w-full max-w-[1160px]">
-                <div className="flex items-center gap-2 text-[12px] text-[#7b8395]">
-                  <button type="button" onClick={() => navigateTo(localeHomePath)} className="hover:text-[#534ab7]">
-                    {localizeString('Home')}
-                  </button>
-                  <span>›</span>
-                  <button
-                    type="button"
-                    onClick={() => navigateTo(localeAllProductsPath)}
-                    className="hover:text-[#534ab7]"
-                  >
-                    {currentToolDemo.sectionDisplayTitle ?? currentToolDemo.sectionTitle}
-                  </button>
-                  <span>›</span>
-                  <span className="font-semibold text-[#2e3442]">{currentToolDemo.displayName ?? currentToolDemo.name}</span>
-                </div>
-              </div>
-            </section>
-
             <section className="site-page-top-surface border-b border-[#e3e7ef] px-6 py-10">
               <div className="mx-auto w-full max-w-[1160px]">
                 <h1 className="text-[50px] font-extrabold leading-[1.08] tracking-[-0.03em] text-[#1a202c]">
-                  {currentToolDemo.displayName ?? currentToolDemo.name}
+                  {isAiDetectorEmailWriterDemo ? aiEmailWriterContent.title : (currentToolDemo.displayName ?? currentToolDemo.name)}
                 </h1>
-                <p className="mt-2 text-[20px] text-[#4e5668]">{currentToolDemo.intro}</p>
+                <p className="mt-2 text-[20px] text-[#4e5668]">
+                  {isAiDetectorEmailWriterDemo
+                    ? aiEmailWriterContent.desc
+                    : currentToolDemo.intro}
+                </p>
                 <p className="mt-2 max-w-[760px] text-[17px] leading-8 text-[#95a0b3]">
-                  {currentToolDemo.sectionTitle === 'AI Writing'
-                    ? localizeString('Generate polished content faster with AI-powered drafting and rewriting.')
-                    : localizeString('Upload your files and process them securely with one click. Supports multilingual workflows.')}
+                  {isAiDetectorEmailWriterDemo
+                    ? aiEmailWriterContent.meta
+                    : currentToolDemo.sectionTitle === 'AI Writing'
+                      ? localizeString('Generate polished content faster with AI-powered drafting and rewriting.')
+                      : localizeString('Upload your files and process them securely with one click. Supports multilingual workflows.')}
                 </p>
               </div>
             </section>
 
-            <section className="px-6 py-10">
-              <div className="mx-auto grid w-full max-w-[1160px] gap-5 lg:grid-cols-[1fr_0.38fr]">
-                <div className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
-                  {currentToolDemo.sectionTitle === 'AI Writing' ? (
-                    <>
-                      <textarea
-                        className="h-[150px] w-full resize-none rounded-[8px] border border-[#d7deeb] px-3 py-3 text-[14px] text-[#2f3542] outline-none placeholder:text-[#9aa3b5] focus:border-[#aaa4ec]"
-                        placeholder={localizeString('Describe what you want to write...')}
-                      />
-                      <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
-                        <div className="flex flex-wrap gap-3">
-                          <label className="flex flex-col gap-1 text-[12px] text-[#7d8596]">
-                            {localizeString('Tone')}
-                            <select className="h-8 min-w-[110px] rounded-[6px] border border-[#d5dbea] bg-white px-2 text-[13px] text-[#374151] outline-none">
-                              <option>{localizeString('Professional')}</option>
-                              <option>{localizeString('Casual')}</option>
-                              <option>{localizeString('Persuasive')}</option>
-                              <option>{localizeString('Informative')}</option>
-                              <option>{localizeString('Creative')}</option>
-                            </select>
-                          </label>
-                          <label className="flex flex-col gap-1 text-[12px] text-[#7d8596]">
-                            {localizeString('Length')}
-                            <select className="h-8 min-w-[130px] rounded-[6px] border border-[#d5dbea] bg-white px-2 text-[13px] text-[#374151] outline-none">
-                              <option>{localizeString('Short (100 words)')}</option>
-                              <option>{localizeString('Medium (300 words)')}</option>
-                              <option>{localizeString('Long (600 words)')}</option>
-                              <option>{localizeString('Extended (1000+ words)')}</option>
-                            </select>
-                          </label>
-                        </div>
-                        <button
-                          type="button"
-                          className="h-8 rounded-[6px] bg-[#534ab7] px-8 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
-                        >
-                          {localizeString('Generate')}
-                        </button>
+            {isAiDetectorEmailWriterDemo ? (
+              <>
+                <section className="site-page-top-surface px-6 py-10">
+                  <div className="mx-auto w-full max-w-[1160px] rounded-[14px] border border-[#dbe2ef] bg-[#f4f0ff] p-6">
+                    <img
+                      src={aiEmailWriterHeroImage}
+                      alt="AI Email Writer screenshot"
+                      className="mb-4 h-[300px] w-full rounded-[10px] border border-[#d9e0eb] object-cover object-top"
+                      loading="lazy"
+                    />
+                    <div className="mx-auto max-w-[760px] rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <textarea
+                          className="h-[180px] w-full resize-none rounded-[8px] border border-[#d7deeb] px-3 py-3 text-[13px] text-[#2f3542] outline-none placeholder:text-[#9aa3b5]"
+                          placeholder={aiEmailWriterContent.inputPlaceholder}
+                        />
+                        <textarea
+                          className="h-[180px] w-full resize-none rounded-[8px] border border-[#d7deeb] px-3 py-3 text-[13px] text-[#2f3542] outline-none placeholder:text-[#9aa3b5]"
+                          placeholder={aiEmailWriterContent.outputPlaceholder}
+                        />
                       </div>
-                    </>
-                  ) : (
-                    <div className="grid min-h-[280px] place-items-center rounded-[10px] border border-dashed border-[#cfd8e8] bg-[#fafbff] p-6 text-center">
-                      <div>
-                        <span className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-[12px] border-2 border-[#7f77dd] text-[18px] text-[#534ab7]">
-                          ↑
-                        </span>
-                        <p className="mt-4 text-[26px] font-semibold text-[#2e3442]">{uiText.toolDemo.dropFiles}</p>
-                        <p className="mt-1 text-[17px] text-[#7d8596]">{uiText.toolDemo.orClick}</p>
-                        <p className="mt-2 text-[16px] text-[#6f7788]">
-                          {localizeString('Supported formats:')}
-                          {' '}
-                          <span className="font-semibold text-[#303644]">
-                            {currentToolDemo.sectionTitle === 'PDF Tools'
-                              ? '.pdf'
-                              : currentToolDemo.sectionTitle === 'AI Tools'
-                                ? '.jpg,.jpeg,.png,.webp,.gif'
-                                : currentToolDemo.sectionTitle === 'AI Sheets'
-                                  ? '.xls,.xlsx,.csv'
-                                  : '.ppt,.pptx,.pdf'}
-                          </span>
-                          {' '}
-                          · {localizeString('Max file size:')}
-                          {' '}
-                          <span className="font-semibold text-[#303644]">200MB</span>
-                        </p>
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <div className="text-[12px] text-[#7d8596]">{aiEmailWriterContent.optionsLabel}</div>
                         <button
                           type="button"
-                          className="mt-4 rounded-[8px] bg-[#534ab7] px-7 py-2 text-[16px] font-semibold text-white transition hover:bg-[#3c3489]"
+                          className="rounded-[6px] bg-[#534ab7] px-4 py-1.5 text-[12px] font-semibold text-white"
                         >
-                          {localizeString('Browse Files')}
+                          {aiEmailWriterContent.writeLabel}
                         </button>
-                        <p className="mt-3 text-[16px] text-[#7d8596]">
-                          {localizeString('Daily limit: 3 free conversions')}
-                        </p>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                </section>
 
-                <aside className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
-                  <h2 className="text-[30px] font-semibold text-[#1f2432]">{uiText.toolDemo.howItWorks}</h2>
-                  <ol className="mt-4 flex flex-col gap-3 text-[17px] text-[#5d6475]">
-                    {[uiText.toolDemo.step1, uiText.toolDemo.step2, uiText.toolDemo.step3].map((step, index) => (
-                      <li key={step} className="flex items-center gap-2">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#e8e9ff] text-[12px] font-semibold text-[#534ab7]">
-                          {index + 1}
-                        </span>
-                        <span>{step}</span>
-                      </li>
+                <section className="px-6 py-10">
+                  <div className="mx-auto w-full max-w-[1160px]">
+                    <h2 className="text-center text-[38px] font-semibold tracking-[-0.02em] text-[#1f2432]">
+                      {aiEmailWriterContent.howToTitle}
+                    </h2>
+                    <div className="mt-6 grid gap-4 md:grid-cols-3">
+                      {aiEmailWriterContent.steps.map((step) => (
+                        <article key={step.title} className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                          <h3 className="text-[16px] font-semibold text-[#1f2432]">{step.title}</h3>
+                          <p className="mt-2 text-[13px] leading-6 text-[#5d6475]">{step.desc}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+
+                <section className="bg-[#f7f6ff] px-6 py-10">
+                  <div className="mx-auto grid w-full max-w-[1160px] gap-4 md:grid-cols-2">
+                    {aiEmailWriterContent.featureBlocks.map((block) => (
+                      <article key={block.title} className="rounded-[12px] border border-[#dddaf6] bg-white p-5">
+                        <h3 className="text-[22px] font-semibold tracking-[-0.01em] text-[#1f2432]">{block.title}</h3>
+                        <p className="mt-3 text-[14px] leading-7 text-[#5d6475]">{block.desc}</p>
+                      </article>
                     ))}
-                  </ol>
-                </aside>
-              </div>
-            </section>
+                  </div>
+                </section>
+              </>
+            ) : (
+              <>
+                <section className="px-6 py-10">
+                  <div className="mx-auto grid w-full max-w-[1160px] gap-5 lg:grid-cols-[1fr_0.38fr]">
+                    <div className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                      {currentToolDemo.sectionTitle === 'AI Writing' ? (
+                        <>
+                          <textarea
+                            className="h-[150px] w-full resize-none rounded-[8px] border border-[#d7deeb] px-3 py-3 text-[14px] text-[#2f3542] outline-none placeholder:text-[#9aa3b5] focus:border-[#aaa4ec]"
+                            placeholder={localizeString('Describe what you want to write...')}
+                          />
+                          <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+                            <div className="flex flex-wrap gap-3">
+                              <label className="flex flex-col gap-1 text-[12px] text-[#7d8596]">
+                                {localizeString('Tone')}
+                                <select className="h-8 min-w-[110px] rounded-[6px] border border-[#d5dbea] bg-white px-2 text-[13px] text-[#374151] outline-none">
+                                  <option>{localizeString('Professional')}</option>
+                                  <option>{localizeString('Casual')}</option>
+                                  <option>{localizeString('Persuasive')}</option>
+                                  <option>{localizeString('Informative')}</option>
+                                  <option>{localizeString('Creative')}</option>
+                                </select>
+                              </label>
+                              <label className="flex flex-col gap-1 text-[12px] text-[#7d8596]">
+                                {localizeString('Length')}
+                                <select className="h-8 min-w-[130px] rounded-[6px] border border-[#d5dbea] bg-white px-2 text-[13px] text-[#374151] outline-none">
+                                  <option>{localizeString('Short (100 words)')}</option>
+                                  <option>{localizeString('Medium (300 words)')}</option>
+                                  <option>{localizeString('Long (600 words)')}</option>
+                                  <option>{localizeString('Extended (1000+ words)')}</option>
+                                </select>
+                              </label>
+                            </div>
+                            <button
+                              type="button"
+                              className="h-8 rounded-[6px] bg-[#534ab7] px-8 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
+                            >
+                              {localizeString('Generate')}
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="grid min-h-[280px] place-items-center rounded-[10px] border border-dashed border-[#cfd8e8] bg-[#fafbff] p-6 text-center">
+                          <div>
+                            <span className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-[12px] border-2 border-[#7f77dd] text-[18px] text-[#534ab7]">
+                              ↑
+                            </span>
+                            <p className="mt-4 text-[26px] font-semibold text-[#2e3442]">{uiText.toolDemo.dropFiles}</p>
+                            <p className="mt-1 text-[17px] text-[#7d8596]">{uiText.toolDemo.orClick}</p>
+                            <p className="mt-2 text-[16px] text-[#6f7788]">
+                              {localizeString('Supported formats:')}
+                              {' '}
+                              <span className="font-semibold text-[#303644]">
+                                {currentToolDemo.sectionTitle === 'PDF Tools'
+                                  ? '.pdf'
+                                  : currentToolDemo.sectionTitle === 'AI Tools'
+                                    ? '.jpg,.jpeg,.png,.webp,.gif'
+                                    : currentToolDemo.sectionTitle === 'AI Sheets'
+                                      ? '.xls,.xlsx,.csv'
+                                      : '.ppt,.pptx,.pdf'}
+                              </span>
+                              {' '}
+                              · {localizeString('Max file size:')}
+                              {' '}
+                              <span className="font-semibold text-[#303644]">200MB</span>
+                            </p>
+                            <button
+                              type="button"
+                              className="mt-4 rounded-[8px] bg-[#534ab7] px-7 py-2 text-[16px] font-semibold text-white transition hover:bg-[#3c3489]"
+                            >
+                              {localizeString('Browse Files')}
+                            </button>
+                            <p className="mt-3 text-[16px] text-[#7d8596]">
+                              {localizeString('Daily limit: 3 free conversions')}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-            <section className="bg-[#efeee9] px-6 py-10">
-              <div className="mx-auto w-full max-w-[1160px]">
-                <h2 className="text-[45px] font-semibold tracking-[-0.02em] text-[#1f2432]">
-                  {uiText.download.faq}
-                </h2>
-                <div className="mt-6 divide-y divide-[#d7dce6] rounded-[12px] border border-[#dde1ea] bg-white">
-                  {[
-                    localizeString(`Is ${currentToolDemo.displayName ?? currentToolDemo.name} free to use?`),
-                    localizeString('What file formats are supported?'),
-                    localizeString('Is my file secure?'),
-                    localizeString('How accurate is the result?'),
-                  ].map((question) => (
-                    <button
-                      key={question}
-                      type="button"
-                      className="flex w-full items-center justify-between px-4 py-4 text-left text-[17px] font-medium text-[#2e3442] transition hover:bg-[#f8f9fc]"
-                    >
-                      <span>{question}</span>
-                      <span className="text-[12px] text-[#9aa3b5]">▾</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
+                    <aside className="rounded-[12px] border border-[#d9e0eb] bg-white p-4">
+                      <h2 className="text-[30px] font-semibold text-[#1f2432]">{uiText.toolDemo.howItWorks}</h2>
+                      <ol className="mt-4 flex flex-col gap-3 text-[17px] text-[#5d6475]">
+                        {[uiText.toolDemo.step1, uiText.toolDemo.step2, uiText.toolDemo.step3].map((step, index) => (
+                          <li key={step} className="flex items-center gap-2">
+                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#e8e9ff] text-[12px] font-semibold text-[#534ab7]">
+                              {index + 1}
+                            </span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </aside>
+                  </div>
+                </section>
+
+                <section className="bg-[#efeee9] px-6 py-10">
+                  <div className="mx-auto w-full max-w-[1160px]">
+                    <h2 className="text-[45px] font-semibold tracking-[-0.02em] text-[#1f2432]">
+                      {uiText.download.faq}
+                    </h2>
+                    <div className="mt-6 divide-y divide-[#d7dce6] rounded-[12px] border border-[#dde1ea] bg-white">
+                      {[
+                        localizeString(`Is ${currentToolDemo.displayName ?? currentToolDemo.name} free to use?`),
+                        localizeString('What file formats are supported?'),
+                        localizeString('Is my file secure?'),
+                        localizeString('How accurate is the result?'),
+                      ].map((question) => (
+                        <button
+                          key={question}
+                          type="button"
+                          className="flex w-full items-center justify-between px-4 py-4 text-left text-[17px] font-medium text-[#2e3442] transition hover:bg-[#f8f9fc]"
+                        >
+                          <span>{question}</span>
+                          <span className="text-[12px] text-[#9aa3b5]">▾</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+            {renderModuleJourneyPanel('tool-demo')}
           </div>
         ) : pageType === 'all-products' ? (
           <div className="bg-transparent">
             <section className="site-page-hero site-page-hero--aurora px-6 py-14">
               <div className="mx-auto w-full max-w-[1160px] text-center">
-                <p className="mx-auto inline-flex rounded-[20px] bg-[#cecbf6] px-3 py-1 text-[12px] font-semibold text-[#3c3489]">
-                  {uiText.allProducts.catalogBadge}
-                </p>
-                <h1 className="mt-4 text-[clamp(30px,4.5vw,48px)] font-extrabold tracking-[-0.03em] text-[#1a202c]">
+                <h1 className="text-[clamp(30px,4.5vw,48px)] font-extrabold tracking-[-0.03em] text-[#1a202c]">
                   {uiText.allProducts.title}
                 </h1>
                 <p className="mx-auto mt-3 max-w-[860px] text-[15px] leading-7 text-[#4a5568]">
                   {uiText.allProducts.desc}
                 </p>
+                <div className="mx-auto mt-5 blog-search-wrap">
+                  <label className="blog-search-input-wrap" aria-label={isZhContent ? '搜索产品与工具' : 'Search products and tools'}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="search"
+                      value={allProductsSearchQuery}
+                      onChange={(event) => setAllProductsSearchQuery(event.target.value)}
+                      placeholder={isZhContent ? '搜索工具名称...' : 'Search tools...'}
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
               </div>
             </section>
 
             <section className="site-page-transition-section site-page-transition-section--aurora px-6 py-8">
               <div className="site-page-overlap-panel mx-auto w-full max-w-[1160px] overflow-hidden rounded-[16px] border border-[#e2e8f0] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e2e8f0] bg-[#fafbfc] px-5 py-4">
-                  <p className="text-[14px] font-semibold text-[#2f3542]">
-                    {allProductsTab === 'category'
-                      ? `${localizeString('Product Matrix')} (${localizedAllProductsSections.length} ${localizeString('categories')})`
-                      : `${localizeString('A-Z Index')} (${allProductsAlphabetGroups.length} ${localizeString('letters')})`}
-                  </p>
-                  <div className="inline-flex overflow-hidden rounded-[10px] border border-[#d8dcef] bg-white">
-                    <button
-                      type="button"
-                      onClick={() => setAllProductsTab('category')}
-                      className={`px-4 py-2 text-[12px] font-semibold transition ${
-                        allProductsTab === 'category'
-                          ? 'bg-[#534ab7] text-white'
-                          : 'text-[#6a7080] hover:bg-[#f3f4f8] hover:text-[#2f3542]'
-                      }`}
-                    >
-                      {uiText.allProducts.viewByCategory}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAllProductsTab('alphabet')}
-                      className={`border-l border-[#d8dde3] px-4 py-2 text-[12px] font-semibold transition ${
-                        allProductsTab === 'alphabet'
-                          ? 'bg-[#534ab7] text-white'
-                          : 'text-[#6a7080] hover:bg-[#f3f4f8] hover:text-[#2f3542]'
-                      }`}
-                    >
-                      {uiText.allProducts.viewAZ}
-                    </button>
-                  </div>
-                </div>
-
-                  {allProductsTab === 'category'
-                    ? (
-                        <div className="p-4 md:p-6">
-                          {localizedAllProductsSections.map((section, sectionIndex) => (
-                            <Fragment key={section.title}>
-                              <h2
-                                className={`text-[14px] font-semibold text-[#2f3542]${
-                                  sectionIndex > 0 ? ' mt-6 border-t border-[#eef2f7] pt-6' : ''
-                                }`}
-                              >
-                                {section.displayTitle ?? section.title}
-                              </h2>
-                              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                                {section.items.map((item) => {
-                                  const targetPath = `/${currentLocale}/${item.path}`
-                                  return (
-                                    <a
-                                      key={item.name}
-                                      href={targetPath}
-                                      className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
-                                      onClick={(event) => {
-                                        event.preventDefault()
-                                        navigateTo(targetPath)
-                                      }}
-                                    >
-                                      {item.displayName ?? item.name}
-                                    </a>
-                                  )
-                                })}
-                              </div>
-                            </Fragment>
-                          ))}
-                        </div>
-                      )
-                    : (
-                        <div className="grid gap-4 p-4 md:grid-cols-2 md:p-6 lg:grid-cols-3">
-                          {allProductsAlphabetGroups.map((group) => (
-                            <section
-                              key={group.letter}
-                              className="rounded-[12px] border border-[#e2e8f0] bg-[#fafbfc] p-4"
-                            >
-                              <h2 className="inline-flex rounded-[8px] bg-[#eeedfe] px-3 py-1 text-[12px] font-semibold tracking-wide text-[#3c3489]">
-                                {group.letter}
-                              </h2>
-                              <div className="mt-3 grid gap-2">
-                                {group.items.map((item) => {
-                                  const targetPath = `/${currentLocale}/${item.path}`
-                                  return (
-                                    <a
-                                      key={item.name}
-                                      href={targetPath}
-                                      className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
-                                      onClick={(event) => {
-                                        event.preventDefault()
-                                        navigateTo(targetPath)
-                                      }}
-                                    >
-                                      {item.displayName ?? item.name}
-                                    </a>
-                                  )
-                                })}
-                              </div>
-                            </section>
-                          ))}
-                        </div>
+                <div className="grid min-h-[48vh] gap-5 p-4 md:grid-cols-[240px_minmax(0,1fr)] md:p-6">
+                  <aside className="rounded-[12px] border border-[#e6e9f2] bg-[#fafbff] p-3">
+                    <div className="grid gap-1">
+                      {localizedAllProductsSections.map((section) => (
+                        <button
+                          key={`all-products-category-${section.title}`}
+                          type="button"
+                          onClick={() => setActiveAllProductsCategory(section.title)}
+                          className={`rounded-[8px] px-3 py-2 text-left text-[13px] font-semibold transition ${
+                            activeAllProductsSection?.title === section.title
+                              ? 'bg-[#534ab7] text-white'
+                              : 'text-[#596273] hover:bg-[#f1f3fb] hover:text-[#2f3542]'
+                          }`}
+                        >
+                          {section.displayTitle ?? section.title}
+                        </button>
+                      ))}
+                    </div>
+                  </aside>
+                  <section className="rounded-[12px] border border-[#e6e9f2] bg-white p-4 md:p-5">
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {activeAllProductsDisplayItems.length ? activeAllProductsDisplayItems.map((item) => {
+                        const targetPath = `/${currentLocale}/${item.path}`
+                        return (
+                          <a
+                            key={item.name}
+                            href={targetPath}
+                            className="rounded-[8px] px-3 py-1.5 text-[12.5px] text-[#4f5666] transition hover:bg-[#f5f3ff] hover:text-[#534ab7]"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              navigateTo(targetPath)
+                            }}
+                          >
+                            {item.displayName ?? item.name}
+                          </a>
+                        )
+                      }) : (
+                        <p className="rounded-[8px] border border-dashed border-[#d6dbea] px-3 py-3 text-[12.5px] text-[#6b7280] sm:col-span-2 lg:col-span-3">
+                          {moduleSearchEmptyText}
+                        </p>
                       )}
+                    </div>
+                  </section>
+                </div>
               </div>
             </section>
           </div>
         ) : pageType === 'answers' ? (
           <div className="bg-transparent">
-            <section className="site-page-hero site-page-hero--warm relative overflow-hidden px-6 py-10">
-              <div
-                className="pointer-events-none absolute inset-y-0 right-0 hidden w-[42%] md:block"
-                  aria-hidden="true"
-                >
-                <div className="absolute right-14 top-3 h-20 w-20 rounded-full bg-[#f78ac7]/70" />
-                <div className="absolute right-28 top-9 h-16 w-16 rounded-full bg-[#88c7ff]/80" />
-                <div className="absolute right-20 top-28 h-10 w-56 rounded-[999px] bg-white/45" />
-                <div className="absolute right-44 top-24 h-7 w-28 rounded-[999px] bg-[#c7bef8]/50" />
-              </div>
-              <div className="mx-auto w-full max-w-[1160px]">
-                <p className="text-[12px] font-medium uppercase tracking-[0.06em] text-[#6a7080]">
-                  {answersUiText.heroKicker}
-                </p>
+            <section className="site-page-hero site-page-hero--warm px-6 py-10">
+              <div className="mx-auto w-full max-w-[1160px] text-center">
                 <h1 className="mt-2 text-[clamp(30px,4.2vw,46px)] font-extrabold leading-[1.15] tracking-[-0.03em] text-[#1a202c]">
                   {answersUiText.heroTitle}
                 </h1>
-                <p className="mt-3 max-w-[720px] text-[14px] leading-7 text-[#4b5263]">
+                <p className="mx-auto mt-3 max-w-[720px] text-[14px] leading-7 text-[#4b5263]">
                   {answersUiText.heroDescription}
                 </p>
-                <div className="mt-6 flex w-full max-w-[660px] items-center rounded-[10px] border border-[#d4dae7] bg-white p-1 shadow-[0_1px_4px_rgba(0,0,0,0.08)]">
-                  <input
-                    className="h-10 flex-1 rounded-[8px] border-none px-3 text-[13px] text-[#2d3442] outline-none placeholder:text-[#9aa0ae]"
-                    type="text"
-                    placeholder={answersUiText.heroSearchPlaceholder}
-                  />
-                  <button
-                    type="button"
-                    className="h-10 rounded-[8px] bg-[#534ab7] px-5 text-[13px] font-semibold text-white transition hover:bg-[#3c3489]"
-                  >
-                    {answersUiText.heroSearchButton}
-                  </button>
+                <div className="mx-auto mt-6 blog-search-wrap">
+                  <label className="blog-search-input-wrap" aria-label={answersUiText.heroSearchPlaceholder}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="search"
+                      value={answersSearchQuery}
+                      onChange={(event) => setAnswersSearchQuery(event.target.value)}
+                      placeholder={answersUiText.heroSearchPlaceholder}
+                      autoComplete="off"
+                    />
+                  </label>
                 </div>
               </div>
             </section>
@@ -5660,7 +6542,7 @@ function App() {
                   {answersUiText.popularTitle}
                 </h2>
                 <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {answersCategories.map((item) => (
+                  {filteredAnswersCategories.length ? filteredAnswersCategories.map((item) => (
                     <article
                       key={item.slug}
                       className="cursor-pointer rounded-[8px] border border-[#dee4ee] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
@@ -5687,91 +6569,43 @@ function App() {
                       </p>
                       <p className="mt-2 text-[12.5px] leading-6 text-[#545b6d]">{item.desc}</p>
                     </article>
-                  ))}
+                  )) : (
+                    <p className="rounded-[8px] border border-dashed border-[#d9dee8] bg-white px-4 py-6 text-[13px] text-[#667085] md:col-span-2 xl:col-span-4">
+                      {moduleSearchEmptyText}
+                    </p>
+                  )}
                 </div>
               </div>
             </section>
 
-            <section className="px-6 pb-10">
-              <div className="mx-auto w-full max-w-[1160px]">
-                <h2 className="text-[34px] font-semibold tracking-[-0.02em] text-[#1a202c]">
-                  {answersUiText.howToTitle}
-                </h2>
-                <p className="mt-2 text-[13px] text-[#5d6475]">
-                  {answersUiText.howToDescription}
-                </p>
-                <div className="mt-4 grid gap-4 md:grid-cols-3">
-                  {localizedAnswersHowToItems.map((item, index) => (
-                    <article
-                      key={item.title}
-                      className="rounded-[8px] border border-[#dee4ee] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-                    >
-                      <span className="inline-flex rounded-[6px] bg-[#eeedfe] px-2 py-1 text-[11px] font-semibold text-[#3c3489]">
-                        {answersUiText.stepLabel} {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <h3 className="mt-3 text-[15px] font-semibold text-[#1f2432]">
-                        {item.title}
-                      </h3>
-                      <p className="mt-2 text-[12.5px] leading-6 text-[#545b6d]">{item.desc}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            <section className="px-6 pb-14">
-              <div className="mx-auto w-full max-w-[1160px]">
-                <h2 className="text-[34px] font-semibold tracking-[-0.02em] text-[#1a202c]">
-                  {answersUiText.communitiesTitle}
-                </h2>
-                <p className="mt-2 text-[13px] text-[#5d6475]">
-                  {answersUiText.communitiesDescription}
-                </p>
-                <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  {localizedAnswersCommunityCards.map((item) => (
-                    <article
-                      key={item.title}
-                      className="rounded-[8px] border border-[#dee4ee] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-                    >
-                      <h3 className="text-[15px] font-semibold text-[#1f2432]">{item.title}</h3>
-                      <p className="mt-2 text-[12.5px] leading-6 text-[#545b6d]">{item.desc}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </section>
           </div>
         ) : pageType === 'answers-forum' ? (
           <div className="bg-transparent">
-            <section className="site-page-hero site-page-hero--warm relative overflow-hidden border-b border-[#d9dee8] px-6 py-8">
-              <div
-                className="pointer-events-none absolute inset-y-0 right-0 hidden w-[45%] md:block"
-                aria-hidden="true"
-              >
-                <div className="absolute right-5 top-3 h-12 w-52 rounded-[8px] bg-[#d8d3f7]/85" />
-                <div className="absolute right-12 top-20 h-12 w-64 rounded-[8px] bg-[#c7d8fa]/85" />
-                <div className="absolute right-24 top-9 h-12 w-48 rounded-[8px] bg-[#f0c9e7]/80" />
-                <div className="absolute right-16 top-36 h-10 w-56 rounded-[8px] bg-[#d8d3f7]/65" />
-              </div>
-              <div className="mx-auto w-full max-w-[1160px]">
-                <button
-                  type="button"
-                  className="text-[12px] font-medium text-[#5f6880] transition hover:text-[#3e475a]"
-                  onClick={() => navigateTo(localeAnswersPath)}
-                >
-                  {answersUiText.forumBackHome}
-                </button>
-                <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#72798a]">
-                  {answersUiText.forumKicker}
-                </p>
+            <section className="site-page-hero site-page-hero--warm border-b border-[#d9dee8] px-6 py-8">
+              <div className="mx-auto w-full max-w-[1160px] text-center">
                 <h1 className="mt-2 text-[clamp(30px,4vw,42px)] font-extrabold tracking-[-0.02em] text-[#1f2432]">
                   {activeAnswersForumCategoryDisplayTitle}
                   {' '}
                   {answersUiText.forumTitleSuffix}
                 </h1>
-                <p className="mt-2 max-w-[760px] text-[13px] leading-6 text-[#4e5567]">
+                <p className="mx-auto mt-2 max-w-[760px] text-[13px] leading-6 text-[#4e5567]">
                   {answersForumIntroText}
                 </p>
+                <div className="mx-auto mt-5 blog-search-wrap">
+                  <label className="blog-search-input-wrap" aria-label={answersUiText.heroSearchPlaceholder}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+                      <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="search"
+                      value={answersForumSearchQuery}
+                      onChange={(event) => setAnswersForumSearchQuery(event.target.value)}
+                      placeholder={answersUiText.heroSearchPlaceholder}
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
               </div>
             </section>
 
@@ -5832,7 +6666,7 @@ function App() {
                     </div>
 
                     <div className="divide-y divide-[#e8ecf3]">
-                      {activeAnswersForumQuestionItems.map((item) => (
+                      {filteredAnswersForumQuestionItems.length ? filteredAnswersForumQuestionItems.map((item) => (
                         <article
                           key={item.title}
                           className="group flex flex-wrap items-start gap-3 px-4 py-4 transition hover:bg-[#fbfcff] lg:px-5"
@@ -5866,7 +6700,11 @@ function App() {
                             <p className="mt-1">{answersUiText.forumUpdatedPrefix} {item.updatedAt}</p>
                           </div>
                         </article>
-                      ))}
+                      )) : (
+                        <p className="px-4 py-6 text-[13px] text-[#667085] lg:px-5">
+                          {moduleSearchEmptyText}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -5964,8 +6802,9 @@ function App() {
       </section>
       )}
 
-      <footer className="site-footer">
-        <div className="site-footer-shell">
+      {showSiteFooter ? (
+        <footer className="site-footer">
+          <div className="site-footer-shell">
           <div className="site-footer-top">
             <div className="site-footer-brand-col">
               <a
@@ -6036,43 +6875,19 @@ function App() {
             <div className="site-footer-links-col">
               <h4 className="site-footer-heading">{uiText.nav.resources}</h4>
               <div className="site-footer-link-list">
-                {footerResourceLinks.map((link) =>
-                  link.path ? (
-                    <a
-                      key={`footer-resource-${link.label}`}
-                      href={link.path}
-                      className="site-footer-link"
-                      onClick={(event) => {
-                        event.preventDefault()
-                        navigateTo(link.path)
-                      }}
-                    >
-                      <span>{link.label}</span>
-                      {link.external ? (
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 12 12"
-                          fill="none"
-                          aria-hidden="true"
-                          className="site-footer-link-icon"
-                        >
-                          <path
-                            d="M4 2H10V8M10 2L2 10"
-                            stroke="currentColor"
-                            strokeWidth="1.3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      ) : null}
-                    </a>
-                  ) : (
-                    <span key={`footer-resource-${link.label}`} className="site-footer-link">
-                      <span>{link.label}</span>
-                    </span>
-                  ),
-                )}
+                {footerResourceLinks.map((link) => (
+                  <a
+                    key={`footer-resource-${link.label}`}
+                    href={link.path}
+                    className="site-footer-link"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      navigateTo(link.path)
+                    }}
+                  >
+                    <span>{link.label}</span>
+                  </a>
+                ))}
               </div>
             </div>
 
@@ -6080,7 +6895,17 @@ function App() {
               <h4 className="site-footer-heading">{uiText.footer.company}</h4>
               <div className="site-footer-link-list">
                 {footerCompanyLinks.map((link) =>
-                  link.path ? (
+                  link.external ? (
+                    <a
+                      key={`footer-company-${link.label}`}
+                      href={link.path}
+                      className="site-footer-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
                     <a
                       key={`footer-company-${link.label}`}
                       href={link.path}
@@ -6092,10 +6917,6 @@ function App() {
                     >
                       {link.label}
                     </a>
-                  ) : (
-                    <span key={`footer-company-${link.label}`} className="site-footer-link">
-                      {link.label}
-                    </span>
                   ),
                 )}
               </div>
@@ -6146,8 +6967,9 @@ function App() {
               )}
             </div>
           </div>
-        </div>
-      </footer>
+          </div>
+        </footer>
+      ) : null}
     </div>
   )
 }

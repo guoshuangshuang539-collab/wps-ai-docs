@@ -1,0 +1,3029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WPS 文档功能中心后台 V2</title>
+  <!-- JSZip for .docx text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    :root { --bg:#f3f5f9;--card:#fff;--line:#e6eaf2;--text:#1b2430;--muted:#667085;--brand:#2b64ea;--danger:#b42318;--ok:#067647;--warn:#b54708;--shadow:0 8px 24px rgba(15,23,42,.05); }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;font-size:13px;line-height:1.45;}
+    .hidden{display:none!important;}
+    .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:0 1px 0 rgba(15,23,42,.02);}
+    .topbar strong{font-size:15px;letter-spacing:.2px;} .topbar small{color:var(--muted);margin-left:8px;font-weight:500;}
+    .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .muted{color:var(--muted);font-size:12px;}
+    .ok{color:var(--ok);}.warn{color:var(--warn);}.danger{color:var(--danger);}
+    input,select,textarea,button{font:inherit;border:1px solid #cfd7e6;border-radius:8px;background:#fff;padding:8px 10px;transition:all .15s ease;}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:#91b6ff;box-shadow:0 0 0 3px rgba(43,100,234,.12);}
+    textarea{width:100%;resize:vertical;}
+    button{cursor:pointer;color:#1d4ed8;border-color:#cfe0ff;background:#f5f9ff;font-weight:500;}
+    button:disabled{cursor:not-allowed;color:#98a2b3;border-color:#e2e8f0;background:#f8fafc;}
+    .btn-danger{color:var(--danger);border-color:#fecaca;background:#fff1f2;}
+    .btn-danger:hover{background:#ffe4e8;}
+    .btn-ghost{color:#334155;border-color:#d5dceb;background:#fff;}
+    .btn-ghost:hover{background:#f8fafc;}
+    .btn-ok{color:var(--ok);border-color:#a7f3d0;background:#ecfdf5;}
+    .btn-primary{color:#fff;border-color:#2b64ea;background:#2b64ea;font-weight:600;box-shadow:0 4px 12px rgba(43,100,234,.25);}
+    .btn-primary:hover{background:#2456ca;border-color:#2456ca;}
+    .tabs{max-width:1480px;margin:8px auto 0;padding:0 14px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;}
+    .tab{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 10px;font-size:12px;cursor:pointer;color:#475467;font-weight:600;}
+    .tab:hover{border-color:#cfe0ff;background:#f8fbff;}
+    .tab.active{border-color:#bfd5ff;background:#edf3ff;color:#1d4ed8;font-weight:700;}
+    .app{max-width:1480px;margin:10px auto 16px;padding:0 14px;}
+    .card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px;margin-bottom:12px;box-shadow:var(--shadow);}
+    .card h3{margin:0 0 10px;font-size:14px;letter-spacing:.2px;}
+    .split{display:grid;grid-template-columns:360px 1fr;gap:12px;}
+    .split-full-h{height:calc(100vh - 130px);}
+    .split-eq{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .tree{border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px;overflow:auto;}
+    #treeManage{border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px;}
+    .tree-row{display:flex;align-items:center;gap:4px;padding:5px 6px;border-radius:8px;margin:2px 0;}
+    .tree-row:hover{background:#f3f6fc;} .tree-row.sel{background:#eaf1ff;}
+    .tree-title-btn{border:0;background:transparent;color:inherit;padding:2px 4px;cursor:pointer;text-align:left;border-radius:4px;flex:1;}
+    .tree-toggle{border:0;background:transparent;color:#334155;width:20px;height:20px;padding:0;line-height:1;cursor:pointer;}
+    .tree-children{margin-left:18px;}
+    .table-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:420px;background:#fff;}
+    .table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;}
+    .table th,.table td{border-bottom:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:top;}
+    .table th{background:#f8faff;position:sticky;top:0;z-index:1;color:#475467;font-weight:700;}
+    .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid #dbeafe;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:11px;margin-right:4px;margin-bottom:4px;}
+    .lock{border:1px dashed #fda4af;background:#fff1f2;color:#9f1239;border-radius:8px;padding:12px;font-size:13px;}
+    .status-pending{color:var(--warn);}.status-approved{color:var(--ok);}.status-rejected{color:var(--danger);}
+    .near-expiry{color:#c2410c;font-weight:700;background:#fff7ed;border:1px solid #fdba74;border-radius:999px;padding:2px 8px;}
+    .admin-layout{max-width:1480px;margin:10px auto 16px;padding:0 14px;display:grid;grid-template-columns:188px 1fr;gap:12px;align-items:start;}
+    .module-sidebar{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;position:sticky;top:68px;box-shadow:var(--shadow);}
+    .module-item{width:100%;text-align:left;border:1px solid #edf1f7;background:#fff;border-radius:10px;padding:9px 10px;margin-bottom:7px;cursor:pointer;font-size:12px;color:#475467;}
+    .module-item:hover{border-color:#d8e5ff;background:#f9fbff;}
+    .module-item.active{border-color:#bfd5ff;background:#edf3ff;color:#1d4ed8;font-weight:700;}
+    .module-item .meta{display:block;font-size:10px;color:#98a2b3;margin-top:2px;}
+    .admin-main .tabs{margin-top:0;max-width:none;padding:0;grid-template-columns:repeat(6,minmax(0,1fr));}
+    .admin-main .app{max-width:none;margin:10px 0 0;padding:0;}
+    .scope-details{border:1px solid var(--line);border-radius:10px;background:#fbfdff;margin-bottom:10px;}
+    .scope-details>summary{cursor:pointer;padding:10px 12px;font-size:13px;font-weight:600;color:#334155;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .scope-details>summary::-webkit-details-marker{display:none;}
+    .scope-details>summary::after{content:"▾";font-size:11px;color:var(--muted);}
+    .scope-details:not([open])>summary::after{content:"▸";}
+    .scope-details.has-zoom>summary{justify-content:flex-start;}
+    .scope-details.has-zoom>summary .scope-zoom-trigger{margin-left:auto;}
+    .scope-details.has-zoom>summary::after{margin-left:8px;}
+    .scope-details .scope-body{padding:0 10px 10px;}
+    .scope-scroll{max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px;}
+    .scope-scroll .tree{max-height:none;border:0;padding:4px;}
+    .scope-zoom-mask{position:fixed;inset:0;z-index:1250;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;padding:16px;}
+    .scope-zoom-panel{width:min(1600px,98vw);height:min(94vh,1100px);background:#fff;border:1px solid #dbe3ef;border-radius:12px;box-shadow:0 24px 70px rgba(15,23,42,.32);display:flex;flex-direction:column;overflow:hidden;}
+    .scope-zoom-head{padding:12px 14px;border-bottom:1px solid #e8edf5;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;color:#0f172a;}
+    .scope-zoom-body{padding:12px 14px;display:grid;grid-template-rows:minmax(420px,1fr) minmax(220px,.5fr);gap:10px;overflow:auto;}
+    .scope-zoom-tree-wrap,.scope-zoom-tag-wrap{border:1px solid var(--line);border-radius:10px;background:#f8fbff;display:flex;flex-direction:column;min-height:0;}
+    .scope-zoom-title{padding:8px 10px;font-size:12px;color:#64748b;border-bottom:1px solid #e8edf5;background:#fff;}
+    .scope-zoom-tree{flex:1;overflow:auto;padding:8px;background:#fff;}
+    .scope-zoom-tags{flex:1;overflow:auto;padding:8px;background:#fff;}
+    .scope-zoom-actions{padding:12px 14px;border-top:1px solid #e8edf5;display:flex;justify-content:flex-end;gap:8px;}
+    .tag-subdetails{border:1px solid #e2e8f0;border-radius:8px;background:#fff;margin-bottom:8px;}
+    .tag-subdetails>summary{cursor:pointer;padding:8px 10px;font-size:12px;font-weight:600;color:#475467;}
+    .tag-subdetails>summary::-webkit-details-marker{display:none;}
+    .tag-pick-grid{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;}
+    .tag-pick-grid label{font-size:12px;display:inline-flex;align-items:center;gap:4px;}
+
+    /* workflow */
+    .wf-tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;}
+    .wf-tab{border:1px solid var(--line);background:#fff;color:#475467;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;}
+    .wf-tab:hover{border-color:#bfdbfe;color:var(--brand);}
+    .wf-tab.active{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;font-weight:600;}
+    .wf-tab.done{border-color:#a7f3d0;color:var(--ok);background:#f0fdf4;}
+    .wf-tab.stale-tab{border-color:#fdba74;color:#c2410c;background:#fff7ed;}
+    .wf-panel{border:1px solid var(--line);border-radius:8px;background:#fbfdff;padding:10px;}
+    .prd-dropzone{border:2px dashed #bfdbfe;border-radius:8px;background:#eff6ff;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;}
+    .prd-dropzone:hover{border-color:var(--brand);background:#e0eeff;}
+    .prd-dropzone .dz-icon{font-size:28px;margin-bottom:8px;}
+    .prd-dropzone .dz-text{font-size:13px;color:#1d4ed8;font-weight:500;}
+    .prd-dropzone .dz-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+    .prd-badge{display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #a7f3d0;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:#166534;}
+    .pipeline-phases{margin-top:10px;}
+    .pipeline-phase{display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:6px;margin-bottom:4px;}
+    .phase-pending{color:#9ca3af;} .phase-running{background:#eff6ff;color:#1d4ed8;animation:pulse 1s ease-in-out infinite;} .phase-done{background:#f0fdf4;color:var(--ok);}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    .phase-icon{font-size:14px;flex-shrink:0;margin-top:1px;} .phase-name{font-size:12px;font-weight:600;} .phase-desc{font-size:11px;margin-top:2px;opacity:.8;}
+    .lang-edit-tabs{display:flex;gap:4px;margin-bottom:8px;}
+    .lang-edit-tab{border:1px solid var(--line);background:#fff;color:#475467;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;}
+    .lang-edit-tab.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+    .lang-edit-tab.has-c{border-color:#a7f3d0;color:var(--ok);}
+    .lang-edit-tab.active.has-c{background:var(--ok);border-color:var(--ok);color:#fff;}
+    .tl-grid{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+    .tl-row{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line);font-size:12px;}
+    .tl-row:last-child{border-bottom:none;} .tl-row:nth-child(even){background:#fafbff;}
+    .tl-badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid;}
+    .tl-source{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;}
+    .tl-done{background:#f0fdf4;color:var(--ok);border-color:#a7f3d0;}
+    .tl-pending{background:#fafafa;color:#9ca3af;border-color:#e5e7eb;}
+    .tl-running{background:#fffbeb;color:var(--warn);border-color:#fde68a;animation:pulse 1s ease-in-out infinite;}
+    .pub-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+    .pub-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;}
+    .pub-row label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;}
+    .pub-url{font-family:monospace;font-size:11px;color:#6b7280;}
+    .pub-badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid;}
+    .pub-live{background:#f0fdf4;color:var(--ok);border-color:#a7f3d0;}
+    .pub-draft{background:#fffbeb;color:var(--warn);border-color:#fde68a;}
+    .pub-none{background:#fafafa;color:#9ca3af;border-color:#e5e7eb;}
+    .deploy-log{background:#0f172a;color:#94a3b8;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;line-height:1.8;max-height:180px;overflow-y:auto;margin-top:8px;}
+    .log-ok{color:#4ade80;} .log-info{color:#60a5fa;}
+
+    /* login */
+    .login-overlay{position:fixed;inset:0;z-index:1000;background:linear-gradient(135deg,#0f172a,#1e40af);display:flex;align-items:center;justify-content:center;}
+    .login-box{background:#fff;border-radius:14px;padding:36px 40px;width:400px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+    .login-box h2{margin:0 0 6px;font-size:22px;font-weight:700;}
+    .login-box p{margin:0 0 24px;color:var(--muted);font-size:13px;}
+    .lf{margin-bottom:14px;}
+    .lf label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:#374151;}
+    .lf input{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;}
+    .lf input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+    .login-err{background:#fff1f2;border:1px solid #fecaca;border-radius:6px;padding:8px 12px;font-size:13px;color:var(--danger);margin-bottom:12px;display:none;}
+    .login-btn{width:100%;padding:11px;font-size:15px;font-weight:600;color:#fff;background:var(--brand);border:none;border-radius:8px;cursor:pointer;}
+    .login-btn:hover{background:#1d4ed8;}
+    .login-hints{margin-top:16px;font-size:12px;color:var(--muted);}
+    .login-hints span{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid var(--line);border-radius:4px;padding:4px 8px;margin:4px 4px 0 0;cursor:pointer;}
+    .login-hints span:hover{background:#eff6ff;color:var(--brand);}
+
+    @media(max-width:1220px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr));}.split,.split-eq{grid-template-columns:1fr;}.split-full-h{height:auto;}.tree{max-height:360px;}.admin-layout{grid-template-columns:1fr;}.module-sidebar{position:static;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}.module-item{margin-bottom:0;}}
+
+    /* api modal */
+    .api-modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;}
+    .api-modal-box{background:#fff;border-radius:12px;padding:28px 32px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+    .api-modal-box h3{margin:0 0 4px;font-size:18px;}
+    .api-modal-box p{margin:0 0 20px;color:var(--muted);font-size:13px;}
+    .api-lf{margin-bottom:14px;}
+    .api-lf label{display:block;font-size:13px;font-weight:500;margin-bottom:5px;color:#374151;}
+    .api-lf label span{font-weight:400;color:var(--muted);}
+    .api-lf input,.api-lf select{width:100%;padding:9px 11px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;}
+    .api-lf input:focus,.api-lf select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    .api-note{font-size:11px;color:var(--muted);margin-top:4px;}
+    .api-status{font-size:12px;padding:6px 10px;border-radius:5px;margin-bottom:12px;}
+    .api-status.ok{background:#f0fdf4;color:#166534;border:1px solid #a7f3d0;}
+    .api-status.warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a;}
+
+    /* lightweight approval form */
+    .approval-form-shell{max-width:980px;margin:0 auto;background:#fff;border:1px solid #edf1f7;border-radius:10px;overflow:hidden;}
+    .approval-form-head{padding:12px 18px;border-bottom:1px solid #edf1f7;font-size:13px;font-weight:600;color:#344054;}
+    .approval-form-body{padding:18px 20px 82px;}
+    .approval-field{margin-bottom:16px;}
+    .approval-field label{display:block;font-size:13px;font-weight:500;color:#344054;margin-bottom:8px;}
+    .approval-field label .req{color:#e11d48;margin-left:4px;}
+    .approval-input,.approval-field select,.approval-field textarea{width:100%;border:1px solid #d8dee8;border-radius:6px;background:#fff;padding:9px 10px;color:#1f2329;font-size:13px;}
+    .approval-input:focus,.approval-field textarea:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    .approval-select{border:1px solid #d8dee8;border-radius:7px;background:#fff;}
+    .approval-select[open]{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    .approval-select summary{list-style:none;cursor:pointer;padding:10px 12px;color:#98a2b3;display:flex;align-items:center;justify-content:space-between;}
+    .approval-select summary::-webkit-details-marker{display:none;}
+    .approval-select summary:after{content:"⌄";font-size:14px;color:#667085;}
+    .approval-select[open] summary:after{content:"⌃";}
+    .approval-menu{border-top:1px solid #eef2f7;max-height:260px;overflow:auto;padding:8px;background:#fff;box-shadow:0 10px 24px rgba(15,23,42,.08);}
+    .approval-option{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;font-size:13px;cursor:pointer;}
+    .approval-option:hover{background:#f5f7fb;}
+    .approval-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .approval-check{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #d8dee8;border-radius:8px;background:#fff;cursor:pointer;}
+    .approval-check:hover{border-color:#bfdbfe;background:#f8fbff;}
+    .approval-check.single{grid-template-columns:1fr;}
+    .approval-flow{display:grid;grid-template-columns:130px 1fr;gap:14px;margin-top:6px;}
+    .approval-flow-line{position:relative;padding-left:18px;}
+    .approval-flow-line:before{content:"";position:absolute;left:5px;top:15px;bottom:-18px;border-left:1px solid #dbe3ef;}
+    .approval-flow-line:last-child:before{display:none;}
+    .approval-dot{position:absolute;left:0;top:4px;width:10px;height:10px;background:#2563eb;border-radius:50%;box-shadow:0 0 0 3px #eff6ff;}
+    .approval-step-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+    .approval-step-sub{font-size:11px;color:#667085;}
+    .approval-people{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .approval-person{display:inline-flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#475467;}
+    .approval-avatar{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);display:flex;align-items:center;justify-content:center;color:#1d4ed8;font-weight:700;border:1px solid #dbeafe;}
+    .approval-plus{width:28px;height:28px;border:1px solid #d8dee8;border-radius:7px;background:#fff;color:#475467;font-size:18px;display:inline-flex;align-items:center;justify-content:center;}
+    .approval-actions{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 18px;display:flex;justify-content:flex-end;gap:8px;}
+    .approval-record-card{border:1px solid #edf1f7;border-radius:10px;background:#fff;padding:14px;}
+    .field-error{border-color:#ef4444!important;box-shadow:0 0 0 3px rgba(239,68,68,.16)!important;background:#fff8f8!important;}
+    .field-shake{animation:field-shake .22s linear 2;}
+    @keyframes field-shake{0%{transform:translateX(0)}25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+    .ui-toast-wrap{position:fixed;left:50%;top:74px;transform:translateX(-50%);z-index:1200;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:center;}
+    .ui-toast{min-width:220px;max-width:420px;padding:10px 12px;border-radius:10px;background:#111827;color:#fff;box-shadow:0 12px 30px rgba(15,23,42,.25);font-size:12px;line-height:1.45;opacity:0;transform:translateY(-8px);transition:all .2s ease;}
+    .ui-toast.show{opacity:1;transform:translateY(0);}
+    .ui-toast.warn{background:#7c2d12;}
+    .ui-toast.ok{background:#166534;}
+    .ui-dialog-mask{position:fixed;inset:0;z-index:1300;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:16px;}
+    .ui-dialog-mask.hidden{display:none;}
+    .ui-dialog{width:420px;max-width:95vw;border:1px solid #dbe3ef;border-radius:12px;background:#fff;box-shadow:0 30px 70px rgba(15,23,42,.3);overflow:hidden;}
+    .ui-dialog-head{padding:12px 14px;border-bottom:1px solid #e8edf5;font-size:14px;font-weight:700;color:#0f172a;}
+    .ui-dialog-body{padding:14px;color:#334155;font-size:13px;line-height:1.6;white-space:pre-wrap;}
+    .ui-dialog-input{width:100%;margin-top:10px;}
+    .ui-dialog-actions{padding:12px 14px;border-top:1px solid #e8edf5;display:flex;justify-content:flex-end;gap:8px;}
+  </style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>🔒 后台登录</h2>
+    <p>WPS 文档功能中心后台管理系统 V2</p>
+    <div class="login-err" id="loginErr">用户名或密码错误</div>
+    <div class="lf"><label>用户名</label><input type="text" id="loginUser" placeholder="admin" autocomplete="username" /></div>
+    <div class="lf"><label>密码</label><input type="password" id="loginPass" placeholder="••••••••" /></div>
+    <button class="login-btn" id="loginBtn">登录</button>
+    <div class="login-hints" style="margin-bottom:10px;">快速填入：
+      <span onclick="fillLogin('admin','admin123')">👑 管理员</span>
+    </div>
+    <div style="border-top:1px solid #e2e8f0;padding-top:10px;">
+      <div style="font-size:11px;color:#9ca3af;margin-bottom:7px;text-align:center;">测试角色账号</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button onclick="fillLogin('editor_1','edit123')" style="font-size:12px;padding:6px 8px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;cursor:pointer;text-align:center;">✍️ 产品_A<br><span style="font-size:10px;color:#6b7280;">editor_1 / edit123</span></button>
+        <button onclick="fillLogin('editor_2','edit123')" style="font-size:12px;padding:6px 8px;border-radius:6px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;cursor:pointer;text-align:center;">✍️ 产品_B<br><span style="font-size:10px;color:#6b7280;">editor_2 / edit123</span></button>
+      </div>
+    </div>
+    <div style="margin-top:12px;text-align:right"><a href="index.html" style="font-size:12px;color:var(--brand)">← 返回文档中心</a></div>
+  </div>
+</div>
+
+<section id="appSection">
+  <header class="topbar">
+    <div><strong>WPS 文档功能中心后台</strong><small id="headerRole"></small></div>
+    <div class="row">
+      <span id="headerUser" class="muted"></span>
+      <button id="apiSettingsBtn" class="btn-ghost" onclick="openApiModal()" style="font-size:12px;">⚙️ Skill API 设置</button>
+      <button id="logoutBtn" class="btn-ghost">退出登录</button>
+      <a href="index.html" target="_blank" style="font-size:13px;color:var(--brand)">打开文档中心 →</a>
+    </div>
+  </header>
+  <div class="admin-layout">
+    <aside class="module-sidebar" id="moduleSidebar"></aside>
+    <div class="admin-main">
+      <nav class="tabs" id="tabs"></nav>
+      <main class="app">
+        <section id="panel-tree" class="card"></section>
+        <section id="panel-tags" class="card hidden"></section>
+        <section id="panel-groups" class="card hidden"></section>
+        <section id="panel-users" class="card hidden"></section>
+        <section id="panel-approval" class="card hidden"></section>
+        <section id="panel-my" class="card hidden"></section>
+        <section id="panel-apply" class="card hidden"></section>
+        <section id="panel-reserved" class="card hidden"></section>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- API Settings Modal -->
+<div class="api-modal-overlay hidden" id="apiModalOverlay" onclick="if(event.target===this)closeApiModal()">
+  <div class="api-modal-box">
+    <h3>⚙️ Skill API 设置</h3>
+    <p>配置后，generate-help-content Skill 的 Phase 4 生成和多语言翻译将真实调用 LLM API，替代内置模板。</p>
+    <div id="apiModalStatus"></div>
+    <div class="api-lf">
+      <label>API Base URL <span>（默认 OpenAI，也支持 Azure / 国内代理 / Ollama 等兼容端点）</span></label>
+      <input type="text" id="apiBaseUrl" placeholder="https://api.openai.com/v1" />
+      <div class="api-note">留空则使用 https://api.openai.com/v1</div>
+    </div>
+    <div class="api-lf">
+      <label>API Key <span>（sk-... 或对应 token，仅存本地 localStorage，不上传）</span></label>
+      <input type="password" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxx" autocomplete="off" />
+    </div>
+    <div class="api-lf">
+      <label>模型名称</label>
+      <input type="text" id="apiModel" placeholder="gpt-4o-mini" list="modelList" />
+      <datalist id="modelList">
+        <option value="gpt-4o-mini"><option value="gpt-4o"><option value="gpt-4-turbo">
+        <option value="claude-3-5-haiku-20241022"><option value="claude-3-5-sonnet-20241022">
+        <option value="deepseek-chat"><option value="qwen-plus"><option value="moonshot-v1-8k">
+      </datalist>
+    </div>
+    <div class="row" style="justify-content:flex-end;gap:8px;margin-top:6px;">
+      <button id="apiTestBtn" class="btn-ghost">🔌 测试连接</button>
+      <button onclick="closeApiModal()" class="btn-ghost">取消</button>
+      <button id="apiSaveBtn" class="btn-primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="wps-doc-center-data.js"></script>
+<script>
+// ===== CONSTANTS =====
+const STORE = {
+  users:"WPS_DOC_USERS_V4", tree:"WPS_DOC_TREE_V4", nodeMeta:"WPS_DOC_NODE_META_V4",
+  prd:"WPS_DOC_PRD_V1",
+  tagCatalog:"WPS_DOC_TAG_CATALOG_V4", groups:"WPS_DOC_GROUPS_V4",
+  groupUsers:"WPS_DOC_GROUP_USERS_V4", directGrants:"WPS_DOC_DIRECT_GRANTS_V4",
+  requests:"WPS_DOC_REQUESTS_V4", sessionUserId:"WPS_DOC_SESSION_USER_V4",
+  expand:"WPS_DOC_EXPAND_STATE_V4", apiSettings:"WPS_DOC_API_SETTINGS_V1"
+};
+const ROLE_TEXT = {product_editor:"产品"};
+const ROLE_ACTIONS = {
+  product_editor:["view","edit_structure","upload_prd","generate_doc","edit_zh","edit_trans","publish_zh","publish_trans"]
+};
+const ADMIN_TABS   = [{id:"tree",text:"目录管理"},{id:"tags",text:"标签管理"},{id:"groups",text:"权限组"},{id:"users",text:"用户授权"},{id:"approval",text:"审批中心"}];
+const WORKER_TABS  = [{id:"tree",text:"工作台"},{id:"apply",text:"权限申请"}]; // product_editor
+const USER_TABS    = [{id:"my",text:"我的权限"},{id:"apply",text:"权限申请"}];  // generic user
+const MODULE_SECTIONS = [
+  {id:"product",name:"产品",desc:"预留"},
+  {id:"template",name:"模板",desc:"预留"},
+  {id:"docs",name:"文档中心",desc:"已接入"},
+  {id:"blog",name:"博客",desc:"预留"},
+  {id:"guide",name:"指南",desc:"预留"},
+  {id:"answers",name:"问答",desc:"预留"},
+  {id:"site",name:"语言站点",desc:"预留"}
+];
+const DEFAULT_USERS = [
+  {id:"admin",name:"管理员",password:"admin123",systemRole:"admin"},
+  {id:"editor_1",name:"产品_A",password:"edit123",systemRole:"user"},
+  {id:"editor_2",name:"产品_B",password:"edit123",systemRole:"user"}
+];
+const ALL_LANGS = [
+  {code:"zh-cn",label:"简体中文",source:true},
+  {code:"zh-tw",label:"繁體中文"},
+  {code:"en-us",label:"English"},
+  {code:"ja-jp",label:"日本語"},
+  {code:"ko-kr",label:"한국어"},
+  {code:"es-mx",label:"Español"}
+];
+const SECTION_SLUGS = {
+  '新手入门':'getting-started','文档':'writer','演示':'presentation','表格':'spreadsheet',
+  'PDF':'pdf','智能文档':'smart-doc','智能表格':'smart-sheet','AI Slides':'ai-slides',
+  '简历':'resume','WPS 图片':'wps-image','个人知识库':'knowledge-base','WPS AI 工具':'wps-ai',
+  '特色功能':'features','素材美化':'materials'
+};
+const PIPELINE_PHASES = [
+  {name:"Phase 1：对标分析",desc:"分析 IA 结构与内容策略基线",ms:800},
+  {name:"Phase 2：素材挖掘",desc:"从 PRD 抽取结构化信息，验证输入契约 5 项",ms:600},
+  {name:"Phase 3：竞品参考",desc:"分析竞品帮助页结构",ms:500},
+  {name:"Phase 4：内容生成（AI）",desc:"调用 LLM 按 SKILL 规范生成中文帮助文档",ms:0},
+  {name:"Phase 4.5：视觉资产",desc:"确定截图规范与占位图",ms:400},
+  {name:"Phase 5：站点集成",desc:"生成 VitePress Markdown 结构",ms:300}
+];
+
+// ===== SKILL SYSTEM PROMPTS (embedded for LLM API calls) =====
+const SKILL_GENERATE_PROMPT = `你是 WPS 文档中心专业帮助内容生成 AI，正在执行 generate-help-content Skill 的 Phase 2（PRD 挖掘）+ Phase 4（中文内容生成）。
+
+## 任务
+
+1. 通读 PRD，理解产品定位、目标用户、核心功能
+2. 从 PRD 抽取输入契约 5 项：URL slug、中英产品名、一句话定位、核心功能列表（3-8 个）、各端获取链接
+3. 生成完整的中文帮助文档，严格遵循下方输出格式
+
+## 输出格式（必须完整包含所有章节，不得跳过）
+
+# {产品名} 帮助中心
+
+> 适用平台：{桌面版/Web 版/移动版} | 更新日期：{今日日期}
+
+---
+
+## 产品概述
+
+{200-400 字，基于 PRD 真实内容：产品是什么、解决什么问题、面向哪些用户、核心价值主张。禁止虚构。}
+
+## 获取客户端
+
+### 获取桌面版
+> **📥 获取方式**
+> 前往 WPS Office 官网 [wps.com](https://www.wps.com) 下载并安装桌面客户端。
+
+### 获取手机版
+> **📥 获取方式**
+> 在 App Store 或 Google Play 搜索「WPS Office」安装（如 PRD 有具体链接请替换）。
+
+### 打开 Web 版
+> **📥 获取方式**
+> 直接访问 [{产品 Web 地址}]({URL}) 无需安装即可使用（如 PRD 无 Web 地址则删除此节）。
+
+## 快速入门
+
+{一句话说明：N 步/约 N 分钟完成什么任务，来自 PRD 核心流程}
+
+### 前提条件
+- {已安装客户端 / 已登录账号 等，来自 PRD，无则省略}
+
+### 第 1 步：{动作动词 + 核心操作}
+{1-3 句说明，直接来自 PRD 内容}
+
+### 第 2 步：{动作}
+{说明}
+
+### 第 3 步：{动作}
+{说明}
+
+### 下一步
+- [{核心功能 1}](#{slug-1}) — {一句话价值}
+- [{核心功能 2}](#{slug-2}) — {一句话价值}
+
+## 核心功能
+
+{对 PRD 中每个核心功能独立写一个子章节，内容来自 PRD，每节 2-5 句，禁止虚构}
+
+### {功能名 1}
+{功能说明：是什么 / 能做什么 / 适用场景}
+
+### {功能名 2}
+{同上，依 PRD 功能数量动态生成，不要写固定占位符}
+
+## 会员与定价
+
+{如 PRD 有定价信息：直接引用并整理为易读格式；如无定价信息：写"如需了解定价方案，请访问 [wps.com](https://www.wps.com) 或联系官方客服。"}
+
+## 常见问题
+
+{至少 3 个 Q&A，从 PRD 的限制/注意事项/FAQ 章节提取；若 PRD 无 FAQ 章节，结合功能特点生成合理问题}
+
+### Q：{问题 1}
+A：{回答，尽量来自 PRD}
+
+### Q：{问题 2}
+A：{回答}
+
+### Q：{问题 3}
+A：{回答}
+
+---
+
+*如需进一步帮助，请访问 [WPS 官方帮助中心](https://support.wps.cn)*
+
+## 硬性约束
+
+❌ 不得虚构 PRD 中没有的功能或数据
+❌ 不得使用"行业领先/最优/唯一/100%"等绝对化词（违反广告法）
+❌ 获取客户端章节必须使用 > 引用块高亮，且必须包含可点击链接
+❌ 不得跳过任何章节（全部 6 个必须输出）
+✅ 内容来自 PRD 原文，可重新组织语言但不可发散
+✅ 若 PRD 有具体 URL 使用真实 URL；若无，使用 WPS 系默认链接
+✅ 简体中文，语气专业、简洁、友好，禁止口语化`;
+
+const SKILL_TRANSLATE_PROMPT = (targetLangName, targetLangCode) =>
+`你是专业帮助文档翻译，将中文帮助文档翻译成 ${targetLangName}（语言代码：${targetLangCode}）。
+
+规则（严格执行）：
+1. 完整翻译所有内容：标题、正文、FAQ、表格、引用块——全部翻译，不得遗漏任何一行
+2. 保持 Markdown 格式：#标题、- 列表、> 引用块、| 表格、**加粗**、\`代码\` 等符号一律保留
+3. 链接处理：URL 不变，只翻译链接显示文字，如 [下载](https://wps.com) → [Download](https://wps.com)
+4. 品牌名保留不翻译：WPS、WPS Office、WPS AI
+5. 语气专业、友好，符合目标语言帮助文档惯例
+6. 直接输出翻译结果，不加任何说明或前言
+
+翻译以下内容：`;
+
+// ===== UTILS =====
+function esc(t){return String(t||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');}
+function genId(p){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);}
+function nowISO(){return new Date().toISOString();}
+const DAY_MS=24*60*60*1000;
+function simpleHash(s){let h=0;for(let i=0;i<Math.min(s.length,2000);i++){h=((h<<5)-h+s.charCodeAt(i))|0;}return h.toString(36);}
+function deepClone(v){return JSON.parse(JSON.stringify(v));}
+function readStore(k,fb){try{const r=localStorage.getItem(k);return r==null?fb:JSON.parse(r);}catch(_){return fb;}}
+function writeStore(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function normalizeList(s){return[...new Set(String(s||'').split(/[,\n]/).map(v=>v.trim()).filter(Boolean))];}
+function normalizeHttpUrl(v){const s=String(v||'').trim();return s&&/^https?:\/\//i.test(s)?s:'';}
+function sameSet(a,b){if(a.length!==b.length)return false;const x=[...a].sort(),y=[...b].sort();return x.every((v,i)=>v===y[i]);}
+let uiToastWrap=null;
+let uiDialogMask=null;
+let uiDialogResolve=null;
+function ensureUiFeedback(){
+  if(!uiToastWrap){
+    uiToastWrap=document.createElement('div');
+    uiToastWrap.className='ui-toast-wrap';
+    document.body.appendChild(uiToastWrap);
+  }
+  if(!uiDialogMask){
+    uiDialogMask=document.createElement('div');
+    uiDialogMask.className='ui-dialog-mask hidden';
+    uiDialogMask.innerHTML=`<div class="ui-dialog" role="dialog" aria-modal="true">
+      <div class="ui-dialog-head" id="uiDialogTitle">请确认</div>
+      <div class="ui-dialog-body" id="uiDialogBody"></div>
+      <div class="ui-dialog-actions">
+        <button id="uiDialogCancelBtn" class="btn-ghost">取消</button>
+        <button id="uiDialogOkBtn" class="btn-primary">确定</button>
+      </div>
+    </div>`;
+    document.body.appendChild(uiDialogMask);
+  }
+}
+function showToast(message,type='warn'){
+  ensureUiFeedback();
+  const toast=document.createElement('div');
+  toast.className=`ui-toast ${type}`;
+  toast.textContent=String(message||'请完善信息');
+  uiToastWrap.appendChild(toast);
+  requestAnimationFrame(()=>toast.classList.add('show'));
+  setTimeout(()=>{
+    toast.classList.remove('show');
+    setTimeout(()=>toast.remove(),220);
+  },2200);
+}
+function markFieldInvalid(el){
+  if(!el)return;
+  const target=el.matches('.approval-select')?el:el.closest('.approval-select')||el;
+  target.classList.add('field-error','field-shake');
+  setTimeout(()=>target.classList.remove('field-shake'),520);
+  const clear=()=>target.classList.remove('field-error');
+  ['input','change','click','blur'].forEach(ev=>el.addEventListener(ev,clear,{once:true}));
+}
+function requireField(ok,el,msg){
+  if(ok)return true;
+  markFieldInvalid(el);
+  showToast(msg||'请完善必填项','warn');
+  return false;
+}
+function openDialog(opts={}){
+  ensureUiFeedback();
+  if(uiDialogResolve){uiDialogResolve({ok:false,value:null});uiDialogResolve=null;}
+  const mode=opts.mode||'confirm';
+  const titleEl=document.getElementById('uiDialogTitle');
+  const bodyEl=document.getElementById('uiDialogBody');
+  const okBtn=document.getElementById('uiDialogOkBtn');
+  const cancelBtn=document.getElementById('uiDialogCancelBtn');
+  if(!titleEl||!bodyEl||!okBtn||!cancelBtn)return Promise.resolve(mode==='prompt'?null:false);
+  titleEl.textContent=opts.title||'请确认';
+  bodyEl.innerHTML='';
+  const msg=document.createElement('div');
+  msg.textContent=String(opts.message||'');
+  bodyEl.appendChild(msg);
+  let inputEl=null;
+  if(mode==='prompt'){
+    inputEl=document.createElement('input');
+    inputEl.className='ui-dialog-input';
+    inputEl.type='text';
+    inputEl.placeholder=opts.placeholder||'请输入';
+    inputEl.value=opts.defaultValue||'';
+    bodyEl.appendChild(inputEl);
+  }
+  okBtn.textContent=opts.okText||'确定';
+  cancelBtn.textContent=opts.cancelText||'取消';
+  cancelBtn.classList.toggle('hidden',mode==='alert');
+  uiDialogMask.classList.remove('hidden');
+  return new Promise(resolve=>{
+    uiDialogResolve=resolve;
+    const done=(ok)=>{
+      uiDialogMask.classList.add('hidden');
+      okBtn.removeEventListener('click',onOk);
+      cancelBtn.removeEventListener('click',onCancel);
+      uiDialogMask.removeEventListener('click',onMask);
+      window.removeEventListener('keydown',onEsc,true);
+      uiDialogResolve=null;
+      if(mode==='prompt')resolve(ok?(inputEl?.value??''):null);
+      else resolve(!!ok);
+    };
+    const onOk=()=>done(true);
+    const onCancel=()=>done(false);
+    const onMask=(e)=>{if(e.target===uiDialogMask)done(false);};
+    const onEsc=(e)=>{if(e.key==='Escape')done(false);if(e.key==='Enter'&&mode==='prompt')done(true);};
+    okBtn.addEventListener('click',onOk);
+    cancelBtn.addEventListener('click',onCancel);
+    uiDialogMask.addEventListener('click',onMask);
+    window.addEventListener('keydown',onEsc,true);
+    setTimeout(()=>inputEl?inputEl.focus():okBtn.focus(),0);
+  });
+}
+function askConfirm(message,title='请确认'){return openDialog({mode:'confirm',title,message,okText:'确定',cancelText:'取消'});}
+function askPrompt(message,defaultValue='',title='请输入'){return openDialog({mode:'prompt',title,message,defaultValue,okText:'确定',cancelText:'取消'});}
+function allCatalogTags(){
+  const tagsFromNodeMeta=Object.values(state.nodeMeta||{}).flatMap(m=>Array.isArray(m?.tags)?m.tags:[]);
+  return [...new Set([...(state.tagCatalog||[]),...tagsFromNodeMeta])].sort((a,b)=>a.localeCompare(b));
+}
+function openScopeZoom(opts){
+  const title=opts?.title||'权限范围大屏查看';
+  const tree=deepClone(opts?.tree||state.tree||[]);
+  let checkedNodeIds=[...(opts?.checkedNodeIds||[])];
+  let checkedTagVals=[...(opts?.checkedTagVals||[])];
+  const tags=[...(opts?.tags||allCatalogTags())];
+  const mask=document.createElement('div');
+  mask.className='scope-zoom-mask';
+  mask.innerHTML=`<div class="scope-zoom-panel">
+    <div class="scope-zoom-head"><span>${esc(title)}</span><button type="button" class="btn-ghost" data-sz-close>关闭</button></div>
+    <div class="scope-zoom-body">
+      <section class="scope-zoom-tree-wrap">
+        <div class="scope-zoom-title">文档中心节点</div>
+        <div id="scopeZoomTree" class="scope-zoom-tree"></div>
+      </section>
+      <section class="scope-zoom-tag-wrap">
+        <div class="scope-zoom-title">标签</div>
+        <div id="scopeZoomTags" class="scope-zoom-tags"></div>
+      </section>
+    </div>
+    <div class="scope-zoom-actions"><button type="button" class="btn-ghost" data-sz-cancel>取消</button><button type="button" class="btn-primary" data-sz-apply>应用</button></div>
+  </div>`;
+  document.body.appendChild(mask);
+  const treeBox=mask.querySelector('#scopeZoomTree');
+  const tagBox=mask.querySelector('#scopeZoomTags');
+  const expandMap={};
+  (function openAll(nodes){(nodes||[]).forEach(n=>{expandMap[n.id]=true;openAll(n.children||[]);});})(tree);
+  Object.keys(expandMap).forEach(id=>{pickerExpandState[id]=expandMap[id];});
+  function drawTree(){
+    if(!treeBox)return;
+    treeBox.innerHTML=renderTreeHtml(tree,{selectable:false,showCheckbox:true,checkedIds:checkedNodeIds,usePickerExpand:true,showTags:true});
+    bindTree(treeBox,{
+      onToggle:id=>{expandMap[id]=!(expandMap[id]===true);pickerExpandState[id]=expandMap[id];drawTree();},
+      onCheck:(id,chk)=>{
+        cascadeCheck(treeBox,tree,id,chk);
+        checkedNodeIds=[...treeBox.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+      }
+    });
+    syncIndeterminate(treeBox,tree,new Set(checkedNodeIds));
+    checkedNodeIds=[...treeBox.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+  }
+  function drawTags(){
+    if(!tagBox)return;
+    tagBox.innerHTML=tags.length?`<div class="tag-pick-grid">${tags.map(t=>`<label><input type="checkbox" class="scope-zoom-tag-cb" value="${esc(t)}"${checkedTagVals.includes(t)?' checked':''}/> ${esc(t)}</label>`).join('')}</div>`:'<div class="muted">暂无标签</div>';
+    tagBox.querySelectorAll('.scope-zoom-tag-cb').forEach(cb=>cb.addEventListener('change',()=>{
+      checkedTagVals=[...tagBox.querySelectorAll('.scope-zoom-tag-cb:checked')].map(i=>i.value);
+    }));
+  }
+  drawTree();
+  drawTags();
+  const close=()=>mask.remove();
+  mask.querySelector('[data-sz-close]')?.addEventListener('click',close);
+  mask.querySelector('[data-sz-cancel]')?.addEventListener('click',close);
+  mask.addEventListener('click',e=>{if(e.target===mask)close();});
+  mask.querySelector('[data-sz-apply]')?.addEventListener('click',()=>{
+    opts?.onApply?.(checkedNodeIds,checkedTagVals);
+    close();
+  });
+}
+window.alert=(msg)=>showToast(msg,'warn');
+function buildExpiry(validType){
+  if(validType==='30d'){return new Date(Date.now()+30*DAY_MS).toISOString();}
+  return '';
+}
+function isExpired(expiresAt){
+  if(!expiresAt)return false;
+  const t=Date.parse(expiresAt);
+  return Number.isFinite(t)&&t<=Date.now();
+}
+function remainingDays(expiresAt){
+  if(!expiresAt)return Infinity;
+  const t=Date.parse(expiresAt);
+  if(!Number.isFinite(t))return Infinity;
+  return Math.ceil((t-Date.now())/DAY_MS);
+}
+function validityText(validType,expiresAt){
+  if(validType==='longterm'||!expiresAt)return'长期';
+  const days=remainingDays(expiresAt);
+  if(days<=0)return'已过期';
+  return`${days}天`;
+}
+function isAdmin(){return!!state.currentUser&&state.currentUser.systemRole==='admin';}
+// Returns primary role for non-admin users ('product_editor' | 'user')
+function getEffectiveRole(){
+  if(!state.currentUser||isAdmin())return'admin';
+  const grants=effectiveGrants(state.currentUser.id);
+  if(grants.some(g=>g.role==='product_editor'))return'product_editor';
+  return'user';
+}
+// Get set of node IDs the current user can view (empty = all visible to admin)
+function getViewableNodeIds(){
+  if(isAdmin())return null; // null = all nodes
+  const ids=new Set();
+  state.nodes.forEach(n=>{if(canAction(state.currentUser.id,'view',n.id))ids.add(n.id);});
+  return ids;
+}
+function parseTabFromHash(){const t=String(location.hash||'').replace('#','').trim();return[...ADMIN_TABS,...WORKER_TABS,...USER_TABS].some(x=>x.id===t)?t:'';}
+function syncHash(t){if(location.hash!=='#'+t)history.replaceState(null,'','#'+t);}
+
+// ===== API SETTINGS =====
+function getApiSettings(){try{return JSON.parse(localStorage.getItem(STORE.apiSettings)||'{}');}catch(_){return{};}}
+function saveApiSettings(s){localStorage.setItem(STORE.apiSettings,JSON.stringify(s));}
+function hasApiKey(){const s=getApiSettings();return!!(s.apiKey&&s.apiKey.trim());}
+
+// ===== LLM CALLER (OpenAI-compatible streaming) =====
+async function callLLM(systemPrompt, userPrompt, onChunk) {
+  const s = getApiSettings();
+  if (!s.apiKey) throw new Error('no_api_key');
+  const baseUrl = (s.baseUrl || 'https://api.openai.com/v1').replace(/\/$/, '');
+  const model = s.model || 'gpt-4o-mini';
+  const resp = await fetch(`${baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${s.apiKey.trim()}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model, stream: true, temperature: 0.3, max_tokens: 8000,
+      messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }]
+    })
+  });
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`API ${resp.status}: ${errText.slice(0, 200)}`);
+  }
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    for (const line of decoder.decode(value, { stream: true }).split('\n')) {
+      if (!line.startsWith('data: ')) continue;
+      const data = line.slice(6).trim();
+      if (data === '[DONE]') break;
+      try {
+        const delta = JSON.parse(data).choices?.[0]?.delta?.content || '';
+        if (delta) { fullText += delta; if (onChunk) onChunk(delta, fullText); }
+      } catch (_) {}
+    }
+  }
+  return fullText;
+}
+
+async function callSkillLLM(prdContent, nodeTitle, onProgress) {
+  const userPrompt = `节点名称：${nodeTitle}\n\n以下是产品 PRD 文稿：\n\n---\n${prdContent}\n---\n\n请按要求生成完整的中文帮助文档。`;
+  return callLLM(SKILL_GENERATE_PROMPT, userPrompt, onProgress);
+}
+
+async function translateWithLLM(content, targetLangCode, onProgress) {
+  const names = {'en-us':'English','zh-tw':'繁體中文（台灣）','ja-jp':'日本語','ko-kr':'한국어','es-mx':'Español (Latinoamérica)'};
+  const systemPrompt = SKILL_TRANSLATE_PROMPT(names[targetLangCode] || targetLangCode, targetLangCode);
+  return callLLM(systemPrompt, content, onProgress);
+}
+
+// ===== DATA LAYER =====
+// nodeMeta is LEAN: url, tags, helpContent keys, publishedLangs, publishedAt, status
+// PRD content lives in a SEPARATE store (WPS_DOC_PRD_V1) keyed by nodeId
+function getNodeMeta(id){
+  const m=state.nodeMeta[id]||{};
+  return{url:m.url||'',tags:Array.isArray(m.tags)?m.tags:[],helpContent:m.helpContent||{},publishedLangs:Array.isArray(m.publishedLangs)?m.publishedLangs:[],publishedAt:m.publishedAt||'',status:m.status||'empty',
+    contentVer:m.contentVer||'',        // timestamp when zh-cn was last saved
+    transVers:m.transVers||{},          // {[lang]: contentVer at time of translation}
+    pubVers:m.pubVers||{},              // {[lang]: content-hash at time of publish}
+    manualEdits:m.manualEdits||{}       // {[lang]: true} if manually edited after last translation
+  };
+}
+// Patch nodeMeta WITHOUT deep-cloning the entire store — just read, patch, write
+function patchNodeMeta(nodeId,patch){
+  const store=readStore(STORE.nodeMeta,{});
+  store[nodeId]={...(store[nodeId]||{}),...patch};
+  writeStore(STORE.nodeMeta,store);
+  state.nodeMeta=store; // update in-place, skip full buildState
+}
+function getPrd(nodeId){const s=readStore(STORE.prd,{});return{content:s[nodeId]?.content||'',filename:s[nodeId]?.filename||'',uploadedAt:s[nodeId]?.uploadedAt||''};}
+function savePrd(nodeId,content,filename){
+  const s=readStore(STORE.prd,{});
+  s[nodeId]={content,filename,uploadedAt:nowISO()};
+  writeStore(STORE.prd,s);
+}
+
+function initStorage(){
+  if(!readStore(STORE.users,null)){writeStore(STORE.users,DEFAULT_USERS.map(d=>({...d})));}
+  else{
+    const u=readStore(STORE.users,[]);
+    const byId=new Map((Array.isArray(u)?u:[]).map(x=>[x.id,x]));
+    DEFAULT_USERS.forEach(d=>{if(!byId.has(d.id)){u.push({...d});writeStore(STORE.users,u);}});
+  }
+  const existingTree=readStore(STORE.tree,null);
+  const fallbackTree=convertTreeFromData(window.WPS_DOC_TREE||[]);
+  const shouldInitTree=
+    !existingTree
+    || !Array.isArray(existingTree)
+    || existingTree.length===0
+    || (Array.isArray(existingTree)&&existingTree.every(n=>!n||!n.title));
+  if(shouldInitTree&&fallbackTree.length)writeStore(STORE.tree,fallbackTree);
+  if(!readStore(STORE.nodeMeta,null))writeStore(STORE.nodeMeta,{});
+  if(!readStore(STORE.prd,null))writeStore(STORE.prd,{});
+  if(!readStore(STORE.tagCatalog,null))writeStore(STORE.tagCatalog,[]);
+  if(!readStore(STORE.groups,null))writeStore(STORE.groups,[]);
+  if(!readStore(STORE.groupUsers,null))writeStore(STORE.groupUsers,[]);
+  if(!readStore(STORE.directGrants,null))writeStore(STORE.directGrants,[]);
+  if(!readStore(STORE.requests,null))writeStore(STORE.requests,[]);
+  if(!readStore(STORE.expand,null))writeStore(STORE.expand,{});
+  // Test accounts (editor_1/2, trans_1/2) start with NO permissions by default.
+  // Admin can grant them via 用户授权 or 审批中心.
+}
+
+// O(n) flat — builds pathText during traversal
+function flattenTree(tree){
+  const nodes=[],nodeMap={};
+  function go(node,level,parentId,pPath){
+    const pathText=pPath?pPath+' / '+node.title:node.title;
+    const item={id:node.id,title:node.title,level,parentId,pathText};
+    nodes.push(item);nodeMap[item.id]=item;
+    (node.children||[]).forEach(c=>go(c,level+1,node.id,pathText));
+  }
+  tree.forEach(n=>go(n,1,'',''));
+  return{nodes,nodeMap};
+}
+
+function buildState(){
+  const users=readStore(STORE.users,[]);
+  const userIdSet=new Set((users||[]).map(u=>u.id));
+  const uid=localStorage.getItem(STORE.sessionUserId)||'';
+  const currentUser=users.find(u=>u.id===uid)||null;
+  const tree=readStore(STORE.tree,[]);
+  const nodeMeta=readStore(STORE.nodeMeta,{});
+  const tagCatalog=readStore(STORE.tagCatalog,[]);
+  const groups=readStore(STORE.groups,[]);
+  const rawGroupUsers=readStore(STORE.groupUsers,[]);
+  const rawDirectGrants=readStore(STORE.directGrants,[]);
+  const requests=readStore(STORE.requests,[]);
+  // Migration: old approval used applicant employee id as grant user id (e.g. 123456).
+  // If grant userId no longer matches a real account, remap to request.requestedBy login id.
+  const migratedDirectGrants=(rawDirectGrants||[]).map(d=>{
+    if(userIdSet.has(d.userId))return d;
+    const matched=(requests||[]).find(r=>
+      r.status==='approved'&&
+      r.userId===d.userId&&
+      r.targetRole===d.role&&
+      sameSet(r.nodeScopes||[],d.nodeScopes||[])&&
+      sameSet(r.tagScopes||[],d.tagScopes||[])&&
+      r.requestedBy&&userIdSet.has(r.requestedBy)
+    );
+    return matched?{...d,userId:matched.requestedBy}:d;
+  });
+  if(JSON.stringify(migratedDirectGrants)!==JSON.stringify(rawDirectGrants)){
+    writeStore(STORE.directGrants,migratedDirectGrants);
+  }
+  const groupUsers=(rawGroupUsers||[]).filter(x=>!isExpired(x.expiresAt));
+  const directGrants=(migratedDirectGrants||[]).filter(x=>!isExpired(x.expiresAt));
+  if(groupUsers.length!==(rawGroupUsers||[]).length)writeStore(STORE.groupUsers,groupUsers);
+  if(directGrants.length!==(migratedDirectGrants||[]).length)writeStore(STORE.directGrants,directGrants);
+  const{nodes,nodeMap}=flattenTree(tree);
+  const groupMap={};groups.forEach(g=>{groupMap[g.id]=g;});
+  return{users,currentUser,tree,nodeMeta,tagCatalog,groups,groupUsers,directGrants,requests,nodes,nodeMap,groupMap};
+}
+
+function refreshState(){
+  const prev=state;
+  state=buildState();
+  if(!state.nodeMap[selectedNodeId])selectedNodeId=state.nodes[0]?state.nodes[0].id:'';
+  if(!state.nodeMap[workbenchNodeId])workbenchNodeId='';
+}
+
+// ===== TREE RENDER (NO flattenTree per node) =====
+function renderTreeHtml(treeNodes,opts={}){
+  const search=(opts.search||'').toLowerCase();
+  const checkedSet=new Set(opts.checkedIds||[]); // O(1) lookup
+  // Build node-to-tags map from nodeMeta for inline display
+  const tagMap=opts.showTags?((id)=>{const m=(state.nodeMeta||{})[id];return(m&&m.tags&&m.tags.length)?m.tags:[];}):(()=>[]);
+  const parts=[];
+  treeNodes.forEach(n=>renderNode(n,1,parts));
+  return parts.join('')||'<div class="muted">无匹配节点</div>';
+
+  function matches(node){
+    if(`${node.title} ${node.id}`.toLowerCase().includes(search))return true;
+    return(node.children||[]).some(c=>matches(c));
+  }
+  function renderNode(node,level,out){
+    if(search&&!matches(node))return;
+    const isOpen=opts.usePickerExpand?pickerExpandState[node.id]===true:expandState[node.id]!==false;
+    const hasKids=(node.children||[]).length>0;
+    const checked=checkedSet.has(node.id);
+    const active=opts.selectedId===node.id;
+    const disabled=opts.disabledIds&&opts.disabledIds.has(node.id);
+    const nodeTags=tagMap(node.id);
+    const tagHtml=nodeTags.length?`<span style="margin-left:4px;font-size:10px;color:#6b7280;opacity:0.85;">${nodeTags.map(t=>`<span style="background:#f3f4f6;border-radius:3px;padding:0 3px;">${esc(t)}</span>`).join('')}</span>`:'';
+    const rowStyle=`padding-left:${(level-1)*14}px${disabled?';opacity:0.35;':''}`; 
+    const titleStyle=disabled?'cursor:not-allowed;color:#9ca3af;':'';
+    out.push(`<div class="tree-node-wrap" data-nw="${esc(node.id)}"><div class="tree-row${active?' sel':''}" style="${rowStyle}"><button class="tree-toggle" data-tg="${esc(node.id)}">${hasKids?(isOpen?'▾':'▸'):''}</button>${opts.showCheckbox?`<input type="checkbox" data-ck="${esc(node.id)}"${checked?' checked':''}/>`:''}<button class="tree-title-btn" data-sel="${esc(node.id)}"${disabled?' title="无权限操作此节点"':''} style="${titleStyle}">${esc(node.title)}</button>${tagHtml}</div>${hasKids?`<div class="tree-children${isOpen?'':' hidden'}" data-ch="${esc(node.id)}">${(()=>{const sub=[];(node.children||[]).forEach(c=>renderNode(c,level+1,sub));return sub.join('');})()}</div>`:''}</div>`);
+  }
+}
+
+function bindTree(container,handlers){
+  if(!container)return;
+  container.querySelectorAll('[data-tg]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();handlers.onToggle&&handlers.onToggle(b.dataset.tg);}));
+  container.querySelectorAll('[data-sel]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();handlers.onSelect&&handlers.onSelect(b.dataset.sel);}));
+  container.querySelectorAll('[data-ck]').forEach(c=>c.addEventListener('change',()=>{handlers.onCheck&&handlers.onCheck(c.dataset.ck,c.checked);}));
+}
+
+// Only run syncCheckboxIndeterminate when there ARE checked nodes (fast path = skip)
+function syncIndeterminate(container,tree,checkedSet){
+  if(!container)return;
+  const ordered=[];
+  (function walk(list){(list||[]).forEach(n=>{ordered.push(n);walk(n.children||[]);});})(tree);
+  ordered.reverse().forEach(node=>{
+    const kids=node.children||[];if(!kids.length)return;
+    const el=container.querySelector(`input[data-ck="${CSS.escape(node.id)}"]`);if(!el)return;
+    const subIds=[];kids.forEach(k=>collectSubIdsFor(tree,k.id).forEach(id=>subIds.push(id)));
+    const allChecked=subIds.length>0&&subIds.every(id=>checkedSet.has(id));
+    el.indeterminate=false;
+    el.checked=allChecked;
+    if(allChecked)checkedSet.add(node.id);
+    else checkedSet.delete(node.id);
+  });
+}
+
+// ===== APP STATE =====
+initStorage();
+let state=buildState();
+let selectedNodeId='';
+let currentTab='tree';
+let expandState=readStore(STORE.expand,{});
+const pickerExpandState={};
+let batchChecked=[]; // ids array (set operations use Set for sync)
+let batchTagMode=false; // whether the tree is in batch-tag mode
+let transAbortFlag={};  // {[nodeId]: boolean} — set true to abort translation
+let genAbortFlag=false; // set true to abort LLM content generation
+let workbenchNodeId='';
+let selectedTagName='';
+let currentWfTab='prd';
+let pipelineRunning=false;
+let pipelinePhaseIdx=-1;
+let pipelineStreamText='';
+let editLang='zh-cn';
+let transRunning={};
+let activeModuleSection='docs';
+
+const panels={
+  tree:document.getElementById('panel-tree'),tags:document.getElementById('panel-tags'),
+  groups:document.getElementById('panel-groups'),users:document.getElementById('panel-users'),
+  approval:document.getElementById('panel-approval'),my:document.getElementById('panel-my'),
+  apply:document.getElementById('panel-apply'),reserved:document.getElementById('panel-reserved')
+};
+
+if(state.currentUser){
+  document.getElementById('loginOverlay').style.display='none';
+  initApp();
+}
+
+// ===== LOGIN =====
+function fillLogin(u,p){document.getElementById('loginUser').value=u;document.getElementById('loginPass').value=p;}
+function doLogin(){
+  const uid=document.getElementById('loginUser').value.trim();
+  const pwd=document.getElementById('loginPass').value.trim();
+  const user=readStore(STORE.users,[]).find(u=>u.id===uid&&u.password===pwd);
+  if(!user){document.getElementById('loginErr').style.display='block';return;}
+  localStorage.setItem(STORE.sessionUserId,uid);
+  document.getElementById('loginOverlay').style.display='none';
+  document.getElementById('loginErr').style.display='none';
+  initStorage();state=buildState();initApp();
+}
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPass').focus();});
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  localStorage.removeItem(STORE.sessionUserId);
+  document.getElementById('loginOverlay').style.display='flex';
+  document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';
+});
+window.addEventListener('hashchange',()=>{const t=parseTabFromHash();if(!t||!state.currentUser)return;currentTab=t;renderApp();});
+
+// ===== API MODAL =====
+function openApiModal(){
+  const s=getApiSettings();
+  document.getElementById('apiBaseUrl').value=s.baseUrl||'';
+  document.getElementById('apiKey').value=s.apiKey||'';
+  document.getElementById('apiModel').value=s.model||'gpt-4o-mini';
+  const st=document.getElementById('apiModalStatus');
+  st.innerHTML=hasApiKey()
+    ?`<div class="api-status ok">✅ 已配置（${esc(s.model||'gpt-4o-mini')}）</div>`
+    :`<div class="api-status warn">⚠️ 尚未配置 — 填写 API Key 后保存即可启用 Skill AI</div>`;
+  document.getElementById('apiModalOverlay').classList.remove('hidden');
+}
+function closeApiModal(){document.getElementById('apiModalOverlay').classList.add('hidden');}
+
+document.getElementById('apiSaveBtn')?.addEventListener('click',()=>{
+  const s={
+    baseUrl:document.getElementById('apiBaseUrl').value.trim(),
+    apiKey:document.getElementById('apiKey').value.trim(),
+    model:document.getElementById('apiModel').value.trim()||'gpt-4o-mini'
+  };
+  saveApiSettings(s);
+  closeApiModal();
+  // Refresh the current right panel to reflect new API status
+  updateRightPanel?.();
+  const btn=document.getElementById('apiSettingsBtn');
+  if(btn)btn.style.color=s.apiKey?'var(--ok)':'';
+});
+
+document.getElementById('apiTestBtn')?.addEventListener('click',async()=>{
+  const btn=document.getElementById('apiTestBtn');
+  btn.disabled=true;btn.textContent='⏳ 测试中...';
+  const s={
+    baseUrl:document.getElementById('apiBaseUrl').value.trim(),
+    apiKey:document.getElementById('apiKey').value.trim(),
+    model:document.getElementById('apiModel').value.trim()||'gpt-4o-mini'
+  };
+  const st=document.getElementById('apiModalStatus');
+  try{
+    saveApiSettings(s);
+    const result=await callLLM('You are a test assistant.','Reply with exactly: OK',null);
+    st.innerHTML=`<div class="api-status ok">✅ 连接成功！模型响应：${esc((result||'').slice(0,100))}</div>`;
+  }catch(err){
+    st.innerHTML=`<div class="api-status warn">❌ 连接失败：${esc(err.message||String(err))}</div>`;
+  }
+  btn.disabled=false;btn.textContent='🔌 测试连接';
+});
+
+function initApp(){
+  if(!state.currentUser)return;
+  selectedNodeId=state.nodes[0]?state.nodes[0].id:'';
+  const _role=getEffectiveRole();
+  currentTab=parseTabFromHash()||(_role==='admin'||_role==='product_editor'?'tree':'my');
+  activeModuleSection='docs';
+  // Update API button color if key is set
+  setTimeout(()=>{
+    const btn=document.getElementById('apiSettingsBtn');
+    if(btn&&hasApiKey())btn.style.color='var(--ok)';
+  },0);
+  renderApp();
+}
+
+function renderApp(){
+  if(!state.currentUser)return;
+  const role=getEffectiveRole();
+  const roleLabel={admin:' · 管理员视图',product_editor:' · 产品视图',user:' · 用户视图'};
+  document.getElementById('headerRole').textContent=roleLabel[role]||' · 用户视图';
+  document.getElementById('headerUser').textContent=`${state.currentUser.id} (${state.currentUser.name})`;
+  renderModuleSidebar();
+  const tabs=isAdmin()?ADMIN_TABS:role==='product_editor'?WORKER_TABS:USER_TABS;
+  if(!tabs.some(t=>t.id===currentTab))currentTab=tabs[0].id;
+  const tabsEl=document.getElementById('tabs');
+  if(activeModuleSection!=='docs'){
+    tabsEl.classList.add('hidden');
+    Object.entries(panels).forEach(([id,p])=>p.classList.toggle('hidden',id!=='reserved'));
+    renderReservedPanel();
+    return;
+  }
+  tabsEl.classList.remove('hidden');
+  tabsEl.innerHTML=tabs.map(t=>`<button class="tab${t.id===currentTab?' active':''}" data-tab="${esc(t.id)}">${esc(t.text)}</button>`).join('');
+  tabsEl.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{currentTab=b.dataset.tab;syncHash(currentTab);renderApp();}));
+  Object.entries(panels).forEach(([id,p])=>p.classList.toggle('hidden',id!==currentTab));
+  if(currentTab==='tree')renderTreePanel();
+  if(currentTab==='tags')renderTagsPanel();
+  if(currentTab==='groups')renderGroupsPanel();
+  if(currentTab==='users')renderUsersPanel();
+  if(currentTab==='approval')renderApprovalPanel();
+  if(currentTab==='my')renderMyPanel();
+  if(currentTab==='apply')renderApplyPanel();
+}
+
+function renderModuleSidebar(){
+  const holder=document.getElementById('moduleSidebar');
+  if(!holder)return;
+  const layout=document.querySelector('.admin-layout');
+  if(!isAdmin()){
+    holder.classList.add('hidden');
+    if(layout)layout.style.gridTemplateColumns='1fr';
+    activeModuleSection='docs';
+    return;
+  }
+  holder.classList.remove('hidden');
+  if(layout)layout.style.gridTemplateColumns='';
+  holder.innerHTML=MODULE_SECTIONS.map(m=>`<button class="module-item${m.id===activeModuleSection?' active':''}" data-module="${esc(m.id)}">${esc(m.name)}<span class="meta">${esc(m.desc)}</span></button>`).join('');
+  holder.querySelectorAll('[data-module]').forEach(btn=>btn.addEventListener('click',()=>{
+    activeModuleSection=btn.dataset.module;
+    if(activeModuleSection==='docs'){
+      const role=getEffectiveRole();
+      const tabs=isAdmin()?ADMIN_TABS:role==='product_editor'?WORKER_TABS:USER_TABS;
+      if(!tabs.some(t=>t.id===currentTab))currentTab=tabs[0].id;
+    }
+    renderApp();
+  }));
+}
+
+function renderReservedPanel(){
+  const meta=MODULE_SECTIONS.find(m=>m.id===activeModuleSection)||{name:'模块',desc:'预留'};
+  panels.reserved.innerHTML=`<h3>${esc(meta.name)}管理后台（预留）</h3>
+    <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+      当前板块为预留管理位，后续可接入内容维护、权限审批、发布流程等能力。<br/>
+      点击左侧「文档中心」可进入已接入的完整后台系统（你当前这套系统）。
+    </div>`;
+}
+
+// ===== TREE PANEL — split left/right for performance =====
+// renderTreePanel = full render (called on init, structural changes)
+// updateRightPanel = only re-render right side (called on node select, meta changes)
+
+function renderTreePanel(){
+  const role=getEffectiveRole();
+  const isWorker=role==='product_editor';
+  if(!isAdmin()&&!isWorker)return panels.tree.innerHTML='<h3>工作台</h3><div class="lock">请先申请权限后再使用工作台。</div>';
+  const panelTitle=isAdmin()?'目录管理':'工作台';
+  const viewableIds=isWorker?getViewableNodeIds():null;
+  const disabledIds=viewableIds?new Set(state.nodes.filter(n=>!viewableIds.has(n.id)).map(n=>n.id)):new Set();
+  const canTagBatch=isAdmin();
+  const canStructure=isAdmin()||isWorker;
+  const headerTitle=isAdmin()?panelTitle:`${panelTitle} <span style="font-size:11px;font-weight:400;color:var(--muted);margin-left:6px;">[产品 · 仅权限内节点可操作]</span>`;
+  panels.tree.innerHTML=`
+    <h3 style="margin-bottom:8px;">${headerTitle}</h3>
+    <div class="split split-full-h" style="align-items:stretch;">
+      <article id="treeLeft" style="display:flex;flex-direction:column;min-height:0;overflow:hidden;">
+        <div class="row" style="justify-content:space-between;margin-bottom:6px;flex-shrink:0;">
+          <input id="treeSearch" type="text" style="flex:1;min-width:120px;margin-right:4px;" placeholder="搜索节点"/>
+          ${canTagBatch?`<button id="batchTagModeBtn" style="white-space:nowrap;font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid;cursor:pointer;${batchTagMode?'background:#fffbeb;border-color:#fde68a;color:#92400e;font-weight:600;':'background:#f9fafb;border-color:#d1d5db;color:#374151;'}">🏷️ 批量打标签</button>`:''}
+        </div>
+        <div id="treeManage" class="tree" style="flex:1;overflow-y:auto;min-height:0;"></div>
+        ${canTagBatch&&batchTagMode?`
+        <div id="batchTagPanel" style="flex-shrink:0;margin-top:0;border-top:2px solid #fde68a;padding:10px 10px 8px;background:#fffbeb;">
+          <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:8px;">🏷️ 批量打标签 — 已选 <span id="batchCheckedCount">${batchChecked.length}</span> 个节点</div>
+          <div style="margin-bottom:6px;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">从标签库选择：</div>
+            <div id="batchTagLibrary" style="display:flex;flex-wrap:wrap;gap:4px;">${(state.tagCatalog||[]).map(t=>`<label style="font-size:12px;display:inline-flex;align-items:center;gap:3px;background:#fff;border:1px solid #fde68a;border-radius:4px;padding:2px 6px;cursor:pointer;"><input type="checkbox" class="btag-lib-cb" value="${esc(t)}" style="margin:0;"/>${esc(t)}</label>`).join('')||'<span class="muted" style="font-size:12px;">暂无标签库，请在下方新建</span>'}</div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:3px;">新建标签（逗号分隔）：</div>
+            <input id="batchTagNewInput" type="text" style="width:100%;box-sizing:border-box;font-size:12px;" placeholder="标签1, 标签2"/>
+          </div>
+          <div style="display:flex;gap:6px;justify-content:flex-end;">
+            <button id="batchTagCancelBtn" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer;">取消</button>
+            <button id="batchTagRemoveBtn" style="font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid #fca5a5;background:#fff;color:#b91c1c;cursor:pointer;">批量移除</button>
+            <button id="batchTagConfirmBtn" class="btn-primary" style="font-size:12px;">确认打标</button>
+          </div>
+        </div>`:`
+        <div id="treeNodeBtns" style="flex-shrink:0;padding-top:8px;border-top:1px solid var(--line);">
+          ${canStructure?`<div class="row" style="flex-wrap:wrap;gap:4px;">
+            <button id="addSiblingBtn" style="font-size:12px;">新增同级</button>
+            <button id="addChildBtn" style="font-size:12px;">新增子级</button>
+            <button id="renameBtn" class="btn-ghost" style="font-size:12px;">重命名</button>
+            <button id="deleteBtn" class="btn-danger" style="font-size:12px;">删除节点</button>
+            ${isAdmin()?`<button id="resetTreeBtn" class="btn-ghost" style="font-size:12px;">重置目录</button>`:''}
+          </div>
+          <div class="muted" style="font-size:11px;margin-top:4px;">仅三级结构；三级节点不可新增子级。</div>`
+          :'<div class="muted" style="font-size:11px;">目录结构调整由管理员操作。</div>'}
+        </div>`}
+      </article>
+      <article id="treeRight" style="overflow-y:auto;"></article>
+    </div>`;
+  renderTreeLeft();
+  updateRightPanel();
+}
+
+function renderTreeLeft(){
+  const treeManage=document.getElementById('treeManage');
+  if(!treeManage)return;
+  const _role=getEffectiveRole();
+  const _isWorker=_role==='product_editor';
+  const _viewIds=_isWorker?getViewableNodeIds():null;
+  const _disabledIds=_viewIds?new Set(state.nodes.filter(n=>!_viewIds.has(n.id)).map(n=>n.id)):new Set();
+  const searchVal=document.getElementById('treeSearch')?.value.trim().toLowerCase()||'';
+  const treeOpts={search:searchVal,selectable:!batchTagMode,selectedId:selectedNodeId,showCheckbox:batchTagMode,checkedIds:batchChecked,showTags:true,disabledIds:_disabledIds};
+  treeManage.innerHTML=renderTreeHtml(state.tree,treeOpts);
+  if(batchTagMode){
+    bindTree(treeManage,{onToggle:onTreeToggle,onCheck:onTreeCheck});
+    if(batchChecked.length){
+      syncIndeterminate(treeManage,state.tree,new Set(batchChecked));
+      batchChecked=[...treeManage.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+    }
+  }else{
+    bindTree(treeManage,{onSelect:id=>{
+      // For out-of-scope nodes, show lock in right panel
+      if(_disabledIds.has(id)){
+        selectedNodeId=id;
+        const right=document.getElementById('treeRight');
+        if(right)right.innerHTML=`<div class="lock" style="margin-top:20px;">🔒 <strong>无权限</strong><br><span style="color:var(--muted);font-size:12px;margin-top:4px;display:block;">此节点不在您的权限范围内。如需访问，请前往「权限申请」提交申请。</span></div>`;
+        return;
+      }
+      onTreeSelect(id);
+    },onToggle:onTreeToggle});
+  }
+
+  const treeSearch=document.getElementById('treeSearch');
+  if(treeSearch)treeSearch.addEventListener('input',()=>{
+    const sv=treeSearch.value.trim().toLowerCase();
+    treeManage.innerHTML=renderTreeHtml(state.tree,{...treeOpts,search:sv});
+    if(batchTagMode){bindTree(treeManage,{onToggle:onTreeToggle,onCheck:onTreeCheck});}
+    else{bindTree(treeManage,{onSelect:id=>{
+      if(_disabledIds.has(id)){selectedNodeId=id;const right=document.getElementById('treeRight');if(right)right.innerHTML=`<div class="lock" style="margin-top:20px;">🔒 <strong>无权限</strong><br><span style="color:var(--muted);font-size:12px;margin-top:4px;display:block;">此节点不在您的权限范围内。</span></div>`;return;}
+      onTreeSelect(id);
+    },onToggle:onTreeToggle});}
+    if(batchChecked.length){
+      syncIndeterminate(treeManage,state.tree,new Set(batchChecked));
+      batchChecked=[...treeManage.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+    }
+  });
+
+  // Batch-tag mode button
+  document.getElementById('batchTagModeBtn')?.addEventListener('click',()=>{
+    batchTagMode=!batchTagMode;
+    if(!batchTagMode)batchChecked=[];
+    renderTreePanel();
+  });
+  // Batch-tag panel buttons
+  document.getElementById('batchTagCancelBtn')?.addEventListener('click',()=>{batchTagMode=false;batchChecked=[];renderTreePanel();});
+  document.getElementById('batchTagConfirmBtn')?.addEventListener('click',()=>commitBatchTags('add'));
+  document.getElementById('batchTagRemoveBtn')?.addEventListener('click',()=>commitBatchTags('remove'));
+
+  if(!batchTagMode){
+    const node=state.nodeMap[selectedNodeId];
+    const addChildBtn=document.getElementById('addChildBtn');
+    const addSiblingBtn=document.getElementById('addSiblingBtn');
+    if(addChildBtn)addChildBtn.disabled=!node||node.level>=3;
+    // Non-admin: can add sibling only if parent node is also within their permission scope
+    if(addSiblingBtn&&!isAdmin()&&node){
+      const parentId=node.parentId||'';
+      const canSib=parentId&&canAction(state.currentUser.id,'edit_structure',parentId);
+      addSiblingBtn.disabled=!canSib;
+      if(!canSib)addSiblingBtn.title='您的权限从该节点开始，无法新增同级节点';
+    }
+    document.getElementById('addSiblingBtn')?.addEventListener('click',()=>addNode('sibling'));
+    document.getElementById('addChildBtn')?.addEventListener('click',()=>addNode('child'));
+    document.getElementById('renameBtn')?.addEventListener('click',renameNode);
+    document.getElementById('deleteBtn')?.addEventListener('click',deleteNode);
+    document.getElementById('resetTreeBtn')?.addEventListener('click',resetTreeFromStaticData);
+  }
+}
+
+function commitBatchTags(mode){
+  if(!requireField(batchChecked.length>0,document.getElementById('batchTagNewInput'),'请先勾选节点'))return;
+  const fromLib=[...document.querySelectorAll('.btag-lib-cb:checked')].map(i=>i.value);
+  const fromNew=(document.getElementById('batchTagNewInput')?.value||'').split(/[\n,，]/).map(s=>s.trim()).filter(Boolean);
+  const tags=[...new Set([...fromLib,...fromNew])];
+  if(!requireField(tags.length>0,document.getElementById('batchTagNewInput'),'请选择或输入标签'))return;
+  // Add new tags to catalog
+  if(mode==='add'&&fromNew.length){const tc=[...new Set([...(state.tagCatalog||[]),...fromNew])];writeStore(STORE.tagCatalog,tc);state.tagCatalog=tc;}
+  // Apply to checked nodes
+  const nm=readStore(STORE.nodeMeta,{});
+  batchChecked.forEach(id=>{
+    const m=nm[id]||{};const cur=Array.isArray(m.tags)?m.tags:[];
+    nm[id]={...m,tags:mode==='add'?[...new Set([...cur,...tags])]:cur.filter(t=>!tags.includes(t))};
+  });
+  writeStore(STORE.nodeMeta,nm);state.nodeMeta=nm;
+  const affectedCount=batchChecked.length;
+  refreshState();
+  batchTagMode=false;batchChecked=[];
+  renderTreePanel();
+  showToast(`已${mode==='add'?'添加':'移除'}标签 [${tags.join(', ')}] ${mode==='add'?'到':'从'} ${affectedCount} 个节点`,'ok');
+}
+
+// Only updates the right article — no tree re-render
+function updateRightPanel(){
+  const right=document.getElementById('treeRight');
+  if(!right)return;
+  const node=state.nodeMap[selectedNodeId];
+  if(!node){
+    const _r=getEffectiveRole();
+    const _viewIds=_r==='product_editor'?getViewableNodeIds():null;
+    const noScope=_viewIds&&_viewIds.size===0;
+    right.innerHTML=noScope
+      ?'<div class="lock" style="margin-top:20px;">🔒 <strong>暂无任何节点权限</strong><br><span style="color:var(--muted);font-size:12px;margin-top:4px;display:block;">请前往「权限申请」提交申请，或联系管理员授权。</span></div>'
+      :'<div class="muted" style="padding:20px;">请在左侧选择节点</div>';
+    return;
+  }
+  const nodeIsLeaf=isTreeLeaf(state.tree,node.id);
+  const nodeMeta=getNodeMeta(node.id);
+  const prdData=getPrd(node.id);
+  right.innerHTML=buildRightHtml(node,nodeIsLeaf,nodeMeta,prdData);
+  bindRightEvents(node,nodeIsLeaf,nodeMeta,prdData);
+}
+
+function buildRightHtml(node,nodeIsLeaf,nodeMeta,prdData){
+  // Role-based access checks
+  const _role=getEffectiveRole();
+  const _isAdmin=isAdmin();
+  if(!_isAdmin&&!canAction(state.currentUser.id,'view',node.id)){
+    return`<div class="lock" style="margin-top:20px;">🔒 <strong>无权限</strong><br><span style="color:var(--muted);font-size:12px;margin-top:4px;display:block;">此节点不在您的权限范围内，无法查看或编辑。</span></div>`;
+  }
+  const pub=nodeMeta.publishedLangs||[];
+  const hasGen=!!(nodeMeta.helpContent&&nodeMeta.helpContent['zh-cn']);
+  const hasPrd=!!prdData.content;
+  const badge=pub.length?'background:#f0fdf4;color:#166534;border-color:#a7f3d0':hasGen?'background:#fffbeb;color:#92400e;border-color:#fde68a':hasPrd?'background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe':'background:#fafafa;color:#9ca3af;border-color:#e5e7eb';
+  const badgeText=pub.length?`✅ 已发布 ${pub.length} 语言`:hasGen?'✏️ 已生成':hasPrd?'📋 PRD 已上传':'○ 未配置';
+  let html=`<div class="card" style="margin-bottom:10px;"><div style="display:flex;align-items:center;justify-content:space-between;">
+    <strong>${esc(node.title)}</strong>
+    <span style="font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid;${badge}">${badgeText}</span>
+  </div><div class="muted">ID: ${esc(node.id)}</div><div class="muted">${esc(node.pathText)}</div></div>`;
+
+  if(!nodeIsLeaf){
+    const tagHint=isAdmin()?'如需为节点打标签，请点击左侧"🏷️ 批量打标签"按钮。':'';
+    html+=`<div class="muted" style="margin-bottom:10px;">📁 末级节点才可上传 PRD 与生成文档。${tagHint}</div>`;
+    if(nodeMeta.tags&&nodeMeta.tags.length){
+      html+=`<div style="margin-bottom:8px;font-size:12px;color:var(--muted);">当前标签：${renderTagChips(nodeMeta.tags||[],false)}</div>`;
+    }
+    return html;
+  }
+
+  // Leaf node: show tags read-only (managed via batch tag in tree panel)
+  if(nodeMeta.tags&&nodeMeta.tags.length){
+    html+=`<div style="margin-bottom:8px;font-size:12px;color:var(--muted);">🏷️ 标签：${renderTagChips(nodeMeta.tags||[],false)}</div>`;
+  }
+  // Workflow tabs — 6 steps, filtered by role
+  const _tabRole=getEffectiveRole();
+  const ALL_WF_TABS=[
+    {id:'prd',      label:'① PRD上传',         roles:['admin','product_editor']},
+    {id:'gen_zh',   label:'② 生成中文说明文档', roles:['admin','product_editor']},
+    {id:'translate',label:'③ 多语言翻译',       roles:['admin','product_editor']},
+    {id:'edit_trans',label:'④ 编辑多语言',      roles:['admin','product_editor']},
+    {id:'publish',  label:'⑤ 发布部署',         roles:['admin','product_editor']}
+  ];
+  const visibleTabs=ALL_WF_TABS.filter(t=>t.roles.includes(_tabRole));
+  if(!visibleTabs.some(t=>t.id===currentWfTab))currentWfTab=visibleTabs[0]?.id||'prd';
+  const anyTrans=ALL_LANGS.some(l=>!l.source&&hasUsableTranslation(nodeMeta.helpContent,l.code));
+  const doneMap={prd:hasPrd,gen_zh:hasGen,translate:anyTrans,edit_trans:anyTrans,publish:pub.length>0};
+  html+=`<div class="wf-tabs">${visibleTabs.map(t=>{
+    const active=currentWfTab===t.id;const done=doneMap[t.id]&&!active;
+    return`<button class="wf-tab${active?' active':''}${done?' done':''}" data-wf="${esc(t.id)}">${esc(t.label)}</button>`;
+  }).join('')}</div><div class="wf-panel" id="wfPanel">${buildWfHtml(node,nodeMeta,prdData)}</div>`;
+  return html;
+}
+
+function buildWfHtml(node,nodeMeta,prdData){
+  const hasPrd=!!prdData.content;
+  const hasGen=!!(nodeMeta.helpContent&&nodeMeta.helpContent['zh-cn']);
+  const pub=nodeMeta.publishedLangs||[];
+
+  if(currentWfTab==='prd'){
+    return`${hasPrd?`<div class="prd-badge">✅ PRD 已上传：${esc(prdData.filename||'prd.md')} · ${new Date(prdData.uploadedAt||Date.now()).toLocaleString('zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>`:''}
+    <div class="prd-dropzone" id="prdDz"><div class="dz-icon">📄</div>
+    <div class="dz-text">${hasPrd?'重新上传 PRD 文件':'拖拽 PRD 文件或点击上传'}</div>
+    <div class="dz-sub">支持 .md / .txt / .docx / .pdf 格式（≤ 50 MB，提取后上限 50 万字），或直接粘贴</div>
+    <input type="file" id="prdFile" style="display:none" accept=".md,.txt,.docx,.doc,.pdf"/></div>
+    <div style="text-align:center;color:var(--muted);font-size:12px;margin:4px 0;">或直接粘贴 PRD 内容</div>
+    <textarea id="prdText" rows="8" placeholder="将产品需求文档内容粘贴于此...">${esc(prdData.content||'')}</textarea>
+    <div class="row" style="margin-top:8px;justify-content:flex-end;">
+      <span id="prdChars" class="muted">${(prdData.content||'').length} 字符</span>
+      <button id="savePrdBtn" class="btn-primary">保存 PRD</button>
+    </div>`;
+  }
+
+  // ② 生成中文说明文档 (合并生成 + 编辑中文)
+  if(currentWfTab==='gen_zh'){
+    const apiOk=hasApiKey();
+    const apiSettings=getApiSettings();
+    const zhContent=(nodeMeta.helpContent||{})['zh-cn']||'';
+    return`${!hasPrd?'<div class="muted" style="margin-bottom:8px;">⚠️ 请先完成「① PRD上传」。</div>':''}
+    ${apiOk
+      ?`<div style="background:#f0fdf4;border:1px solid #a7f3d0;border-radius:6px;padding:6px 12px;font-size:12px;color:#166534;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+          <span>🤖 <strong>Skill AI 已连接</strong>（${esc(apiSettings.model||'gpt-4o-mini')}）— Phase 4 将真实调用 LLM 按 SKILL 规范生成帮助文档</span>
+          <button onclick="openApiModal()" style="font-size:11px;padding:2px 8px;border:1px solid #a7f3d0;border-radius:4px;background:#fff;color:#166534;cursor:pointer;">修改设置</button>
+        </div>`
+      :`<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:6px 12px;font-size:12px;color:#92400e;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+          <span>⚠️ 未配置 Skill API Key — Phase 4 将使用内置模板（非真实 AI）</span>
+          <button onclick="openApiModal()" style="font-size:11px;padding:2px 8px;border:1px solid #fde68a;border-radius:4px;background:#fff;color:#92400e;cursor:pointer;">配置 API Key →</button>
+        </div>`
+    }
+    <div class="row" style="margin-bottom:8px;flex-wrap:wrap;gap:8px;align-items:center;">
+      <button id="startGenBtn" class="btn-primary" ${!hasPrd||pipelineRunning?'disabled':''}>
+        ${pipelineRunning?'⏳ 生成中...':(hasGen?'🔄 重新生成':(apiOk?'🤖 调用 Skill AI 生成':'🚀 开始生成（模板）'))}
+      </button>
+      ${hasGen&&!pipelineRunning?`<span class="ok" style="font-size:12px;">✅ 已生成 · ${nodeMeta.contentVer?new Date(nodeMeta.contentVer).toLocaleString('zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''}</span>`:''}
+    </div>
+    ${pipelineRunning
+      ?`<div id="genStatusBox" style="padding:12px;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#1d4ed8;margin-bottom:8px;flex-wrap:wrap;">
+            <span style="animation:pulse 1s ease-in-out infinite;font-size:16px;">⚙️</span>
+            <strong>内容生成（AI）</strong>
+            <span class="muted" style="font-size:11px;flex:1;">正在调用 Skill LLM 按规范生成帮助文档...</span>
+            <button id="abortGenBtn" style="font-size:11px;padding:3px 10px;border-radius:5px;border:1px solid #fca5a5;background:#fff;color:#b91c1c;cursor:pointer;">⏹ 中止生成</button>
+          </div>
+          ${pipelineStreamText?`<div id="pipelineStreamEl" style="background:#0f172a;color:#a3e635;border-radius:6px;padding:10px;font-size:11px;font-family:monospace;max-height:160px;overflow-y:auto;white-space:pre-wrap;">${esc(pipelineStreamText)}</div>`:''}
+        </div>`
+      :(!hasPrd?'':!hasGen?'<div class="muted" style="font-size:12px;margin-bottom:8px;">点击「开始生成」将调用 <code>generate-help-content</code> Skill 的 Phase 4 生成中文文档。</div>':'')
+    }
+    ${hasGen&&!pipelineRunning?`<hr style="border:none;border-top:1px solid var(--line);margin:6px 0 8px;"/>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">✏️ 编辑中文帮助文档 Markdown 内容。保存后，已有的多语言翻译将被标记为需更新。</div>
+      <textarea id="editArea" rows="15" style="font-family:monospace;font-size:12px;" placeholder="Markdown 格式的中文帮助文档...">${esc(zhContent)}</textarea>
+      <div class="row" style="margin-top:6px;justify-content:flex-end;">
+        <button id="saveContentBtn" class="btn-primary">保存中文内容</button>
+      </div>`:''}`;
+  }
+
+  // ④ 编辑多语言 — only langs that have been through translation
+  if(currentWfTab==='edit_trans'){
+    const nonZhLangs=ALL_LANGS.filter(l=>!l.source);
+    const translatedLangs=nonZhLangs.filter(l=>hasUsableTranslation(nodeMeta.helpContent||{},l.code));
+    if(!translatedLangs.length)return`<div class="muted">⚠️ 尚未翻译任何语言。请先完成「③ 多语言翻译」。</div>`;
+    const firstTranslated=translatedLangs[0];
+    if(!editLang||editLang==='zh-cn'||!translatedLangs.some(l=>l.code===editLang))editLang=firstTranslated?.code||'zh-tw';
+    const transContent=(nodeMeta.helpContent||{})[editLang]||'';
+    const transVer=(nodeMeta.transVers||{})[editLang]||'';
+    const isStaleEdit=!!(nodeMeta.helpContent||{})[editLang]&&nodeMeta.contentVer&&transVer&&transVer<nodeMeta.contentVer;
+    const isManualEdit=!!(nodeMeta.manualEdits||{})[editLang];
+    const staleWarn=isStaleEdit?`<div style="margin-bottom:6px;padding:6px 10px;border-radius:6px;font-size:11px;background:#fff7ed;border:1px solid #fdba74;color:#c2410c;">⚠️ 中文版本已更新（${new Date(nodeMeta.contentVer).toLocaleString('zh-CN')}），此译文基于旧版，建议先在「③ 多语言翻译」重新翻译。</div>`:'';
+    const manualWarn=isManualEdit&&!isStaleEdit?`<div style="margin-bottom:6px;padding:6px 10px;border-radius:6px;font-size:11px;background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e;">✏️ 此译文已手动编辑，发布时将以此版本为准。</div>`:'';
+    return`<div style="font-size:11px;color:var(--muted);margin-bottom:4px;">仅已翻译的语言可编辑；灰色语言尚未完成翻译，请先前往「③ 多语言翻译」。</div>
+    <div class="lang-edit-tabs">${nonZhLangs.map(l=>{
+      const hasT=hasUsableTranslation(nodeMeta.helpContent||{},l.code);
+      const active=editLang===l.code;
+      const lStale=hasT&&nodeMeta.contentVer&&((nodeMeta.transVers||{})[l.code]||'')<nodeMeta.contentVer&&(nodeMeta.transVers||{})[l.code];
+      if(!hasT){return`<button class="lang-edit-tab" disabled title="尚未翻译，请先在「③ 多语言翻译」完成" style="opacity:0.38;cursor:not-allowed;">${esc(l.code)}</button>`;}
+      return`<button class="lang-edit-tab${active?' active':' has-c'}" data-el="${l.code}">${esc(l.code)}${lStale?'⚠':'✓'}</button>`;
+    }).join('')}</div>
+    ${staleWarn}${manualWarn}
+    <textarea id="editArea" rows="15" style="font-family:monospace;font-size:12px;" placeholder="Markdown 格式的译文内容...">${esc(transContent)}</textarea>
+    <div class="row" style="margin-top:6px;justify-content:flex-end;">
+      <span class="muted" style="font-size:11px;">${isManualEdit?'✏️ 手动编辑':'译文版本'} · ${editLang}</span>
+      <button id="saveContentBtn" class="btn-primary">保存译文</button>
+    </div>`;
+  }
+
+  if(currentWfTab==='translate'){
+    if(!hasGen)return'<div class="muted">⚠️ 请先完成「② 生成中文说明文档」。</div>';
+    const running=transRunning[node.id];
+    return`${running?`<div style="margin-bottom:8px;padding:7px 12px;border-radius:6px;font-size:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;display:flex;align-items:center;justify-content:space-between;">
+      <span>⏳ 翻译进行中，请勿切换节点...</span>
+      <button id="abortTransBtn" class="btn-danger" style="font-size:11px;padding:3px 8px;">⏹ 中断翻译</button>
+    </div>`:'<div style="margin-bottom:8px;padding:7px 12px;border-radius:6px;font-size:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e">📡 <strong>Google Translate</strong>（免费，需要网络）</div>'}
+    ${transErrors[node.id]&&transErrors[node.id]!=='翻译已被中断'?`<div style="margin-bottom:8px;padding:8px;border:1px solid #fecaca;background:#fff1f2;border-radius:6px;font-size:12px;color:#b42318;">⚠️ ${esc(transErrors[node.id])}</div>`:''}
+    ${(()=>{
+      const staleCount=ALL_LANGS.filter(l=>!l.source&&hasUsableTranslation(nodeMeta.helpContent||{},l.code)&&nodeMeta.contentVer&&((nodeMeta.transVers||{})[l.code]||'')<nodeMeta.contentVer&&(nodeMeta.transVers||{})[l.code]).length;
+      return staleCount?`<div style="margin-bottom:8px;padding:8px 12px;border-radius:6px;font-size:12px;background:#fff7ed;border:1px solid #fdba74;color:#92400e;display:flex;align-items:center;gap:8px;">⚠️ <span>中文内容已更新，<strong>${staleCount} 个</strong>已翻译语言基于旧版，建议重新翻译后再发布。</span></div>`:'';
+    })()}
+    ${nodeMeta.contentVer?`<div style="font-size:11px;color:#6b7280;margin-bottom:6px;">中文版本：${new Date(nodeMeta.contentVer).toLocaleString('zh-CN')}</div>`:''}
+    <div class="tl-grid"><div class="tl-row" style="font-weight:600;font-size:11px;color:#475467"><span>语言</span><span>状态</span><span>操作</span></div>
+    ${ALL_LANGS.map(l=>{
+      const ready=hasUsableTranslation(nodeMeta.helpContent||{},l.code);const isRunning=running===l.code;
+      const langErr=(transLangErrors[node.id]||{})[l.code]||'';
+      // Staleness: translated before current contentVer?
+      const transVer=(nodeMeta.transVers||{})[l.code]||'';
+      const isStale=!l.source&&ready&&nodeMeta.contentVer&&transVer&&transVer<nodeMeta.contentVer;
+      const isManual=!l.source&&(nodeMeta.manualEdits||{})[l.code];
+      let badge=l.source?'<span class="tl-badge tl-source">源语言</span>'
+        :isRunning?'<span class="tl-badge tl-running">翻译中...</span>'
+        :langErr?`<span class="tl-badge" style="background:#fff1f2;color:#b42318;border-color:#fecaca;" title="${esc(langErr)}">✗ 失败</span>`
+        :isStale?`<span class="tl-badge" style="background:#fff7ed;color:#c2410c;border-color:#fdba74;" title="中文已更新，建议重新翻译">⚠️ 需更新</span>`
+        :ready?`<span class="tl-badge tl-done">✓ ${isManual?'已手动编辑':'已翻译'}</span>`
+        :'<span class="tl-badge tl-pending">未翻译</span>';
+      const actionBtn=l.source?'':isRunning
+        ?`<button disabled class="btn-ok" style="font-size:11px;padding:3px 8px;">⏳ 翻译中</button>`
+        :langErr
+          ?`<button data-tl="${l.code}" class="btn-ok" style="font-size:11px;padding:3px 8px;border-color:#fca5a5;color:#b91c1c;" ${running?'disabled':''}>🔄 重试</button>`
+          :isStale
+            ?`<button data-tl="${l.code}" class="btn-ok" style="font-size:11px;padding:3px 8px;border-color:#fdba74;color:#c2410c;" ${running?'disabled':''}>🔄 重新翻译</button>`
+            :`<button ${running?'disabled':''} data-tl="${l.code}" class="btn-ok" style="font-size:11px;padding:3px 8px;">🌐 翻译</button>`;
+      return`<div class="tl-row"><div style="font-weight:600">${esc(l.code)}<br><span style="font-weight:400;font-size:10px;color:var(--muted)">${esc(l.label)}</span></div><div>${badge}</div><div>${actionBtn}</div></div>`;
+    }).join('')}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:6px;">
+      <button id="tlAllBtn" class="btn-primary" style="font-size:12px;" ${running?'disabled':''}>一键翻译所有语言</button>
+    </div>`;
+  }
+
+  if(currentWfTab==='publish'){
+    if(!hasGen)return'<div class="muted">⚠️ 请先完成「② 生成中文说明文档」。</div>';
+    const parts=(node.pathText||node.title).split(' / ');
+    const secSlug=(SECTION_SLUGS[parts[0]]||parts[0]).toLowerCase().replace(/\s+/g,'-');
+    const itemSlug=(parts[parts.length-1]||node.title).toLowerCase().replace(/\s+/g,'-').replace(/[^\w-]/g,'-');
+    const staleTransLangs=ALL_LANGS.filter(l=>!l.source&&hasUsableTranslation(nodeMeta.helpContent||{},l.code)&&nodeMeta.contentVer&&((nodeMeta.transVers||{})[l.code]||'')<nodeMeta.contentVer&&(nodeMeta.transVers||{})[l.code]).map(l=>l.code);
+    const staleWarnPub=staleTransLangs.length?`<div style="margin-bottom:8px;padding:7px 12px;border-radius:6px;font-size:11px;background:#fff7ed;border:1px solid #fdba74;color:#92400e;">⚠️ 以下语言译文基于旧版中文，建议先在「③ 多语言翻译」重新翻译后再发布：<strong>${staleTransLangs.join('、')}</strong></div>`:'';
+    const manualChangedLangs=ALL_LANGS.filter(l=>!l.source&&pub.includes(l.code)&&(nodeMeta.manualEdits||{})[l.code]).map(l=>l.code);
+    const manualChangedWarn=manualChangedLangs.length?`<div style="margin-bottom:8px;padding:7px 12px;border-radius:6px;font-size:11px;background:#f0f9ff;border:1px solid #bae6fd;color:#0c4a6e;display:flex;gap:6px;">✏️ <span>以下语言译文已手动编辑，点击「立即更新」发布新版本：<strong>${manualChangedLangs.join('、')}</strong></span></div>`:'';
+    const _pubSelRow=`<div class="row" style="margin-bottom:6px;"><button id="pubToggleSelBtn" class="btn-ghost" style="font-size:11px;">全选</button></div>`;
+    return`<p style="font-size:12px;color:var(--muted);margin:0 0 8px;">选择语言版本发布到对应域名路径，前台文档中心实时可见。</p>${staleWarnPub}${manualChangedWarn}${_pubSelRow}
+    <div class="pub-grid">${ALL_LANGS.map(l=>{
+      const ready=hasUsableTranslation(nodeMeta.helpContent||{},l.code);const isLive=pub.includes(l.code);
+      const currentHash=ready?simpleHash((nodeMeta.helpContent||{})[l.code]||''):'';
+      const publishedHash=(nodeMeta.pubVers||{})[l.code]||'';
+      const contentChangedSincePub=isLive&&publishedHash&&currentHash&&publishedHash!==currentHash;
+      const transStale=l.code!=='zh-cn'&&ready&&nodeMeta.contentVer&&((nodeMeta.transVers||{})[l.code]||'')<nodeMeta.contentVer&&(nodeMeta.transVers||{})[l.code];
+      const manualEdited=!l.source&&(nodeMeta.manualEdits||{})[l.code];
+      const freshLabel=contentChangedSincePub?'<span style="font-size:10px;color:#c2410c;margin-left:4px;">内容已变更</span>'
+        :transStale?'<span style="font-size:10px;color:#d97706;margin-left:4px;">译文需更新</span>'
+        :manualEdited&&isLive?'<span style="font-size:10px;color:#2563eb;margin-left:4px;">已手动编辑</span>'
+        :'';
+      const badge=isLive
+        ?`<span class="pub-badge pub-live">${(contentChangedSincePub||manualEdited)?'⚠ 待更新':'● 已上线'}</span>`
+        :ready?'<span class="pub-badge pub-draft">○ 草稿</span>':'<span class="pub-badge pub-none">- 无内容</span>';
+      const defaultCheck=isLive||ready;
+      const needsQuickPub=(contentChangedSincePub||(manualEdited&&isLive))&&!transStale;
+      const quickPubBtn=needsQuickPub?`<button class="btn-ok pub-quick-btn" data-qp="${l.code}" style="font-size:11px;padding:3px 8px;white-space:nowrap;">立即更新</button>`:'';
+      return`<div class="pub-row"><label><input type="checkbox" class="pub-cb" value="${l.code}"${defaultCheck?' checked':''}${!ready?' disabled':''}/> ${esc(l.label)}${freshLabel}${!ready?' <span class="muted">(未翻译)</span>':''}</label>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${quickPubBtn}<span class="pub-url">wps.ai/${l.code}/docs/${secSlug}/${itemSlug}</span>${badge}</div></div>`;
+    }).join('')}</div>
+    ${pub.length?`<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">上次发布：${nodeMeta.publishedAt?new Date(nodeMeta.publishedAt).toLocaleString('zh-CN'):'-'}</div>`:''}
+    <div class="row" style="justify-content:flex-end;">
+      <button id="unpubBtn" class="btn-danger" style="font-size:12px;"${!pub.length?' disabled':''}>取消发布</button>
+      <button id="pubBtn" class="btn-primary">🚀 立即发布</button>
+    </div>
+    <div id="deployLog" class="deploy-log" style="display:none"></div>`;
+  }
+  return '';
+}
+
+function buildPipelineHtml(curIdx){
+  return PIPELINE_PHASES.map((ph,i)=>{
+    let cls='phase-pending',icon='○';
+    if(i<curIdx){cls='phase-done';icon='✓';}
+    else if(i===curIdx){cls='phase-running';icon='▶';}
+    return`<div class="pipeline-phase ${cls}"><div class="phase-icon">${icon}</div><div><div class="phase-name">${esc(ph.name)}</div><div class="phase-desc">${esc(ph.desc)}</div></div></div>`;
+  }).join('');
+}
+
+// ===== BIND RIGHT PANEL EVENTS =====
+function bindRightEvents(node,nodeIsLeaf,nodeMeta,prdData){
+  if(!nodeIsLeaf){
+    return;
+  }
+
+  // Workflow tab switching — always fetch FRESH data; lock during translation
+  document.querySelectorAll('.wf-tab[data-wf]').forEach(b=>b.addEventListener('click',()=>{
+    if(transRunning[node.id]){return;} // locked during translation
+    currentWfTab=b.dataset.wf;
+    refreshWfTabs(node.id);
+    const wfPanel=document.getElementById('wfPanel');
+    if(wfPanel){const nm=getNodeMeta(node.id);const pd=getPrd(node.id);wfPanel.innerHTML=buildWfHtml(node,nm,pd);bindWfEvents(node,nm,pd);}
+  }));
+
+  bindWfEvents(node,nodeMeta,prdData);
+}
+
+// Update workflow tab badge classes from fresh store data
+function refreshWfTabs(nodeId){
+  const nm=getNodeMeta(nodeId);const pd=getPrd(nodeId);
+  const hasPrd=!!pd.content;const hasGen=!!(nm.helpContent&&nm.helpContent['zh-cn']);
+  const anyTrans=ALL_LANGS.some(l=>!l.source&&hasUsableTranslation(nm.helpContent,l.code));
+  const pub=(nm.publishedLangs||[]).length>0;
+  const locked=!!transRunning[nodeId];
+  // Stale detection for tab badges
+  const anyStaleTranslation=anyTrans&&nm.contentVer&&ALL_LANGS.some(l=>!l.source&&hasUsableTranslation(nm.helpContent,l.code)&&((nm.transVers||{})[l.code]||'')<nm.contentVer&&(nm.transVers||{})[l.code]);
+  const anyStalePublish=pub&&(nm.publishedLangs||[]).some(lang=>{const h=simpleHash((nm.helpContent||{})[lang]||'');const ph=(nm.pubVers||{})[lang]||'';return ph&&h&&ph!==h;});
+  const doneMap={prd:hasPrd,gen_zh:hasGen,translate:anyTrans,edit_trans:anyTrans,publish:pub};
+  document.querySelectorAll('.wf-tab[data-wf]').forEach(x=>{
+    const t=x.dataset.wf;const active=t===currentWfTab;
+    const tabStale=(t==='translate'&&anyStaleTranslation)||(t==='edit_trans'&&anyStaleTranslation)||(t==='publish'&&anyStalePublish);
+    x.className=`wf-tab${active?' active':''}${doneMap[t]&&!active?' done':''}${tabStale&&!active?' stale-tab':''}${locked&&!active?' disabled-tab':''}`;
+    x.style.opacity=locked&&!active?'0.45':'';
+    x.title=locked&&!active?'翻译进行中，请等待完成或中断':tabStale&&!active?'有内容需要更新':'';
+  });
+}
+
+// ===== PRD CHANGE GUARD =====
+// Returns true if user confirms replacing existing PRD (and clears downstream data)
+async function confirmAndClearDownstream(nodeId){
+  const nm=getNodeMeta(nodeId);
+  const hasGen=!!(nm.helpContent&&nm.helpContent['zh-cn']);
+  const hasTrans=ALL_LANGS.some(l=>!l.source&&hasUsableTranslation(nm.helpContent,l.code));
+  const hasPub=(nm.publishedLangs||[]).length>0;
+  if(!hasGen&&!hasTrans&&!hasPub)return true; // nothing downstream, no confirmation needed
+  const lines=['替换 PRD 将清空以下已完成的内容：',''];
+  if(hasGen)lines.push('• 已生成的中文帮助文档');
+  if(hasTrans)lines.push('• 所有多语言翻译内容');
+  if(hasPub)lines.push('• 已发布部署的所有语言版本（文档中心将下线对应内容）');
+  lines.push('','确认替换？此操作不可撤销。');
+  if(!(await askConfirm(lines.join('\n'),'替换 PRD 确认')))return false;
+  // Clear all downstream data
+  patchNodeMeta(nodeId,{
+    helpContent:{},
+    publishedLangs:[],
+    publishedAt:'',
+    status:'prd_uploaded',
+    contentVer:'',
+    transVers:{},
+    pubVers:{},
+    manualEdits:{}
+  });
+  return true;
+}
+
+// ===== FILE READING HELPERS =====
+function readFileAsText(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=e=>resolve(e.target.result||'');
+    r.onerror=()=>reject(new Error('读取文件失败'));
+    r.readAsText(file,'utf-8');
+  });
+}
+
+async function extractDocxText(file){
+  // Use JSZip to unzip .docx and extract word/document.xml text
+  if(typeof JSZip==='undefined')throw new Error('JSZip 未加载，请检查网络连接后重试');
+  const buf=await file.arrayBuffer();
+  const zip=await JSZip.loadAsync(buf);
+  const xmlFile=zip.file('word/document.xml');
+  if(!xmlFile)throw new Error('无法解析 docx 文件结构');
+  const xmlStr=await xmlFile.async('string');
+  // Strip XML tags, decode common entities, normalize whitespace
+  let text=xmlStr
+    .replace(/<w:p[ >][^/]*\/>/g,'\n')       // self-closing paragraph → newline
+    .replace(/<\/w:p>/g,'\n')                  // end of paragraph → newline
+    .replace(/<w:br[^/]*/g,'\n')               // line break
+    .replace(/<[^>]+>/g,'')                    // strip all remaining tags
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#x[0-9a-fA-F]+;/g,'')
+    .replace(/[ \t]+/g,' ')                    // collapse spaces
+    .replace(/\n{3,}/g,'\n\n')                 // collapse blank lines
+    .trim();
+  if(!text)throw new Error('docx 文件中未找到可读文本，请手动粘贴内容');
+  return text;
+}
+
+async function extractPdfText(file){
+  // Read PDF as ArrayBuffer and do basic ASCII/UTF-8 text extraction
+  // This is a fallback approach; for full PDF support pdfjsLib can be loaded on demand
+  const buf=await file.arrayBuffer();
+  const bytes=new Uint8Array(buf);
+  // Try to extract readable text streams from PDF (simplified heuristic)
+  const decoder=new TextDecoder('latin1');
+  const raw=decoder.decode(bytes);
+  // Extract content between BT...ET (PDF text operators)
+  const chunks=[];
+  const btEt=/BT[\s\S]*?ET/g;
+  let m;
+  while((m=btEt.exec(raw))!==null){
+    const block=m[0];
+    // Extract strings in parentheses (Tj / TJ operators)
+    const strPat=/\(([^)\\]*(?:\\.[^)\\]*)*)\)\s*(?:Tj|TJ|'|")/g;
+    let sm;
+    while((sm=strPat.exec(block))!==null){
+      const s=sm[1].replace(/\\n/g,'\n').replace(/\\r/g,'').replace(/\\\(/g,'(').replace(/\\\)/g,')').replace(/\\\\/g,'\\');
+      if(s.trim())chunks.push(s);
+    }
+  }
+  if(!chunks.length){
+    // If no BT/ET, suggest copy-paste
+    throw new Error('PDF 文本提取失败（可能是扫描版 PDF 或加密文档），请手动复制 PDF 内容粘贴到文本框');
+  }
+  return chunks.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+function bindWfEvents(node,nodeMeta,prdData){
+  if(currentWfTab==='prd'){
+    const dz=document.getElementById('prdDz');
+    const fi=document.getElementById('prdFile');
+    const ta=document.getElementById('prdText');
+    const cc=document.getElementById('prdChars');
+    const MAX_PRD_SIZE=50*1024*1024; // 50 MB read limit
+    const MAX_PRD_CHARS=500000;      // 50万字存储上限
+    async function handlePrdFile(f){
+      if(!f)return;
+      if(f.size>MAX_PRD_SIZE){showToast(`文件过大（${(f.size/1024/1024).toFixed(1)} MB），最大支持 50 MB。`,'warn');return;}
+      const dzText=dz?.querySelector('.dz-text');
+      if(dzText)dzText.textContent='读取中…';
+      if(dz)dz.style.borderColor='var(--brand)';
+      try{
+        let text='';
+        const ext=f.name.split('.').pop().toLowerCase();
+        if(ext==='docx'){
+          text=await extractDocxText(f);
+        }else if(ext==='pdf'){
+          text=await extractPdfText(f);
+        }else{
+          text=await readFileAsText(f);
+        }
+        // Truncate gracefully if still too large after extraction
+        if(text.length>MAX_PRD_CHARS){
+          text=text.slice(0,MAX_PRD_CHARS)+`\n\n[… 内容已截断，超出 ${MAX_PRD_CHARS/10000} 万字上限 …]`;
+        }
+        if(ta)ta.value=text;
+        if(cc)cc.textContent=text.length+' 字符';
+        if(dzText)dzText.textContent='✅ 已选择：'+f.name;
+        if(dz)dz.dataset.fn=f.name;
+      }catch(err){
+        if(dzText)dzText.textContent='❌ 读取失败：'+err.message;
+        showToast('文件读取失败：'+err.message,'warn');
+      }finally{
+        if(dz)dz.style.borderColor='';
+      }
+    }
+    // Guard: ask before overwriting existing PRD (only if downstream content exists)
+    async function guardedHandlePrdFile(f){
+      if(!f)return;
+      const existingPrd=getPrd(node.id);
+      if(existingPrd.content){
+        if(!(await confirmAndClearDownstream(node.id))){
+          if(fi)fi.value=''; // reset file input
+          return;
+        }
+      }
+      await handlePrdFile(f);
+    }
+    if(dz){
+      dz.addEventListener('click',()=>fi?.click());
+      dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='var(--brand)';});
+      dz.addEventListener('dragleave',()=>dz.style.borderColor='');
+      dz.addEventListener('drop',e=>{e.preventDefault();guardedHandlePrdFile(e.dataTransfer?.files[0]);});
+      if(fi)fi.addEventListener('change',()=>guardedHandlePrdFile(fi.files[0]));
+    }
+    if(ta&&cc)ta.addEventListener('input',()=>{cc.textContent=ta.value.length+' 字符';});
+    document.getElementById('savePrdBtn')?.addEventListener('click',async()=>{
+      const content=(ta?.value||'').trim();
+      if(!requireField(!!content,ta||document.getElementById('savePrdBtn'),'请输入或上传 PRD 内容'))return;
+      if(content.length>500000){markFieldInvalid(ta||document.getElementById('savePrdBtn'));showToast(`内容过长（${content.length} 字符），超过 50 万字上限，请精简后再保存。`,'warn');return;}
+      // Check if overwriting existing PRD — confirm and clear downstream if needed
+      const existingPrd=getPrd(node.id);
+      if(existingPrd.content&&existingPrd.content.trim()!==content){
+        if(!(await confirmAndClearDownstream(node.id))){
+          // User cancelled — restore textarea to original PRD content
+          if(ta)ta.value=existingPrd.content;
+          if(cc)cc.textContent=(existingPrd.content||'').length+' 字符';
+          return;
+        }
+      }
+      const filename=dz?.dataset.fn||(node.title+'-prd.md');
+      const btn=document.getElementById('savePrdBtn');
+      if(btn){btn.disabled=true;btn.textContent='保存中...';}
+      await new Promise(r=>setTimeout(r,16));
+      try{
+        savePrd(node.id,content,filename);
+        patchNodeMeta(node.id,{status:'prd_uploaded'});
+        currentWfTab='gen_zh';
+        updateRightPanel();
+      }catch(e){
+        if(btn){btn.disabled=false;btn.textContent='保存 PRD';}
+        showToast('保存失败（存储空间可能不足）：'+e.message,'warn');
+      }
+    });
+  }
+
+  // ② 生成中文说明文档 (gen_zh = generate + edit zh-cn)
+  if(currentWfTab==='gen_zh'){
+    editLang='zh-cn';
+    document.getElementById('startGenBtn')?.addEventListener('click',async()=>{
+      if(pipelineRunning)return;
+      const cur=getNodeMeta(node.id);
+      const hasExisting=!!(cur.helpContent&&cur.helpContent['zh-cn']);
+      if(hasExisting&&!(await askConfirm('重新生成将覆盖现有中文文档，无法恢复。\n确认重新生成吗？','重新生成确认')))return;
+      genAbortFlag=false;
+      runPipeline(node.id,node.title,node.pathText||node.title);
+    });
+    document.getElementById('abortGenBtn')?.addEventListener('click',()=>{
+      genAbortFlag=true;
+    });
+    document.getElementById('saveContentBtn')?.addEventListener('click',async()=>{
+      const ta=document.getElementById('editArea');
+      const content=ta?.value||'';
+      const cur=getNodeMeta(node.id);
+      const existing=(cur.helpContent||{})['zh-cn']||'';
+      if(existing&&existing.trim()&&!(await askConfirm('保存后将覆盖现有中文内容，无法恢复。\n确认保存修改吗？','保存中文确认'))){if(ta)ta.value=existing;return;}
+      patchNodeMeta(node.id,{helpContent:{...(cur.helpContent||{}),'zh-cn':content},contentVer:nowISO()});
+      refreshWfPanel(node.id);
+    });
+  }
+
+  // ④ 编辑多语言 — only translated langs are clickable
+  if(currentWfTab==='edit_trans'){
+    document.querySelectorAll('.lang-edit-tab[data-el]:not([disabled])').forEach(b=>b.addEventListener('click',()=>{
+      if(!b.dataset.el)return;
+      editLang=b.dataset.el;
+      refreshWfPanel(node.id);
+    }));
+    document.getElementById('saveContentBtn')?.addEventListener('click',async()=>{
+      const ta=document.getElementById('editArea');
+      const content=ta?.value||'';
+      const cur=getNodeMeta(node.id);
+      const existing=(cur.helpContent||{})[editLang]||'';
+      if(existing&&existing.trim()&&!(await askConfirm(`保存后将覆盖「${editLang}」的现有译文，无法恢复。\n确认保存修改吗？`,'保存译文确认'))){if(ta)ta.value=existing;return;}
+      patchNodeMeta(node.id,{helpContent:{...(cur.helpContent||{}),[editLang]:content},manualEdits:{...(cur.manualEdits||{}),[editLang]:true}});
+      refreshWfPanel(node.id);
+    });
+  }
+
+  if(currentWfTab==='translate'){
+    document.querySelectorAll('[data-tl]').forEach(b=>b.addEventListener('click',()=>startTranslate(node.id,b.dataset.tl)));
+    document.getElementById('tlAllBtn')?.addEventListener('click',()=>startTranslateAll(node.id));
+    document.getElementById('abortTransBtn')?.addEventListener('click',()=>{
+      transAbortFlag[node.id]=true;
+      delete transRunning[node.id];
+      transErrors[node.id]='翻译已被中断';
+      refreshWfPanel(node.id);
+    });
+  }
+
+  if(currentWfTab==='publish'){
+    document.getElementById('pubBtn')?.addEventListener('click',()=>doPublish(node.id));
+    // Per-language quick-publish buttons
+    document.querySelectorAll('.pub-quick-btn[data-qp]').forEach(btn=>btn.addEventListener('click',()=>{
+      const lang=btn.dataset.qp;
+      const nm=getNodeMeta(node.id);
+      const langs=[...new Set([...(nm.publishedLangs||[]),lang])];
+      const h=simpleHash((nm.helpContent||{})[lang]||'');
+      const me=Object.assign({},(nm.manualEdits||{}));delete me[lang]; // clear manual edit flag after publish
+      patchNodeMeta(node.id,{publishedLangs:langs,publishedAt:nowISO(),pubVers:Object.assign({},(nm.pubVers||{}),{[lang]:h}),manualEdits:me});
+      btn.textContent='\u2713 \u5df2\u66f4\u65b0';btn.disabled=true;
+      refreshWfTabs(node.id);
+    }));
+    document.getElementById('unpubBtn')?.addEventListener('click',async()=>{
+      if(!(await askConfirm('确认取消发布所有语言？','取消发布确认')))return;
+      patchNodeMeta(node.id,{publishedLangs:[],publishedAt:''});
+      updateRightPanel();
+    });
+    const pubToggleBtn=document.getElementById('pubToggleSelBtn');
+    function syncPubToggleBtn(){
+      if(!pubToggleBtn)return;
+      const cbs=[...document.querySelectorAll('.pub-cb:not(:disabled)')];
+      pubToggleBtn.textContent=cbs.length&&cbs.every(cb=>cb.checked)?'全不选':'全选';
+    }
+    if(pubToggleBtn){
+      pubToggleBtn.addEventListener('click',()=>{
+        const cbs=[...document.querySelectorAll('.pub-cb:not(:disabled)')];
+        const allChecked=cbs.every(cb=>cb.checked);
+        cbs.forEach(cb=>{cb.checked=!allChecked;});
+        syncPubToggleBtn();
+      });
+      // Re-sync button label whenever any checkbox changes
+      document.querySelectorAll('.pub-cb').forEach(cb=>cb.addEventListener('change',syncPubToggleBtn));
+      syncPubToggleBtn(); // initial state
+    }
+  }
+}
+
+// ===== PIPELINE =====
+function updatePipelineDisplay(){
+  // Only update the streaming output box (phase display is simplified)
+  const sel=document.getElementById('pipelineStreamEl');
+  if(sel){sel.textContent=pipelineStreamText;sel.scrollTop=sel.scrollHeight;}
+}
+
+async function runPipeline(nodeId, title, path) {
+  pipelineRunning=true;
+  pipelinePhaseIdx=0;
+  pipelineStreamText='';
+  // Refresh panel immediately so the "generating" UI box appears
+  refreshWfPanel(nodeId);
+
+  // Phase 1-3: simulate with short delays (skip if already aborted)
+  for(let i=0;i<3;i++){
+    if(genAbortFlag)break;
+    pipelinePhaseIdx=i;
+    await new Promise(r=>setTimeout(r,PIPELINE_PHASES[i].ms||500));
+  }
+
+  if(genAbortFlag){
+    pipelineRunning=false;genAbortFlag=false;pipelineStreamText='';
+    refreshWfPanel(nodeId);return;
+  }
+
+  // Phase 4: real LLM call or template fallback
+  pipelinePhaseIdx=3;
+  const prdData=getPrd(nodeId);
+  let content='';
+  if(hasApiKey()){
+    pipelineStreamText='🤖 正在调用 Skill AI...\n';
+    updatePipelineDisplay();
+    try{
+      content=await callSkillLLM(prdData.content||'',title,(delta,full)=>{
+        if(genAbortFlag)throw new Error('user_aborted');
+        pipelineStreamText=full;
+        const sel=document.getElementById('pipelineStreamEl');
+        if(sel){sel.textContent=full;sel.scrollTop=sel.scrollHeight;}
+      });
+      if(genAbortFlag){pipelineRunning=false;genAbortFlag=false;pipelineStreamText='';refreshWfPanel(nodeId);return;}
+      pipelineStreamText=content;
+    }catch(err){
+      if(genAbortFlag||err.message==='user_aborted'){
+        pipelineRunning=false;genAbortFlag=false;pipelineStreamText='';refreshWfPanel(nodeId);return;
+      }
+      pipelineStreamText=`⚠️ LLM 调用失败（${err.message}），已降级为内置模板生成。`;
+      updatePipelineDisplay();
+      content=generateFromPRD(prdData.content||'',title,path);
+    }
+  }else{
+    pipelineStreamText='ℹ️ 未配置 API Key，使用内置解析器生成（非 AI）。';
+    updatePipelineDisplay();
+    await new Promise(r=>setTimeout(r,400));
+    if(genAbortFlag){pipelineRunning=false;genAbortFlag=false;pipelineStreamText='';refreshWfPanel(nodeId);return;}
+    content=generateFromPRD(prdData.content||'',title,path);
+  }
+
+  pipelineRunning=false;
+  genAbortFlag=false;
+  pipelinePhaseIdx=PIPELINE_PHASES.length;
+  const cur=getNodeMeta(nodeId);
+  patchNodeMeta(nodeId,{helpContent:{...(cur.helpContent||{}),'zh-cn':content},status:'generated',contentVer:nowISO()});
+  currentWfTab='gen_zh';
+  pipelineStreamText='';
+  updateRightPanel();
+}
+
+// ===== PRD PARSER (strictly aligned with for-teammates/PROMPT.md input contract) =====
+function parsePRD(prdText) {
+  const text = String(prdText || '').replace(/\r\n/g, '\n');
+  const lines = text.split('\n');
+  const out = {
+    title: '',
+    sections: {},
+    headings: [],
+    features: [],
+    faq: [],
+    pricingBlocks: [],
+    prereqs: [],
+    journeys: [],
+    links: [],
+    contract: { slug:'', zhName:'', enName:'', oneLinerZh:'', oneLinerEn:'', coreFeatures:[], downloadLinks:[] }
+  };
+
+  // 1) heading blocks
+  let current = '__root__';
+  let buf = [];
+  function flush() {
+    const b = buf.join('\n').trim();
+    if (b) out.sections[current] = (out.sections[current] ? out.sections[current] + '\n\n' : '') + b;
+    buf = [];
+  }
+  lines.forEach(line => {
+    const m = line.match(/^(#{1,6})\s+(.+)$/);
+    if (m) {
+      flush();
+      current = m[2].trim();
+      out.headings.push({ level: m[1].length, title: current });
+      if (!out.title && m[1].length === 1) out.title = current;
+      return;
+    }
+    buf.push(line);
+  });
+  flush();
+
+  // 2) extract core contract (PROMPT.md required 5 fields)
+  const full = text;
+  const slugM = full.match(/(?:URL\s*slug|slug)\s*[：:]\s*([a-z0-9-]{2,40})/i);
+  if (slugM) out.contract.slug = slugM[1].trim();
+
+  const nameTableM = full.match(/产品名\s*\|?\s*([^\n|：:]+?)\s*\/\s*([^\n|：:]+)/);
+  if (nameTableM) {
+    out.contract.zhName = nameTableM[1].trim();
+    out.contract.enName = nameTableM[2].trim();
+  }
+
+  const oneLinerM = full.match(/(?:一句话|定位)\s*[：:]\s*([^\n]+)/);
+  if (oneLinerM) out.contract.oneLinerZh = oneLinerM[1].trim();
+  const oneLinerEnM = full.match(/(?:one[- ]line|positioning)\s*[：:]\s*([^\n]+)/i);
+  if (oneLinerEnM) out.contract.oneLinerEn = oneLinerEnM[1].trim();
+
+  // 3) classify sections
+  Object.entries(out.sections).forEach(([heading, body]) => {
+    const h = heading.toLowerCase();
+    if (/核心功能|功能|特性|能力|feature/i.test(h)) {
+      const titleParts = body.match(/^#{3,6}\s+.+$/mg) || [];
+      titleParts.forEach(t => {
+        const n = t.replace(/^#{3,6}\s+/, '').trim();
+        if (n && !out.features.some(f => f.name === n)) out.features.push({ name: n, desc: '' });
+      });
+      const bullets = body.match(/^[-*+]\s+.+/mg) || [];
+      const nums = body.match(/^\d+[.)]\s+.+/mg) || [];
+      [...bullets, ...nums].forEach(line => {
+        const clean = line.replace(/^[-*+\d.)\s]+/, '').trim();
+        if (clean.length < 3) return;
+        const name = clean.split(/[：:]/)[0].slice(0, 32).trim();
+        if (!out.features.some(f => f.name === name)) out.features.push({ name, desc: clean });
+      });
+    }
+    if (/常见问题|faq|问答/i.test(h)) {
+      const qs = body.match(/(?:^|\n)\s*(?:Q|问)[：:.]\s*([^\n]+)/gi) || [];
+      const as = body.match(/(?:^|\n)\s*(?:A|答)[：:.]\s*([\s\S]*?)(?=(?:\n\s*(?:Q|问)[：:.])|$)/gi) || [];
+      for (let i = 0; i < Math.min(qs.length, as.length); i++) {
+        out.faq.push({
+          q: qs[i].replace(/(?:^|\n)\s*(?:Q|问)[：:.]\s*/i, '').trim(),
+          a: as[i].replace(/(?:^|\n)\s*(?:A|答)[：:.]\s*/i, '').trim()
+        });
+      }
+    }
+    if (/定价|价格|收费|会员|vip|pricing/i.test(h)) out.pricingBlocks.push(`### ${heading}\n\n${body.trim()}`);
+    if (/前提|系统要求|适用平台|兼容性|platform|requirement/i.test(h)) {
+      const items = body.match(/^[-*+]\s+.+/mg) || [];
+      out.prereqs.push(...items.map(i => i.replace(/^[-*+]\s+/, '').trim()));
+    }
+    if (/旅程|流程|步骤|quick-start|快速入门|使用场景/i.test(h)) out.journeys.push(`### ${heading}\n\n${body.trim()}`);
+  });
+
+  // 4) extract markdown table links (esp. 获取方式)
+  const tableRows = text.match(/^\|[^\n]+\|$/mg) || [];
+  tableRows.forEach(row => {
+    if (/^(\|\s*[-: ]+\s*)+\|$/.test(row)) return;
+    const cols = row.split('|').map(v => v.trim()).filter(Boolean);
+    if (cols.length < 2) return;
+    const possibleUrl = cols.find(c => /https?:\/\//i.test(c));
+    const appStore = cols.find(c => /App Store|Google Play|搜索/i.test(c));
+    if (possibleUrl || appStore) {
+      out.links.push({ platform: cols[0], value: possibleUrl || appStore || cols[1] });
+    }
+  });
+  out.contract.downloadLinks = out.links.slice(0, 12);
+  out.contract.coreFeatures = out.features.map(f => toSlug(f.name)).filter(Boolean).slice(0, 8);
+  return out;
+}
+
+function buildContractSummary(parsed, nodeTitle) {
+  const c = parsed.contract;
+  const extracted = [];
+  const pending = [];
+  if (c.slug) extracted.push(`- slug：${c.slug}`); else pending.push('- URL slug（未识别，建议按英文名生成）');
+  if (c.zhName) extracted.push(`- 中文产品名：${c.zhName}`); else pending.push('- 中文产品名');
+  if (c.enName) extracted.push(`- 英文产品名：${c.enName}`); else pending.push('- 英文产品名');
+  if (c.oneLinerZh) extracted.push(`- 一句话定位（中文）：${c.oneLinerZh}`);
+  else pending.push('- 一句话定位（中文）');
+  if (c.coreFeatures.length >= 3) extracted.push(`- 核心功能列表：${c.coreFeatures.join(' / ')}`);
+  else pending.push('- 核心功能列表（建议 3-8 个）');
+  if (c.downloadLinks.length) extracted.push(`- 各端获取链接：已识别 ${c.downloadLinks.length} 条`);
+  else pending.push('- 各端获取链接（Windows/macOS/iOS/Android/Web/硬件）');
+
+  let out = `## 输入契约抽取结果（基于 PRD 自动提取）\n\n`;
+  out += `### 已从 PRD 抽取\n${extracted.length ? extracted.join('\n') : '- （暂无，可在 PRD 中补充）'}\n\n`;
+  out += `### PRD 中待确认项\n${pending.length ? pending.join('\n') : '- 无（输入契约已满足）'}\n\n`;
+  out += `> 说明：以上抽取规则对齐 \`for-teammates/PROMPT.md\` 的输入契约（5 项必填）。\n\n`;
+  return out;
+}
+
+// ===== HELP CONTENT GENERATOR (Phase 4, Chinese only per user request) =====
+function generateFromPRD(prdContent, nodeTitle, nodePath) {
+  const parsed = parsePRD(prdContent);
+  const docTitle = parsed.contract.zhName || parsed.title || nodeTitle;
+  const now = new Date().toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric' });
+  const sections = parsed.sections;
+  const pick = (re) => Object.entries(sections).filter(([k]) => re.test(k)).map(([k,v]) => `### ${k}\n\n${v}`).join('\n\n');
+
+  let doc = `# ${docTitle}\n\n`;
+  doc += `> **更新日期：** ${now} | **适用平台：** 桌面版、Web 版、移动版\n`;
+  doc += `>\n> *已加载 6 阶段流水线 + 合规 + i18n + 首页规范。本文档按 \`generate-help-content\` skill 规则，从 PRD 原文抽取并重组生成（中文）。*\n\n`;
+  doc += `---\n\n`;
+  doc += buildContractSummary(parsed, nodeTitle);
+
+  // 1) 开始使用
+  doc += `## 开始使用\n\n`;
+  const overview = pick(/背景|目标|定位|概述|简介|产品定位|核心场景/i);
+  doc += `### 产品概述\n\n${overview || (sections.__root__ || '请补充产品背景与定位。')}\n\n`;
+
+  doc += `### 获取客户端\n\n`;
+  if (parsed.contract.downloadLinks.length) {
+    parsed.contract.downloadLinks.forEach(link => {
+      doc += `> **📥 ${link.platform} 获取方式**\n`;
+      if (/https?:\/\//i.test(link.value)) {
+        const url = (link.value.match(/https?:\/\/[^\s)]+/i) || [link.value])[0];
+        doc += `> 访问 [${url}](${url}) 获取对应客户端。\n\n`;
+      } else {
+        doc += `> ${link.value}\n\n`;
+      }
+    });
+  } else {
+    doc += `> **📥 获取方式**\n> 前往 [wps.com](https://www.wps.com) 下载客户端；移动端可在 App Store / Google Play 搜索「WPS Office」。\n\n`;
+  }
+
+  doc += `### 快速入门\n\n`;
+  const journeys = parsed.journeys.join('\n\n');
+  doc += journeys || `1. 打开应用并进入「${docTitle}」\n2. 按提示完成录音/转写配置\n3. 生成并查看结构化纪要\n\n`;
+
+  // 2) 核心功能
+  doc += `## 核心功能\n\n`;
+  if (parsed.features.length) {
+    doc += `| 功能名称 | 简述 |\n|---|---|\n`;
+    parsed.features.slice(0, 12).forEach(f => {
+      doc += `| ${f.name} | ${(f.desc || f.name).replace(/\n/g, ' ').slice(0, 120)} |\n`;
+    });
+    doc += '\n';
+  }
+  const coreRaw = pick(/核心功能|功能|特性|能力/i);
+  doc += `${coreRaw || '（未在 PRD 中识别到完整的核心功能章节，请补充）'}\n\n`;
+
+  // 3) 会员与定价
+  doc += `## 会员与定价\n\n`;
+  if (parsed.pricingBlocks.length) doc += `${parsed.pricingBlocks.join('\n\n')}\n\n`;
+  else {
+    const priceHints = prdContent.match(/(?:RMB|USD|￥|¥|\$)\s*\d+[^\n]*/gi) || [];
+    if (priceHints.length) doc += priceHints.map(v => `- ${v}`).join('\n') + '\n\n';
+    else doc += `> 暂未在 PRD 中识别到明确定价，建议在发布前补充。\n\n`;
+  }
+
+  // 4) 常见问题
+  doc += `## 常见问题\n\n`;
+  if (parsed.faq.length) {
+    parsed.faq.forEach(item => { doc += `**Q：${item.q}**\n\nA：${item.a}\n\n`; });
+  } else {
+    const risks = pick(/风险|待定|问题/i);
+    if (risks) doc += `${risks}\n\n`;
+    doc += `**Q：如何确认该文档与 PRD 一致？**\n\nA：文档顶部包含输入契约抽取结果，并优先复用 PRD 原文段落；可在“编辑内容”中进一步校正。\n\n`;
+  }
+
+  doc += `---\n\n*如需进一步帮助，请访问 [WPS 官方帮助中心](https://support.wps.cn)*`;
+  return doc;
+}
+
+// ===== TRANSLATION (robust markdown-aware, with quality gate) =====
+const LANG_CODE_MAP = { 'en-us':'en', 'zh-tw':'zh-TW', 'ja-jp':'ja', 'ko-kr':'ko', 'es-mx':'es' };
+const transErrors = {};   // {[nodeId]: string} — last global error message
+const transLangErrors = {}; // {[nodeId]: {[langCode]: string}} — per-language error for retry
+
+function normalizeTextForCompare(s) {
+  return String(s || '').replace(/[`*#>\-|_\[\](){}]/g, '').replace(/\s+/g, '').toLowerCase();
+}
+function cjkRatio(s) {
+  const txt = String(s || '');
+  if (!txt.length) return 0;
+  const m = txt.match(/[\u4e00-\u9fff]/g) || [];
+  return m.length / txt.length;
+}
+function translationLooksValid(src, dst, lang) {
+  if (!dst || dst.trim().length < 40) return false;
+  const ns = normalizeTextForCompare(src);
+  const nd = normalizeTextForCompare(dst);
+  if (ns && nd && ns === nd) return false;
+  // non-Chinese targets should not remain mostly Chinese
+  if (lang !== 'zh-tw' && cjkRatio(dst) > 0.35) return false;
+  // should differ enough from source
+  const samePrefix = ns.slice(0, 160) && ns.slice(0, 160) === nd.slice(0, 160);
+  if (samePrefix) return false;
+  return true;
+}
+function hasUsableTranslation(helpContent, lang) {
+  const content = (helpContent || {})[lang] || '';
+  const zh = (helpContent || {})['zh-cn'] || '';
+  if (!content.trim()) return false;
+  if (lang === 'zh-cn') return true;
+  return translationLooksValid(zh, content, lang);
+}
+
+async function translatePlain(text, targetLangCode) {
+  const tl = LANG_CODE_MAP[targetLangCode] || 'en';
+  const source = String(text || '').trim();
+  if (!source) return '';
+  const endpoints = [
+    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(source)}`,
+    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(source)}`
+  ];
+  for (const url of endpoints) {
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(String(resp.status));
+      const data = await resp.json();
+      const out = (data[0] || []).map(seg => seg[0] || '').join('');
+      if (out && out.trim()) return out;
+    } catch (_) {}
+  }
+  // fallback for short fragments only
+  try {
+    const short = source.slice(0, 220);
+    const resp = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(short)}&langpair=zh-CN|${encodeURIComponent(tl)}`);
+    const data = await resp.json();
+    const out = data.responseData?.translatedText || '';
+    if (out.trim()) return out;
+  } catch (_) {}
+  throw new Error('translate_request_failed');
+}
+
+async function translateMarkdownLine(line, targetLangCode, inCodeBlock) {
+  if (inCodeBlock || !line.trim()) return line;
+  if (/^\s*```/.test(line)) return line;
+  if (/^\s*[-:| ]+\s*$/.test(line)) return line; // table separators
+
+  // preserve markdown prefix syntax
+  const prefixM = line.match(/^(\s*(?:#{1,6}\s+|[-*+]\s+|\d+[.)]\s+|>\s+|\|\s*))/);
+  const prefix = prefixM ? prefixM[1] : '';
+  const core = line.slice(prefix.length);
+  if (!/[\u4e00-\u9fff]/.test(core)) return line; // only translate Chinese lines
+
+  // Table rows: translate cell-by-cell
+  if (/^\s*\|.+\|\s*$/.test(line)) {
+    const cells = line.split('|');
+    const out = [];
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      if (!/[\u4e00-\u9fff]/.test(cell)) { out.push(cell); continue; }
+      try { out.push(await translatePlain(cell, targetLangCode)); }
+      catch (_) { out.push(cell); }
+    }
+    return out.join('|');
+  }
+
+  try {
+    const translated = await translatePlain(core, targetLangCode);
+    return prefix + translated;
+  } catch (_) {
+    return line;
+  }
+}
+
+async function translateFull(zhContent, targetLangCode) {
+  const lines = String(zhContent || '').replace(/\r\n/g, '\n').split('\n');
+  const out = [];
+  let inCodeBlock = false;
+  for (let i = 0; i < lines.length; i++) {
+    const ln = lines[i];
+    if (/^\s*```/.test(ln)) inCodeBlock = !inCodeBlock;
+    const translatedLine = await translateMarkdownLine(ln, targetLangCode, inCodeBlock);
+    out.push(translatedLine);
+    if (i % 10 === 0) await new Promise(r => setTimeout(r, 80)); // throttle
+  }
+  return out.join('\n');
+}
+
+async function doTranslateOne(zh, lang) {
+  const translated = await translateFull(zh, lang);
+  if (!translationLooksValid(zh, translated, lang)) throw new Error('translation_quality_failed');
+  return translated;
+}
+
+function startTranslate(nodeId, lang, retryCount=0) {
+  transErrors[nodeId] = '';
+  if(!transLangErrors[nodeId])transLangErrors[nodeId]={};
+  delete transLangErrors[nodeId][lang];
+  transAbortFlag[nodeId] = false;
+  transRunning[nodeId] = lang;
+  refreshWfPanel(nodeId);
+  const cur = getNodeMeta(nodeId);
+  const zh = (cur.helpContent || {})['zh-cn'] || '';
+  if (!zh.trim()) {
+    delete transRunning[nodeId];
+    transErrors[nodeId] = '请先生成中文版本';
+    refreshWfPanel(nodeId);
+    return;
+  }
+  doTranslateOne(zh, lang).then(translated => {
+    if (transAbortFlag[nodeId]) return;
+    const c = getNodeMeta(nodeId);
+    // Record which contentVer this translation was based on
+    const newTransVers={...(c.transVers||{}),[lang]:c.contentVer||''};
+    // Clear manual-edit flag since we just replaced with fresh translation
+    const newManualEdits={...(c.manualEdits||{})};delete newManualEdits[lang];
+    patchNodeMeta(nodeId, { helpContent: { ...(c.helpContent || {}), [lang]: translated }, transVers:newTransVers, manualEdits:newManualEdits });
+    delete transRunning[nodeId];
+    if(transLangErrors[nodeId])delete transLangErrors[nodeId][lang];
+    refreshWfPanel(nodeId);
+  }).catch(err => {
+    if (transAbortFlag[nodeId]) return;
+    delete transRunning[nodeId];
+    // Auto-retry once on network / rate-limit errors
+    if(retryCount<1 && err?.message!=='translation_quality_failed'){
+      setTimeout(()=>startTranslate(nodeId,lang,retryCount+1),2000);
+      if(!transLangErrors[nodeId])transLangErrors[nodeId]={};
+      transLangErrors[nodeId][lang]='限流，2秒后自动重试...';
+      refreshWfPanel(nodeId);
+      return;
+    }
+    if(!transLangErrors[nodeId])transLangErrors[nodeId]={};
+    transLangErrors[nodeId][lang] = err?.message === 'translation_quality_failed'
+      ? '翻译质量校验未通过'
+      : `失败：${err?.message || '请重试'}`;
+    refreshWfPanel(nodeId);
+  });
+}
+
+function startTranslateAll(nodeId) {
+  transErrors[nodeId] = '';
+  transLangErrors[nodeId] = {};
+  transAbortFlag[nodeId] = false;
+  const cur = getNodeMeta(nodeId);
+  const zh = (cur.helpContent || {})['zh-cn'] || '';
+  if (!zh.trim()) { showToast('请先生成中文版本','warn'); return; }
+  const todo = ALL_LANGS.filter(l => !l.source && !hasUsableTranslation(cur.helpContent || {}, l.code));
+  if (!todo.length) { showToast('所有语言均已翻译','ok'); return; }
+  async function runAll() {
+    for (const l of todo) {
+      if (transAbortFlag[nodeId]) break;
+      transRunning[nodeId] = l.code;
+      delete (transLangErrors[nodeId]||{})[l.code];
+      refreshWfPanel(nodeId);
+      let success=false;
+      for(let retry=0;retry<=1;retry++){
+        if(transAbortFlag[nodeId])break;
+        try {
+          const translated = await doTranslateOne(zh, l.code);
+          if (transAbortFlag[nodeId]) break;
+          const c = getNodeMeta(nodeId);
+          const newTV={...(c.transVers||{}),[l.code]:c.contentVer||''};
+          const newME={...(c.manualEdits||{})};delete newME[l.code];
+          patchNodeMeta(nodeId, { helpContent: { ...(c.helpContent || {}), [l.code]: translated }, transVers:newTV, manualEdits:newME });
+          success=true;break;
+        } catch (err) {
+          if (transAbortFlag[nodeId] || err?.message==='translation_quality_failed') {
+            if(!transLangErrors[nodeId])transLangErrors[nodeId]={};
+            transLangErrors[nodeId][l.code]=err?.message==='translation_quality_failed'?'质量校验未通过':err?.message||'失败';
+            break;
+          }
+          if(retry===0){await new Promise(r=>setTimeout(r,2000));}
+          else{if(!transLangErrors[nodeId])transLangErrors[nodeId]={};transLangErrors[nodeId][l.code]=err?.message||'失败';}
+        }
+      }
+    }
+    delete transRunning[nodeId];
+    transAbortFlag[nodeId] = false;
+    refreshWfPanel(nodeId);
+  }
+  runAll();
+}
+
+function refreshWfPanel(nodeId){
+  if(selectedNodeId!==nodeId)return;
+  const node=state.nodeMap[nodeId];if(!node)return;
+  const wfPanel=document.getElementById('wfPanel');if(!wfPanel)return;
+  const nm=getNodeMeta(nodeId);const pd=getPrd(nodeId);
+  wfPanel.innerHTML=buildWfHtml(node,nm,pd);
+  bindWfEvents(node,nm,pd);
+  refreshWfTabs(nodeId);
+}
+
+// ===== PUBLISH =====
+function doPublish(nodeId){
+  const selected=[...document.querySelectorAll('.pub-cb:checked')].map(c=>c.value);
+  if(!requireField(selected.length>0,document.getElementById('pubBtn'),'请至少选择一种语言'))return;
+  const meta=getNodeMeta(nodeId);
+  const invalid=selected.filter(lang=>!hasUsableTranslation(meta.helpContent||{},lang));
+  if(invalid.length){
+    showToast(`以下语言未通过翻译校验，无法发布：${invalid.join(', ')}`,'warn');
+    return;
+  }
+  const log=document.getElementById('deployLog');
+  if(log){log.style.display='block';log.innerHTML='';}
+  const steps=[
+    {t:'▶ 连接部署服务...',c:'log-info',ms:300},
+    {t:`  ✓ 选择语言: ${selected.join(', ')}`,c:'log-ok',ms:500},
+    {t:'  ✓ 内容完整性检查通过',c:'log-ok',ms:600},
+    {t:'  ⚙ 生成静态 HTML 文件...',c:'log-info',ms:700},
+    {t:'  ✓ 构建成功 (1.2s)',c:'log-ok',ms:400},
+    {t:'  ⚙ 推送至 CDN 边缘节点...',c:'log-info',ms:600},
+    {t:'  ✓ 缓存刷新完成',c:'log-ok',ms:400},
+    {t:`✅ 发布成功！${selected.length} 个语言版本已上线`,c:'log-ok',ms:0}
+  ];
+  let d=0;
+  steps.forEach(s=>{
+    d+=s.ms;
+    setTimeout(()=>{
+      if(log){log.innerHTML+=`<div class="${s.c}">${esc(s.t)}</div>`;log.scrollTop=log.scrollHeight;}
+      if(s.ms===0){
+        // Record pubVers = hash of content at publish time per language
+        const meta=getNodeMeta(nodeId);
+        const newPubVers={...(meta.pubVers||{})};
+        const newManualEdits={...(meta.manualEdits||{})};
+        selected.forEach(lang=>{newPubVers[lang]=simpleHash((meta.helpContent||{})[lang]||'');delete newManualEdits[lang];});
+        patchNodeMeta(nodeId,{publishedLangs:selected,publishedAt:nowISO(),status:'published',pubVers:newPubVers,manualEdits:newManualEdits});
+        setTimeout(()=>updateRightPanel(),500);
+      }
+    },d);
+  });
+}
+
+// ===== TREE INTERACTIONS =====
+function onTreeSelect(nodeId){
+  selectedNodeId=nodeId;
+  // Reset to first tab valid for current role
+  const _selRole=getEffectiveRole();
+  const _firstTabMap={admin:'prd',product_editor:'prd',user:'prd'};
+  currentWfTab=_firstTabMap[_selRole]||'prd';
+  editLang='zh-cn';
+  pipelineRunning=false;pipelinePhaseIdx=-1;pipelineStreamText='';
+  // Highlight in tree without full re-render
+  document.querySelectorAll('#treeManage .tree-row').forEach(r=>r.classList.remove('sel'));
+  document.querySelector(`#treeManage [data-sel="${CSS.escape(nodeId)}"]`)?.closest('.tree-row')?.classList.add('sel');
+  // Update button states immediately without full tree re-render
+  const node=state.nodeMap[nodeId];
+  const addChildBtn=document.getElementById('addChildBtn');
+  if(addChildBtn)addChildBtn.disabled=!node||node.level>=3;
+  const addSibBtn=document.getElementById('addSiblingBtn');
+  if(addSibBtn&&!isAdmin()&&node){
+    const pid=node.parentId||'';
+    const ok=pid&&canAction(state.currentUser.id,'edit_structure',pid);
+    addSibBtn.disabled=!ok;
+    addSibBtn.title=ok?'':'您的权限从该节点开始，无法新增同级';
+  }
+  updateRightPanel();
+}
+function onTreeToggle(nodeId){
+  // undefined/true = open, false = closed
+  const wasOpen=expandState[nodeId]!==false;
+  expandState[nodeId]=!wasOpen;
+  writeStore(STORE.expand,expandState);
+  // Toggle children div in-place — no tree re-render
+  const ch=document.querySelector(`#treeManage [data-ch="${CSS.escape(nodeId)}"]`);
+  const btn=document.querySelector(`#treeManage [data-tg="${CSS.escape(nodeId)}"]`);
+  if(ch)ch.classList.toggle('hidden',wasOpen);
+  if(btn)btn.textContent=wasOpen?'▸':'▾';
+}
+function onTreeCheck(nodeId,checked){
+  // Cascade to all descendants
+  const subIds=collectSubIds(nodeId,state.tree);
+  if(checked){
+    subIds.forEach(id=>{if(!batchChecked.includes(id))batchChecked.push(id);});
+    // Also check them in DOM
+    const treeManage=document.getElementById('treeManage');
+    if(treeManage)subIds.forEach(id=>{const el=treeManage.querySelector(`input[data-ck="${CSS.escape(id)}"]`);if(el)el.checked=true;});
+  }else{
+    batchChecked=batchChecked.filter(x=>!subIds.includes(x));
+    const treeManage=document.getElementById('treeManage');
+    if(treeManage)subIds.forEach(id=>{const el=treeManage.querySelector(`input[data-ck="${CSS.escape(id)}"]`);if(el)el.checked=false;});
+  }
+  const countEl=document.getElementById('batchCheckedCount');
+  const treeManage=document.getElementById('treeManage');
+  if(treeManage){
+    syncIndeterminate(treeManage,state.tree,new Set(batchChecked));
+    batchChecked=[...treeManage.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+  }
+  if(countEl)countEl.textContent=String(batchChecked.length);
+}
+
+// ===== TREE STRUCTURE OPS =====
+function findNode(tree,id){
+  for(const l1 of tree){if(l1.id===id)return l1;for(const l2 of(l1.children||[])){if(l2.id===id)return l2;for(const l3 of(l2.children||[]))if(l3.id===id)return l3;}}return null;
+}
+function isTreeLeaf(tree,nodeId){const n=findNode(tree,nodeId);return!!n&&!((n.children||[]).length);}
+function removeNodeFromTree(tree,id){
+  const i1=tree.findIndex(n=>n.id===id);if(i1>=0)return tree.splice(i1,1);
+  for(const l1 of tree){const i2=(l1.children||[]).findIndex(n=>n.id===id);if(i2>=0)return l1.children.splice(i2,1);for(const l2 of(l1.children||[])){const i3=(l2.children||[]).findIndex(n=>n.id===id);if(i3>=0)return l2.children.splice(i3,1);}}
+}
+function collectSubIds(rootId,tree){const r=findNode(tree||state.tree,rootId);if(!r)return[];const ids=[];(function w(n){ids.push(n.id);(n.children||[]).forEach(w);})(r);return ids;}
+function collectSubIdsFor(tree,rootId){return collectSubIds(rootId,tree);}
+
+async function addNode(mode){
+  const node=state.nodeMap[selectedNodeId];if(!node)return;
+  if(!isAdmin()){
+    if(mode==='child'&&!canAction(state.currentUser.id,'edit_structure',node.id)){showToast('无权限在该节点新增子级','warn');return;}
+    if(mode==='sibling'){
+      const pid=node.parentId||'';
+      if(!pid||!canAction(state.currentUser.id,'edit_structure',pid)){showToast('无权限在该位置新增同级节点','warn');return;}
+    }
+  }
+  if(mode==='child'&&node.level>=3){showToast('三级节点不可新增子级。','warn');return;}
+  const title=await askPrompt(mode==='child'?'请输入子节点名称':'请输入同级节点名称','','新增节点');
+  if(!title||!title.trim())return;
+  const tree=deepClone(state.tree);
+  const newNode={id:genId('node'),title:title.trim(),children:[]};
+  if(mode==='child'){const t=findNode(tree,node.id);t.children=t.children||[];t.children.push(newNode);}
+  else{
+    if(!node.parentId){const i=tree.findIndex(n=>n.id===node.id);tree.splice(i+1,0,newNode);}
+    else{const p=findNode(tree,node.parentId);const i=(p.children||[]).findIndex(n=>n.id===node.id);p.children.splice(i+1,0,newNode);}
+  }
+  writeStore(STORE.tree,tree);refreshState();selectedNodeId=newNode.id;renderTreePanel();
+}
+async function renameNode(){
+  const node=state.nodeMap[selectedNodeId];if(!node)return;
+  if(!isAdmin()&&!canAction(state.currentUser.id,'edit_structure',node.id)){showToast('无权限重命名该节点','warn');return;}
+  const title=await askPrompt('请输入新名称',node.title,'重命名节点');if(!title||!title.trim())return;
+  const tree=deepClone(state.tree);findNode(tree,node.id).title=title.trim();
+  writeStore(STORE.tree,tree);refreshState();renderTreePanel();
+}
+async function deleteNode(){
+  const node=state.nodeMap[selectedNodeId];if(!node)return;
+  if(!isAdmin()&&!canAction(state.currentUser.id,'edit_structure',node.id)){showToast('无权限删除该节点','warn');return;}
+  if(!(await askConfirm(`确认删除节点「${node.title}」及其子节点吗？`,'删除节点确认')))return;
+  const ids=collectSubIds(node.id);
+  const tree=deepClone(state.tree);removeNodeFromTree(tree,node.id);
+  if(!tree.length){showToast('至少保留一个一级节点。','warn');return;}
+  writeStore(STORE.tree,tree);
+  const nm=readStore(STORE.nodeMeta,{});ids.forEach(id=>delete nm[id]);writeStore(STORE.nodeMeta,nm);
+  const pd=readStore(STORE.prd,{});ids.forEach(id=>delete pd[id]);writeStore(STORE.prd,pd);
+  writeStore(STORE.groups,readStore(STORE.groups,[]).map(g=>({...g,nodeScopes:(g.nodeScopes||[]).filter(id=>!ids.includes(id))})));
+  writeStore(STORE.directGrants,readStore(STORE.directGrants,[]).map(g=>({...g,nodeScopes:(g.nodeScopes||[]).filter(id=>!ids.includes(id))})));
+  refreshState();selectedNodeId=state.nodes[0]?state.nodes[0].id:'';renderTreePanel();
+}
+async function resetTreeFromStaticData(){
+  if(!(await askConfirm('确认重置目录？将清除所有 PRD 和帮助文档数据。','重置目录确认')))return;
+  const nextTree=convertTreeFromData(window.WPS_DOC_TREE||[]);
+  if(!nextTree.length){showToast('默认目录为空。','warn');return;}
+  writeStore(STORE.tree,nextTree);writeStore(STORE.nodeMeta,{});writeStore(STORE.prd,{});writeStore(STORE.expand,{});
+  const valid=new Set(flattenTree(nextTree).nodes.map(n=>n.id));
+  const trim=s=>(s||[]).filter(id=>valid.has(id));
+  writeStore(STORE.groups,readStore(STORE.groups,[]).map(g=>({...g,nodeScopes:trim(g.nodeScopes)})));
+  writeStore(STORE.directGrants,readStore(STORE.directGrants,[]).map(d=>({...d,nodeScopes:trim(d.nodeScopes)})));
+  writeStore(STORE.requests,readStore(STORE.requests,[]).map(r=>({...r,nodeScopes:trim(r.nodeScopes)})));
+  batchChecked=[];selectedTagName='';refreshState();selectedNodeId=state.nodes[0]?state.nodes[0].id:'';
+  renderTreePanel();showToast('目录已重置。','ok');
+}
+
+// ===== TAG OPS =====
+function addTagsToNode(){
+  const input=document.getElementById('addTagInput');
+  const tags=normalizeList(input?.value||'');if(!requireField(tags.length>0,input,'请输入标签'))return;
+  const cur=getNodeMeta(selectedNodeId).tags||[];
+  patchNodeMeta(selectedNodeId,{tags:[...new Set([...cur,...tags])]});
+  const tc=[...new Set([...(readStore(STORE.tagCatalog,[])),...tags])];writeStore(STORE.tagCatalog,tc);
+  refreshState();updateRightPanel();
+}
+function clearNodeTags(){patchNodeMeta(selectedNodeId,{tags:[]});refreshState();updateRightPanel();}
+function removeNodeTag(tag){const cur=getNodeMeta(selectedNodeId).tags||[];patchNodeMeta(selectedNodeId,{tags:cur.filter(t=>t!==tag)});refreshState();updateRightPanel();}
+function batchSetTags(mode){
+  const tags=normalizeList(document.getElementById('batchTagInput')?.value||'');
+  if(!requireField(batchChecked.length>0,document.getElementById('batchTagInput'),'请先勾选节点'))return;
+  if(!requireField(tags.length>0,document.getElementById('batchTagInput'),'请输入标签'))return;
+  const nm=readStore(STORE.nodeMeta,{});
+  batchChecked.forEach(id=>{const m=nm[id]||{};const cur=Array.isArray(m.tags)?m.tags:[];nm[id]={...m,tags:mode==='add'?[...new Set([...cur,...tags])]:cur.filter(t=>!tags.includes(t))};});
+  writeStore(STORE.nodeMeta,nm);state.nodeMeta=nm;
+  if(mode==='add'){const tc=[...new Set([...(readStore(STORE.tagCatalog,[])),...tags])];writeStore(STORE.tagCatalog,tc);}
+  refreshState();updateRightPanel();
+}
+function renderTagChips(tags,rm){
+  if(!tags||!tags.length)return'<span class="muted">暂无标签</span>';
+  return tags.map(t=>`<span class="chip">${esc(t)}${rm?` <button data-remove-tag="${esc(t)}" class="btn-ghost" style="padding:0 4px;border-radius:10px;">x</button>`:''}</span>`).join('');
+}
+
+// ===== OTHER PANELS =====
+function renderTagsPanel(){
+  if(!isAdmin())return panels.tags.innerHTML='<h3>标签管理</h3><div class="lock">仅管理员可访问。</div>';
+  const tags=collectTagStats();
+  if(!selectedTagName&&tags[0])selectedTagName=tags[0].tag;
+  if(selectedTagName&&!tags.some(t=>t.tag===selectedTagName))selectedTagName=tags[0]?tags[0].tag:'';
+  const curNodes=selectedTagName?getNodesByTag(selectedTagName):[];
+  panels.tags.innerHTML=`<h3>标签管理</h3><div class="split-eq"><article>
+    <div class="row"><input id="tagSearch" type="text" style="flex:1;min-width:180px;" placeholder="搜索标签"/></div>
+    <div id="tagListBox" class="tree"></div>
+    <div class="row" style="margin-top:10px;"><input id="newTagName" type="text" style="flex:1;min-width:180px;" placeholder="新标签名"/><button id="createTagBtn">新增</button></div>
+    <div class="row"><input id="renameTagName" type="text" style="flex:1;min-width:180px;" placeholder="重命名标签"/><button id="renameTagBtn">重命名</button><button id="deleteTagBtn" class="btn-danger">删除标签</button></div>
+    </article><article>
+    <h3 style="margin-top:0;">标签节点：${esc(selectedTagName||'未选择')}</h3>
+    <div class="table-wrap"><table class="table"><thead><tr><th>节点</th><th>路径</th><th>操作</th></tr></thead>
+    <tbody id="tagNodeRows">${curNodes.map(n=>`<tr><td>${esc(n.title)}</td><td>${esc(n.pathText)}</td><td><button data-rtn="${esc(n.id)}" class="btn-danger">移除</button></td></tr>`).join('')||'<tr><td colspan="3" class="muted">暂无节点</td></tr>'}</tbody></table></div>
+    <div class="row" style="margin-top:10px;"><button id="clearTagNodesBtn" class="btn-danger">清空节点</button></div>
+    </article></div>`;
+  const tlb=document.getElementById('tagListBox');
+  function drawTags(){
+    const q=document.getElementById('tagSearch').value.trim().toLowerCase();
+    tlb.innerHTML=tags.filter(t=>!q||t.tag.toLowerCase().includes(q)).map(t=>`<div class="tree-row${t.tag===selectedTagName?' sel':''}" data-tag="${esc(t.tag)}"><button class="tree-title-btn">${esc(t.tag)} (${t.count})</button></div>`).join('')||'<div class="muted">暂无标签</div>';
+    tlb.querySelectorAll('[data-tag]').forEach(r=>r.addEventListener('click',()=>{selectedTagName=r.dataset.tag;renderTagsPanel();}));
+  }
+  drawTags();
+  document.getElementById('tagSearch').addEventListener('input',drawTags);
+  document.getElementById('createTagBtn').addEventListener('click',createTag);
+  document.getElementById('renameTagBtn').addEventListener('click',renameTag);
+  document.getElementById('deleteTagBtn').addEventListener('click',deleteTag);
+  document.getElementById('clearTagNodesBtn').addEventListener('click',clearTagNodes);
+  document.querySelectorAll('[data-rtn]').forEach(b=>b.addEventListener('click',()=>removeTagFromNode(b.dataset.rtn,selectedTagName)));
+}
+
+function renderTagCatalogPickHtml(className){
+  const tags=allCatalogTags();
+  if(!tags.length)return'<div class="muted">暂无标签，如有需要，请先联系管理员在标签管理中新建</div>';
+  return`<div class="tag-pick-grid">${tags.map(t=>`<label style="display:flex;align-items:center;gap:4px;margin:2px 4px;font-size:12px;"><input type="checkbox" class="${className}" value="${esc(t)}"/>${esc(t)}</label>`).join('')}</div>`;
+}
+function mergeTagsFromGroupUI(){
+  const from=[...document.querySelectorAll('.group-tag-cb:checked')].map(i=>i.value.trim()).filter(Boolean);
+  return[...new Set(from)];
+}
+
+function renderGroupsPanel(){
+  if(!isAdmin())return panels.groups.innerHTML='<h3>权限组</h3><div class="lock">仅管理员可访问。</div>';
+  panels.groups.innerHTML=`<h3>权限组（节点子树与标签集合的并集范围）</h3><div class="split-eq"><article>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+      <label style="font-size:12px;color:var(--muted);">权限组名称</label>
+      <input id="groupName" type="text" style="width:100%;box-sizing:border-box;" placeholder="请输入权限组名称"/>
+    </div>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:8px;">
+      <label style="font-size:12px;color:var(--muted);">角色</label>
+      <select id="groupRole" style="width:100%;box-sizing:border-box;">
+        <option value="product_editor">产品</option>
+      </select>
+    </div>
+    <details class="scope-details has-zoom" style="margin-top:8px;" open><summary><span>权限范围（节点 + 标签）</span><button id="groupScopeZoomBtn" type="button" class="btn-ghost scope-zoom-trigger" style="font-size:12px;">大屏查看</button></summary>
+      <div class="scope-body">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">范围节点（多选）</div>
+        <div class="scope-scroll"><div id="groupNodePicker" class="tree scope-inner-tree"></div></div>
+        <div style="font-size:12px;color:var(--muted);margin:10px 0 6px;">范围标签（多选）</div>
+        <div class="scope-scroll" style="max-height:130px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px;">${renderTagCatalogPickHtml('group-tag-cb')}</div>
+      </div>
+    </details>
+    <div class="row" style="margin-top:10px;justify-content:flex-end;"><button id="createGroupBtn" class="btn-primary">创建权限组</button></div>
+    </article><article>
+    <div class="row"><input id="groupSearch" type="text" style="flex:1;min-width:180px;" placeholder="搜索权限组"/></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>名称</th><th>角色</th><th>节点范围</th><th>标签范围</th><th>成员</th><th>操作</th></tr></thead><tbody id="groupRows"></tbody></table></div>
+    </article></div>`;
+  rerenderGroupPicker();
+  function drawGroups(){
+    const q=document.getElementById('groupSearch').value.trim().toLowerCase();
+    document.getElementById('groupRows').innerHTML=state.groups.filter(g=>!q||g.name.toLowerCase().includes(q)).map(g=>{
+      const m=state.groupUsers.filter(x=>x.groupId===g.id).length;
+      const ns=(g.nodeScopes||[]);const ts=(g.tagScopes||[]);
+      const nsText=ns.length?ns.map(id=>{const n=state.nodeMap[id];return n?n.title:id;}).join(', '):'—';
+      const tsText=ts.length?ts.join(', '):'—';
+      return`<tr><td style="white-space:nowrap;">${esc(g.name)}</td><td style="white-space:nowrap;">${esc(ROLE_TEXT[g.role]||g.role)}</td><td style="font-size:11px;max-width:160px;word-break:break-all;">${esc(nsText)}</td><td style="font-size:11px;max-width:120px;word-break:break-all;">${esc(tsText)}</td><td>${m}</td><td><button data-rg="${esc(g.id)}" class="btn-ghost">重命名</button> <button data-dg="${esc(g.id)}" class="btn-danger">删除</button></td></tr>`;
+    }).join('')||'<tr><td colspan="6" class="muted">暂无权限组</td></tr>';
+    document.querySelectorAll('[data-rg]').forEach(b=>b.addEventListener('click',()=>renameGroup(b.dataset.rg)));
+    document.querySelectorAll('[data-dg]').forEach(b=>b.addEventListener('click',()=>deleteGroup(b.dataset.dg)));
+  }
+  drawGroups();
+  document.getElementById('groupSearch').addEventListener('input',drawGroups);
+  document.getElementById('createGroupBtn').addEventListener('click',createGroup);
+  document.getElementById('groupScopeZoomBtn')?.addEventListener('click',(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    const nodeIds=[...document.querySelectorAll('#groupNodePicker input[data-ck]:checked')].map(i=>i.dataset.ck);
+    const tagVals=[...document.querySelectorAll('.group-tag-cb:checked')].map(i=>i.value);
+    openScopeZoom({
+      title:'权限组范围大屏查看',
+      tree:state.tree,
+      checkedNodeIds:nodeIds,
+      checkedTagVals:tagVals,
+      tags:allCatalogTags(),
+      onApply:(nextNodeIds,nextTagVals)=>{
+        const nodeSet=new Set(nextNodeIds);
+        document.querySelectorAll('#groupNodePicker input[data-ck]').forEach(i=>{i.checked=nodeSet.has(i.dataset.ck);});
+        syncIndeterminate(document.getElementById('groupNodePicker'),state.tree,new Set(nextNodeIds));
+        document.querySelectorAll('.group-tag-cb').forEach(i=>{i.checked=nextTagVals.includes(i.value);});
+      }
+    });
+  });
+}
+
+function renderUsersPanel(){
+  if(!isAdmin())return panels.users.innerHTML='<h3>用户授权</h3><div class="lock">仅管理员可访问。</div>';
+  panels.users.innerHTML=`<h3>用户授权（可批量拉用户，也可直接移除权限）</h3>
+  <div class="split-eq">
+    <article>
+      <div style="margin-bottom:6px;"><label style="font-size:12px;color:var(--muted);">用户ID（逗号或换行分隔）</label></div>
+      <textarea id="batchUserIds" rows="5" style="width:100%;box-sizing:border-box;" placeholder="editor_1&#10;editor_2"></textarea>
+      <div style="margin:10px 0 6px;font-weight:600;font-size:13px;">授权有效期</div>
+      <select id="batchGrantValidity" style="width:100%;box-sizing:border-box;">
+        <option value="30d">30天</option>
+        <option value="longterm">长期</option>
+      </select>
+      <div style="margin:10px 0 6px;font-weight:600;font-size:13px;">选择权限组</div>
+      <div id="userGroupPicker" class="tree" style="border:1px solid var(--line);border-radius:8px;max-height:200px;overflow-y:auto;padding:6px;">
+        ${state.groups.map(g=>`<label class="row" style="padding:4px 6px;gap:6px;"><input type="checkbox" value="${esc(g.id)}"/> ${esc(g.name)} <span class="muted" style="font-size:11px;">(${esc(ROLE_TEXT[g.role]||g.role)})</span></label>`).join('')||'<div class="muted">暂无权限组</div>'}
+      </div>
+      <div class="row" style="margin-top:10px;justify-content:flex-end;"><button id="batchGrantBtn" class="btn-primary">批量授权</button></div>
+    </article>
+    <article>
+      <div class="row"><input id="userSearch" type="text" style="flex:1;min-width:180px;" placeholder="搜索用户/权限"/></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>用户</th><th>来源</th><th>角色</th><th>节点范围</th><th>标签范围</th><th>有效期</th><th>剩余天数</th><th>操作</th></tr></thead>
+        <tbody id="userRows"></tbody>
+      </table></div>
+    </article>
+  </div>`;
+  function drawUsers(){
+    const q=document.getElementById('userSearch').value.trim().toLowerCase();
+    const rows=[];
+    state.users.forEach(u=>{
+      state.groupUsers.filter(l=>l.userId===u.id).forEach(l=>{
+        const g=state.groupMap[l.groupId];if(!g)return;
+        const txt=`${u.id} ${g.name}`.toLowerCase();if(q&&!txt.includes(q))return;
+        const ns=(g.nodeScopes||[]).map(id=>{const n=state.nodeMap[id];return n?n.title:id;}).join(', ')||'—';
+        const ts=(g.tagScopes||[]).join(', ')||'—';
+        const left=validityText(l.validType||'',l.expiresAt||'');
+        const leftDays=remainingDays(l.expiresAt||'');
+        const leftHtml=Number.isFinite(leftDays)&&leftDays>0&&leftDays<=3?`<span class="near-expiry">${esc(left)}</span>`:esc(left);
+        const expireAt=l.expiresAt?new Date(l.expiresAt).toLocaleDateString('zh-CN'):'—';
+        rows.push(`<tr><td>${esc(u.id)}</td><td>组: ${esc(g.name)}</td><td>${esc(ROLE_TEXT[g.role]||g.role)}</td><td style="font-size:11px;max-width:140px;word-break:break-all;">${esc(ns)}</td><td style="font-size:11px;max-width:100px;word-break:break-all;">${esc(ts)}</td><td>${esc((l.validType==='longterm'||!l.expiresAt)?'长期':expireAt)}</td><td>${leftHtml}</td><td><button data-dl="${esc(l.id)}" class="btn-danger">移除</button></td></tr>`);
+      });
+      state.directGrants.filter(d=>d.userId===u.id).forEach(d=>{
+        const txt=`${u.id} ${d.role}`.toLowerCase();if(q&&!txt.includes(q))return;
+        const ns=(d.nodeScopes||[]).map(id=>{const n=state.nodeMap[id];return n?n.title:id;}).join(', ')||'—';
+        const ts=(d.tagScopes||[]).join(', ')||'—';
+        const left=validityText(d.validType||'',d.expiresAt||'');
+        const leftDays=remainingDays(d.expiresAt||'');
+        const leftHtml=Number.isFinite(leftDays)&&leftDays>0&&leftDays<=3?`<span class="near-expiry">${esc(left)}</span>`:esc(left);
+        const expireAt=d.expiresAt?new Date(d.expiresAt).toLocaleDateString('zh-CN'):'—';
+        rows.push(`<tr><td>${esc(u.id)}</td><td>直授</td><td>${esc(ROLE_TEXT[d.role]||d.role)}</td><td style="font-size:11px;max-width:140px;word-break:break-all;">${esc(ns)}</td><td style="font-size:11px;max-width:100px;word-break:break-all;">${esc(ts)}</td><td>${esc((d.validType==='longterm'||!d.expiresAt)?'长期':expireAt)}</td><td>${leftHtml}</td><td><button data-dd="${esc(d.id)}" class="btn-danger">移除</button></td></tr>`);
+      });
+    });
+    document.getElementById('userRows').innerHTML=rows.join('')||'<tr><td colspan="8" class="muted">暂无授权</td></tr>';
+    document.querySelectorAll('[data-dl]').forEach(b=>b.addEventListener('click',()=>{writeStore(STORE.groupUsers,state.groupUsers.filter(l=>l.id!==b.dataset.dl));refreshState();renderUsersPanel();}));
+    document.querySelectorAll('[data-dd]').forEach(b=>b.addEventListener('click',()=>{writeStore(STORE.directGrants,state.directGrants.filter(d=>d.id!==b.dataset.dd));refreshState();renderUsersPanel();}));
+  }
+  drawUsers();
+  document.getElementById('userSearch').addEventListener('input',drawUsers);
+  document.getElementById('batchGrantBtn').addEventListener('click',batchGrantUsers);
+}
+
+function renderApprovalPanel(){
+  if(!isAdmin())return panels.approval.innerHTML='<h3>审批中心</h3><div class="lock">仅管理员可访问。</div>';
+  panels.approval.innerHTML=`<h3>审批中心（单级审批，通过后直接生效）</h3>
+    <div class="row" style="margin-bottom:10px;"><input id="approvalSearch" type="text" style="flex:1;min-width:200px;" placeholder="搜索申请ID/用户/角色/状态"/></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>用户名</th><th>用户ID</th><th>角色</th><th>申请环境</th><th>有效期</th><th style="min-width:120px;">节点范围</th><th style="min-width:80px;">标签范围</th><th>理由</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+      <tbody id="approvalRows"></tbody>
+    </table></div>`;
+  function draw(){
+    const q=document.getElementById('approvalSearch').value.trim().toLowerCase();
+    document.getElementById('approvalRows').innerHTML=state.requests.slice().sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).filter(r=>(r.applyModule||'docs')==='docs').filter(r=>{if(!q)return true;return`${r.id} ${r.applicantUserId||r.userId} ${r.targetRole} ${r.status}`.toLowerCase().includes(q);}).map(r=>{
+      const ns=(r.nodeScopes||[]).map(id=>{const n=state.nodeMap[id];return n?n.title:id;}).join(', ')||'—';
+      const ts=(r.tagScopes||[]).join(', ')||'—';
+      const statusLabel={pending:'待审批',approved:'已通过',rejected:'已拒绝'}[r.status]||r.status;
+      const acts=r.status==='pending'?`<button data-ap="${esc(r.id)}" style="margin-right:4px;">通过</button><button data-rj="${esc(r.id)}" class="btn-danger">拒绝</button>`:statusLabel;
+      const time=r.createdAt?new Date(r.createdAt).toLocaleString('zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
+      const env=(r.envs||[]).map(x=>({prod:'正式环境',test:'测试环境'}[x]||x)).join(', ')||'—';
+      const valid=r.validType==='longterm'?'长期':'30天';
+      return`<tr>
+        <td style="font-size:12px;">${esc(r.applicantName||'—')}</td>
+        <td style="font-size:12px;">${esc(r.applicantUserId||r.userId)}</td>
+        <td style="white-space:nowrap;">${esc(ROLE_TEXT[r.targetRole]||r.targetRole)}</td>
+        <td style="font-size:11px;max-width:100px;word-break:break-all;">${esc(env)}</td>
+        <td style="white-space:nowrap;">${esc(valid)}</td>
+        <td style="font-size:11px;max-width:160px;word-break:break-all;">${esc(ns)}</td>
+        <td style="font-size:11px;max-width:100px;word-break:break-all;">${esc(ts)}</td>
+        <td style="font-size:11px;max-width:100px;">${esc(r.reason||'—')}</td>
+        <td class="status-${esc(r.status)}" style="white-space:nowrap;">${esc(statusLabel)}</td>
+        <td style="font-size:11px;white-space:nowrap;">${esc(time)}</td>
+        <td style="white-space:nowrap;">${acts}</td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="11" class="muted" style="text-align:center;padding:20px;">暂无申请</td></tr>';
+    document.querySelectorAll('[data-ap]').forEach(b=>b.addEventListener('click',()=>approveReq(b.dataset.ap)));
+    document.querySelectorAll('[data-rj]').forEach(b=>b.addEventListener('click',()=>rejectReq(b.dataset.rj)));
+  }
+  draw();document.getElementById('approvalSearch').addEventListener('input',draw);
+}
+
+function renderMyPanel(){
+  const visTree=isAdmin()?deepClone(state.tree):filterTreeByPerm(state.tree);
+  if(!workbenchNodeId||!state.nodeMap[workbenchNodeId]){const f=flattenTree(visTree).nodes[0];workbenchNodeId=f?f.id:'';}
+  const sel=state.nodeMap[workbenchNodeId];
+  const meta=sel?getNodeMeta(sel.id):{url:'',tags:[]};
+  const canStruct=sel?canAction(state.currentUser.id,'edit_structure',sel.id):false;
+  const canUrl=sel?canAction(state.currentUser.id,'manage_url',sel.id):false;
+  const leaf=sel&&isTreeLeaf(state.tree,sel.id);
+  panels.my.innerHTML=`<h3>我的权限</h3><div class="split"><article>
+    <div id="myTree" class="tree">${renderTreeHtml(visTree,{selectable:true,selectedId:workbenchNodeId,showCheckbox:false,checkedIds:[]})}</div>
+    </article><article>${sel?`
+    <div class="card" style="margin-bottom:10px;"><strong>${esc(sel.title)}</strong><div class="muted">${esc(sel.pathText)}</div></div>
+    ${leaf?`<div class="row"><label>URL</label><input id="myUrl" type="url" style="flex:1;min-width:220px;" value="${esc(meta.url||'')}"${canUrl?'':' disabled'}/><button id="saveMyUrl"${canUrl?'':' disabled'}>保存</button></div>`:'<div class="muted" style="margin-bottom:8px;">URL 仅在末级节点设置。</div>'}
+    <div class="row" style="margin-top:10px;">
+      <button id="myAddSib"${canStruct?'':' disabled'}>新增同级</button>
+      <button id="myAddCh"${canStruct&&sel.level<3?'':' disabled'}>新增子级</button>
+      <button id="myRename" class="btn-ghost"${canStruct?'':' disabled'}>重命名</button>
+      <button id="myDelete" class="btn-danger"${canStruct?'':' disabled'}>删除</button>
+    </div>`:'<div class="muted">无可见节点。请前往「权限申请」提交申请。</div>'}</article></div>`;
+  const myTree=document.getElementById('myTree');
+  bindTree(myTree,{
+    onSelect:id=>{workbenchNodeId=id;renderMyPanel();},
+    onToggle:id=>{expandState[id]=!expandState[id];writeStore(STORE.expand,expandState);renderMyPanel();}
+  });
+  if(sel){
+    if(leaf)document.getElementById('saveMyUrl')?.addEventListener('click',()=>{
+      const urlInput=document.getElementById('myUrl');
+      const raw=urlInput?.value||'';
+      const url=normalizeHttpUrl(raw);if(raw.trim()&&!url){markFieldInvalid(urlInput);showToast('URL 仅支持 http/https','warn');return;}
+      patchNodeMeta(sel.id,{url});refreshState();renderMyPanel();
+    });
+    document.getElementById('myAddSib')?.addEventListener('click',()=>userEdit('sibling',sel.id));
+    document.getElementById('myAddCh')?.addEventListener('click',()=>userEdit('child',sel.id));
+    document.getElementById('myRename')?.addEventListener('click',()=>userEdit('rename',sel.id));
+    document.getElementById('myDelete')?.addEventListener('click',()=>userEdit('delete',sel.id));
+  }
+}
+
+function mergeTagsFromApplyUI(){
+  return[...new Set([...document.querySelectorAll('.apply-tag-cb:checked')].map(i=>i.value.trim()).filter(Boolean))];
+}
+function selectedLabelText(selector, fallback){
+  const labels=selector.split(',').flatMap(s=>[...document.querySelectorAll(s.trim()+':checked')]).map(i=>i.dataset.label||i.value);
+  return labels.length?labels.join('、'):fallback;
+}
+function approvalPeopleHtml(names){
+  return names.map(n=>`<span class="approval-person"><span class="approval-avatar">${esc(n.slice(0,1))}</span><span>${esc(n)}</span></span>`).join('<span class="muted">/</span>');
+}
+function getCheckedValues(selector){
+  return [...document.querySelectorAll(selector+':checked')].map(i=>i.value);
+}
+function renderApprovalFlowPreview(){
+  const approvers=['A','B','C'];
+  const cc=['B'];
+  const flow=document.getElementById('applyFlowPreview');
+  if(!flow)return;
+  flow.innerHTML=`<div class="approval-flow">
+    <div class="approval-flow-line"><span class="approval-dot"></span><div class="approval-step-title">审批</div><div class="approval-step-sub">3人或签</div></div>
+    <div class="approval-people">${approvalPeopleHtml(approvers)}</div>
+    <div class="approval-flow-line"><span class="approval-dot"></span><div class="approval-step-title">抄送</div><div class="approval-step-sub">抄送1人</div></div>
+    <div class="approval-people">${approvalPeopleHtml(cc)}</div>
+  </div>`;
+}
+function renderApplyPanel(){
+  const applyTree=deepClone(state.tree);
+  const myReqs=state.requests.filter(r=>(r.requestedBy||r.userId)===state.currentUser.id).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  const moduleOptions=MODULE_SECTIONS.map(m=>`<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+  panels.apply.innerHTML=`<div class="approval-form-shell">
+    <div class="approval-form-head">文档中心权限申请</div>
+    <div class="approval-form-body">
+      <div class="approval-field"><label>申请人姓名：<span class="req">*</span></label><input id="applyName" class="approval-input" placeholder="请填写" value="${esc(state.currentUser?.name||'')}"/></div>
+      <div class="approval-field"><label>申请人 userid：<span class="req">*</span></label><input id="applyUserId" class="approval-input" placeholder="请填写" value="123456"/></div>
+      <div class="approval-field"><label>申请环境<span class="req">*</span></label>
+        <details class="approval-select">
+          <summary id="applyEnvSummary">请选择</summary>
+          <div class="approval-menu">
+            <label class="approval-option"><input type="checkbox" class="apply-env-cb" value="prod" data-label="正式环境"/>正式环境</label>
+            <label class="approval-option"><input type="checkbox" class="apply-env-cb" value="test" data-label="测试环境"/>测试环境</label>
+          </div>
+        </details>
+      </div>
+      <div class="approval-field"><label>申请模块<span class="req">*</span></label>
+        <select id="applyModule" class="approval-input">
+          <option value="">请选择模块</option>
+          ${moduleOptions}
+        </select>
+      </div>
+      <div class="approval-field"><label>有效期<span class="req">*</span></label>
+        <select id="applyValidity" class="approval-input">
+          <option value="30d">30天</option>
+          <option value="longterm">长期</option>
+        </select>
+      </div>
+      <input type="hidden" id="applyRole" value="product_editor"/>
+      <details id="applyScopeWrap" class="scope-details has-zoom hidden" style="margin-top:4px;" open><summary><span>权限范围（文档中心节点 + 标签）</span><button id="applyScopeFsBtn" type="button" class="btn-ghost scope-zoom-trigger" style="font-size:12px;">大屏查看</button></summary>
+        <div class="scope-body">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">文档中心节点</div>
+          <div class="scope-scroll"><div id="applyNodePicker" class="tree scope-inner-tree"></div></div>
+          <div style="font-size:12px;color:var(--muted);margin:10px 0 6px;">标签</div>
+          <div class="scope-scroll" style="max-height:120px;overflow-y:auto;">${renderTagCatalogPickHtml('apply-tag-cb')}</div>
+        </div>
+      </details>
+      <div class="approval-field" style="margin-top:14px;"><label>申请原因：</label><textarea id="applyReason" rows="3" placeholder="请填写"></textarea></div>
+      <div class="approval-field">
+        <label>审批流程</label>
+        <div id="applyFlowPreview"></div>
+      </div>
+    </div>
+    <div class="approval-actions"><button id="cancelApplyBtn" class="btn-ghost">取消</button><button id="submitApplyBtn" class="btn-primary">提交</button></div>
+  </div>
+  <div class="approval-record-card" style="max-width:980px;margin:12px auto 0;">
+    <h3 style="margin-top:0;">我的申请记录</h3>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>用户名</th><th>用户ID</th><th>角色</th><th>申请环境</th><th>有效期</th><th style="min-width:100px;">节点范围</th><th>标签范围</th><th>理由</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+      <tbody>${myReqs.map(r=>{
+        const applicant=r.applicantName||r.userId;
+        const env=(r.envs||[]).map(x=>({prod:'正式环境',test:'测试环境'}[x]||x)).join(', ')||'—';
+        const valid=r.validType==='longterm'?'长期':'30天';
+        const ns=(r.nodeScopes||[]).map(id=>{const n=state.nodeMap[id];return n?n.title:id;}).join(', ')||'—';
+        const ts=(r.tagScopes||[]).join(', ')||'—';
+        const statusLabel={pending:'待审批',approved:'已通过',rejected:'已拒绝'}[r.status]||r.status;
+        const time=r.createdAt?new Date(r.createdAt).toLocaleString('zh-CN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
+        return`<tr><td style="white-space:nowrap;">${esc(applicant)}</td><td style="white-space:nowrap;">${esc(r.applicantUserId||r.userId||'—')}</td><td style="white-space:nowrap;">${esc(ROLE_TEXT[r.targetRole]||r.targetRole)}</td><td>${esc(env)}</td><td style="white-space:nowrap;">${esc(valid)}</td><td style="font-size:11px;max-width:120px;word-break:break-all;">${esc(ns)}</td><td style="font-size:11px;max-width:80px;word-break:break-all;">${esc(ts)}</td><td style="font-size:11px;max-width:100px;">${esc(r.reason||'—')}</td><td class="status-${esc(r.status)}" style="white-space:nowrap;">${esc(statusLabel)}</td><td style="font-size:11px;white-space:nowrap;">${esc(time)}</td><td style="white-space:nowrap;">—</td></tr>`;
+      }).join('')||'<tr><td colspan="11" class="muted" style="text-align:center;padding:16px;">暂无申请</td></tr>'}</tbody>
+    </table></div>
+  </div>`;
+  rerenderApplyPicker(applyTree);
+  renderApprovalFlowPreview();
+  document.getElementById('submitApplyBtn').addEventListener('click',submitApply);
+  document.getElementById('cancelApplyBtn')?.addEventListener('click',()=>renderApplyPanel());
+  document.querySelectorAll('.apply-env-cb').forEach(cb=>cb.addEventListener('change',()=>{document.getElementById('applyEnvSummary').textContent=selectedLabelText('.apply-env-cb','请选择');}));
+  document.getElementById('applyModule')?.addEventListener('change',()=>{
+    const isDocs=document.getElementById('applyModule')?.value==='docs';
+    document.getElementById('applyScopeWrap')?.classList.toggle('hidden',!isDocs);
+  });
+  document.getElementById('applyScopeFsBtn')?.addEventListener('click',(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    const nodeIds=[...document.querySelectorAll('#applyNodePicker input[data-ck]:checked')].map(i=>i.dataset.ck);
+    const tagVals=[...document.querySelectorAll('.apply-tag-cb:checked')].map(i=>i.value);
+    openScopeZoom({
+      title:'权限范围大屏查看',
+      tree:applyTree,
+      checkedNodeIds:nodeIds,
+      checkedTagVals:tagVals,
+      tags:allCatalogTags(),
+      onApply:(nextNodeIds,nextTagVals)=>{
+        const nodeSet=new Set(nextNodeIds);
+        document.querySelectorAll('#applyNodePicker input[data-ck]').forEach(i=>{i.checked=nodeSet.has(i.dataset.ck);});
+        syncIndeterminate(document.getElementById('applyNodePicker'),applyTree,new Set(nextNodeIds));
+        document.querySelectorAll('.apply-tag-cb').forEach(i=>{i.checked=nextTagVals.includes(i.value);});
+        document.getElementById('applyScopeWrap')?.classList.remove('field-error');
+      }
+    });
+  });
+  document.getElementById('applyNodePicker')?.addEventListener('change',()=>document.getElementById('applyScopeWrap')?.classList.remove('field-error'));
+  document.querySelectorAll('.apply-tag-cb').forEach(cb=>cb.addEventListener('change',()=>document.getElementById('applyScopeWrap')?.classList.remove('field-error')));
+}
+
+// ===== PICKER HELPERS =====
+function rerenderGroupPicker(){
+  const m=document.getElementById('groupNodePicker');if(!m)return;
+  const checked=[...m.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+  // Expand all by default so all levels are visible
+  state.tree.forEach(n=>{if(pickerExpandState[n.id]===undefined)pickerExpandState[n.id]=true;});
+  m.innerHTML=renderTreeHtml(state.tree,{selectable:false,showCheckbox:true,checkedIds:checked,usePickerExpand:true,showTags:true});
+  bindTree(m,{
+    onToggle:id=>{pickerExpandState[id]=!(pickerExpandState[id]===true);rerenderGroupPicker();},
+    onCheck:(id,chk)=>cascadeCheck(m,state.tree,id,chk)
+  });
+}
+function rerenderApplyPicker(tree){
+  const m=document.getElementById('applyNodePicker');if(!m)return;
+  const checked=[...m.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+  // Expand all by default so all levels are visible
+  tree.forEach(n=>{if(pickerExpandState[n.id]===undefined)pickerExpandState[n.id]=true;});
+  m.innerHTML=renderTreeHtml(tree,{selectable:false,showCheckbox:true,checkedIds:checked,usePickerExpand:true,showTags:true});
+  bindTree(m,{
+    onToggle:id=>{pickerExpandState[id]=!(pickerExpandState[id]===true);rerenderApplyPicker(tree);},
+    onCheck:(id,chk)=>cascadeCheck(m,tree,id,chk)
+  });
+}
+function cascadeCheck(container,tree,nodeId,checked){
+  // Always cascade both check and uncheck to all descendants
+  collectSubIdsFor(tree,nodeId).forEach(id=>{
+    const el=container.querySelector(`input[data-ck="${CSS.escape(id)}"]`);
+    if(el)el.checked=checked;
+  });
+  // Sync indeterminate state
+  const checkedIds=[...container.querySelectorAll('input[data-ck]:checked')].map(i=>i.dataset.ck);
+  syncIndeterminate(container,tree,new Set(checkedIds));
+}
+
+// ===== AUTH / PERMISSIONS =====
+function canAction(userId,action,nodeId){
+  const user=state.users.find(u=>u.id===userId);if(!user)return false;
+  if(user.systemRole==='admin')return true;
+  return effectiveGrants(userId).some(g=>{const acts=ROLE_ACTIONS[g.role]||[];if(!acts.includes(action))return false;return grantCovers(g,nodeId);});
+}
+function effectiveGrants(userId){
+  return[...state.groupUsers.filter(l=>l.userId===userId).map(l=>state.groupMap[l.groupId]).filter(Boolean).map(g=>({role:g.role,nodeScopes:g.nodeScopes||[],tagScopes:g.tagScopes||[]})),...state.directGrants.filter(d=>d.userId===userId).map(d=>({role:d.role,nodeScopes:d.nodeScopes||[],tagScopes:d.tagScopes||[]}))];
+}
+function grantCovers(grant,nodeId){
+  if((grant.nodeScopes||[]).some(sid=>isDescOrSelf(nodeId,sid)))return true;
+  const tags=grant.tagScopes||[];if(!tags.length)return false;
+  const nt=inheritedTags(nodeId);return tags.some(t=>nt.includes(t));
+}
+function isDescOrSelf(nodeId,ancId){let c=nodeId;while(c){if(c===ancId)return true;c=state.nodeMap[c]?state.nodeMap[c].parentId:'';}return false;}
+function inheritedTags(nodeId){const tags=[];let c=nodeId;while(c){(getNodeMeta(c).tags||[]).forEach(t=>{if(!tags.includes(t))tags.push(t);});c=state.nodeMap[c]?state.nodeMap[c].parentId:'';}return tags;}
+function filterTreeByPerm(tree){
+  return tree.map(n=>allowed(n)).filter(Boolean);
+  function allowed(node){const ok=canAction(state.currentUser.id,'view',node.id);const kids=(node.children||[]).map(allowed).filter(Boolean);if(!ok&&!kids.length)return null;return{id:node.id,title:node.title,children:kids};}
+}
+async function userEdit(action,nodeId){
+  if(!canAction(state.currentUser.id,'edit_structure',nodeId))return;
+  selectedNodeId=nodeId;
+  if(action==='sibling')await addNode('sibling');if(action==='child')await addNode('child');
+  if(action==='rename')await renameNode();if(action==='delete')await deleteNode();
+  refreshState();renderMyPanel();
+}
+
+// ===== APPROVAL OPS =====
+function approveReq(id){
+  const req=state.requests.find(r=>r.id===id);if(!req||req.status!=='pending')return;
+  const directs=deepClone(state.directGrants);
+  const validType=req.validType||'30d';
+  const expiresAt=req.expiresAt||buildExpiry(validType);
+  const grantUserId=(state.users||[]).some(u=>u.id===req.userId)?req.userId:(req.requestedBy||req.userId);
+  if(!directs.some(d=>d.userId===grantUserId&&d.role===req.targetRole&&sameSet(d.nodeScopes||[],req.nodeScopes||[]))){
+    directs.push({id:genId('direct'),userId:grantUserId,role:req.targetRole,nodeScopes:req.nodeScopes||[],tagScopes:req.tagScopes||[],validType,expiresAt,createdAt:nowISO()});
+  }
+  writeStore(STORE.directGrants,directs);
+  writeStore(STORE.requests,state.requests.map(r=>r.id===id?{...r,status:'approved',reviewedBy:state.currentUser.id,reviewedAt:nowISO()}:r));
+  refreshState();renderApprovalPanel();
+}
+function rejectReq(id){
+  writeStore(STORE.requests,state.requests.map(r=>r.id===id?{...r,status:'rejected',reviewedBy:state.currentUser.id,reviewedAt:nowISO()}:r));
+  refreshState();renderApprovalPanel();
+}
+function submitApply(){
+  const role=document.getElementById('applyRole')?.value;
+  const applyNameEl=document.getElementById('applyName');
+  const applyUserIdEl=document.getElementById('applyUserId');
+  const applyModuleEl=document.getElementById('applyModule');
+  const applyEnvEl=document.querySelector('.approval-select');
+  const applyScopeEl=document.getElementById('applyScopeWrap');
+  const applicantName=applyNameEl?.value.trim()||'';
+  const applicantUserId=applyUserIdEl?.value.trim()||'';
+  const applyModule=applyModuleEl?.value||'';
+  const validType=document.getElementById('applyValidity')?.value||'30d';
+  const envs=getCheckedValues('.apply-env-cb');
+  const approvers=['A','B','C'];
+  const cc=['B'];
+  let nodeScopes=[...document.querySelectorAll('#applyNodePicker input[data-ck]:checked')].map(i=>i.dataset.ck);
+  let tagScopes=mergeTagsFromApplyUI();
+  if(!requireField(!!applicantName,applyNameEl,'请填写申请人姓名'))return;
+  if(!requireField(!!applicantUserId,applyUserIdEl,'请填写申请人 userid'))return;
+  if(!requireField(envs.length>0,applyEnvEl,'请选择申请环境'))return;
+  if(!requireField(!!applyModule,applyModuleEl,'请选择申请模块'))return;
+  if(applyModule!=='docs'){nodeScopes=[];tagScopes=[];}
+  if(applyModule==='docs'&&!nodeScopes.length&&!tagScopes.length){
+    markFieldInvalid(applyScopeEl||applyModuleEl);
+    showToast('请至少选择一个权限范围（节点或标签）','warn');
+    return;
+  }
+  const requests=deepClone(state.requests);
+  requests.push({id:genId('req'),requestedBy:state.currentUser.id,userId:state.currentUser.id,applicantUserId,targetRole:role,applyModule,validType,expiresAt:buildExpiry(validType),applicantName,envs,nodeScopes,tagScopes,reason:document.getElementById('applyReason')?.value.trim()||'',approvers,cc,status:'pending',createdAt:nowISO()});
+  writeStore(STORE.requests,requests);refreshState();renderApplyPanel();
+  showToast('申请已提交，等待管理员审批','ok');
+}
+
+// ===== TAG MANAGEMENT =====
+function collectTagStats(){
+  const map={};(state.tagCatalog||[]).forEach(t=>{map[t]={tag:t,count:0};});
+  Object.keys(state.nodeMeta).forEach(id=>{(getNodeMeta(id).tags||[]).forEach(t=>{if(!map[t])map[t]={tag:t,count:0};map[t].count++;});});
+  return Object.values(map).sort((a,b)=>a.tag.localeCompare(b.tag));
+}
+function getNodesByTag(tag){return state.nodes.filter(n=>(getNodeMeta(n.id).tags||[]).includes(tag));}
+function createTag(){
+  const input=document.getElementById('newTagName');
+  const t=input?.value.trim();
+  if(!requireField(!!t,input,'请输入新标签名'))return;
+  writeStore(STORE.tagCatalog,[...new Set([...(state.tagCatalog||[]),t])]);refreshState();selectedTagName=t;renderTagsPanel();showToast('标签已新增','ok');
+}
+function renameTag(){
+  const renameInput=document.getElementById('renameTagName');
+  if(!requireField(!!selectedTagName,document.getElementById('tagListBox'),'请先选择标签'))return;
+  const nn=renameInput?.value.trim();if(!requireField(!!nn,renameInput,'请输入新标签名'))return;
+  const nm=readStore(STORE.nodeMeta,{});Object.keys(nm).forEach(id=>{nm[id].tags=[...new Set((nm[id].tags||[]).map(t=>t===selectedTagName?nn:t))];});
+  writeStore(STORE.nodeMeta,nm);writeStore(STORE.tagCatalog,[...new Set((state.tagCatalog||[]).map(t=>t===selectedTagName?nn:t))]);
+  refreshState();selectedTagName=nn;renderTagsPanel();
+}
+async function deleteTag(){
+  if(!selectedTagName)return;
+  if(!(await askConfirm(`确认删除标签「${selectedTagName}」？将同时从所有已打该标签的节点中移除。`,'删除标签确认')))return;
+  const nm=readStore(STORE.nodeMeta,{});Object.keys(nm).forEach(id=>{nm[id].tags=(nm[id].tags||[]).filter(t=>t!==selectedTagName);});
+  writeStore(STORE.nodeMeta,nm);writeStore(STORE.tagCatalog,(state.tagCatalog||[]).filter(t=>t!==selectedTagName));
+  refreshState();selectedTagName='';renderTagsPanel();
+  // Also refresh tree so inline tag chips update
+  if(currentTab==='tree')renderTreeLeft();
+}
+function clearTagNodes(){
+  if(!selectedTagName)return;
+  const nm=readStore(STORE.nodeMeta,{});Object.keys(nm).forEach(id=>{nm[id].tags=(nm[id].tags||[]).filter(t=>t!==selectedTagName);});
+  writeStore(STORE.nodeMeta,nm);refreshState();renderTagsPanel();
+}
+function removeTagFromNode(nodeId,tag){const m=getNodeMeta(nodeId);patchNodeMeta(nodeId,{tags:(m.tags||[]).filter(t=>t!==tag)});refreshState();renderTagsPanel();}
+
+// ===== GROUP MANAGEMENT =====
+function createGroup(){
+  const nameEl=document.getElementById('groupName');
+  const pickerEl=document.getElementById('groupNodePicker');
+  const name=nameEl?.value.trim();const role=document.getElementById('groupRole')?.value;
+  const nodeScopes=[...document.querySelectorAll('#groupNodePicker input[data-ck]:checked')].map(i=>i.dataset.ck);
+  const tagScopes=mergeTagsFromGroupUI();
+  if(!requireField(!!name,nameEl,'请输入组名'))return;
+  if(!requireField(nodeScopes.length>0||tagScopes.length>0,pickerEl,'请至少选择节点或标签范围'))return;
+  if(state.groups.some(g=>g.name===name)){markFieldInvalid(nameEl);showToast('组名已存在','warn');return;}
+  writeStore(STORE.groups,[...deepClone(state.groups),{id:genId('group'),name,role,nodeScopes,tagScopes,createdAt:nowISO()}]);
+  refreshState();renderGroupsPanel();showToast('权限组创建成功','ok');
+}
+function deleteGroup(id){
+  writeStore(STORE.groups,state.groups.filter(g=>g.id!==id));
+  writeStore(STORE.groupUsers,state.groupUsers.filter(x=>x.groupId!==id));
+  refreshState();renderGroupsPanel();
+}
+async function renameGroup(id){
+  const target=(state.groups||[]).find(g=>g.id===id);
+  if(!target)return;
+  const nextName=((await askPrompt('请输入新的权限组名称',target.name,'重命名权限组'))||'').trim();
+  if(!nextName)return;
+  if((state.groups||[]).some(g=>g.id!==id&&g.name===nextName)){showToast('组名已存在','warn');return;}
+  writeStore(STORE.groups,(state.groups||[]).map(g=>g.id===id?{...g,name:nextName}:g));
+  refreshState();renderGroupsPanel();showToast('权限组已重命名','ok');
+}
+function batchGrantUsers(){
+  const userInput=document.getElementById('batchUserIds');
+  const picker=document.getElementById('userGroupPicker');
+  const userIds=normalizeList(userInput?.value||'');
+  const validType=document.getElementById('batchGrantValidity')?.value||'30d';
+  const expiresAt=buildExpiry(validType);
+  const groupIds=[...document.querySelectorAll('#userGroupPicker input:checked')].map(i=>i.value);
+  if(!requireField(userIds.length>0,userInput,'请输入用户ID'))return;
+  if(!requireField(groupIds.length>0,picker,'请勾选权限组'))return;
+  const users=deepClone(state.users);
+  userIds.forEach(id=>{if(!users.some(u=>u.id===id))users.push({id,name:id,password:'user123',systemRole:'user'});});
+  writeStore(STORE.users,users);
+  const links=deepClone(state.groupUsers);
+  userIds.forEach(uid=>groupIds.forEach(gid=>{if(!links.some(l=>l.userId===uid&&l.groupId===gid))links.push({id:genId('link'),userId:uid,groupId:gid,validType,expiresAt,createdAt:nowISO()});}));
+  writeStore(STORE.groupUsers,links);refreshState();renderUsersPanel();showToast('批量授权完成','ok');
+}
+
+// ===== TREE DATA =====
+function convertTreeFromData(data){
+  return data.map(s=>({id:genId('node'),title:s.category,children:(s.groups||[]).map(g=>({id:genId('node'),title:g.title,children:(g.items||[]).map(i=>({id:genId('node'),title:i,children:[]}))}))}));
+}
+</script>
+</body>
+</html>

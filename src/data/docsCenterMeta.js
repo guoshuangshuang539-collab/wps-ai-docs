@@ -1,7 +1,115 @@
 export const ALL_DOC_LANGS = ['zh-cn', 'zh-tw', 'en-us', 'ja-jp', 'ko-kr', 'es-mx']
+const ADMIN_TREE_STORE_KEY = 'WPS_DOC_TREE_V4'
+const ADMIN_NODE_META_STORE_KEY = 'WPS_DOC_NODE_META_V4'
 
 export function createDocsPathKey(pathParts = []) {
   return pathParts.filter(Boolean).join(' / ')
+}
+
+function safeReadJsonFromLocalStorage(storeKey, fallbackValue) {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return fallbackValue
+  }
+  try {
+    const raw = window.localStorage.getItem(storeKey)
+    if (!raw) {
+      return fallbackValue
+    }
+    const parsed = JSON.parse(raw)
+    return parsed ?? fallbackValue
+  } catch {
+    return fallbackValue
+  }
+}
+
+function normalizeDocSlug(value = '') {
+  const normalized = `${value}`
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return normalized || 'doc'
+}
+
+function getRouteSlugFromUrl(url = '') {
+  const text = `${url}`.trim()
+  if (!text) {
+    return ''
+  }
+  const match = text.match(/\/docs\/[^/]+\/([^/?#]+)\/?$/i)
+  return match?.[1] ?? ''
+}
+
+function collectAdminTreePaths(treeNodes = [], parentPath = [], output = new Map()) {
+  treeNodes.forEach((node) => {
+    const title = `${node?.title ?? ''}`.trim()
+    if (!title || !node?.id) {
+      return
+    }
+    const pathParts = [...parentPath, title]
+    output.set(node.id, pathParts)
+    if (Array.isArray(node.children) && node.children.length) {
+      collectAdminTreePaths(node.children, pathParts, output)
+    }
+  })
+  return output
+}
+
+function pickPublishedHelpContent(helpContent = {}, publishedLangs = []) {
+  const next = {}
+  publishedLangs.forEach((langCode) => {
+    const content = `${helpContent?.[langCode] ?? ''}`.trim()
+    if (content) {
+      next[langCode] = content
+    }
+  })
+  return next
+}
+
+function loadAdminPublishedMetaEntries(staticMap) {
+  const adminTree = safeReadJsonFromLocalStorage(ADMIN_TREE_STORE_KEY, [])
+  const adminNodeMeta = safeReadJsonFromLocalStorage(ADMIN_NODE_META_STORE_KEY, {})
+  if (!Array.isArray(adminTree) || !adminTree.length || !adminNodeMeta || typeof adminNodeMeta !== 'object') {
+    return []
+  }
+
+  const idPathMap = collectAdminTreePaths(adminTree)
+  const entries = []
+
+  Object.entries(adminNodeMeta).forEach(([nodeId, rawMeta]) => {
+    const pathParts = idPathMap.get(nodeId)
+    if (!pathParts || pathParts.length < 2) {
+      return
+    }
+    const publishedLangs = Array.isArray(rawMeta?.publishedLangs)
+      ? rawMeta.publishedLangs.filter((langCode) => ALL_DOC_LANGS.includes(langCode))
+      : []
+    if (!publishedLangs.length) {
+      return
+    }
+    const helpContent = pickPublishedHelpContent(rawMeta?.helpContent ?? {}, publishedLangs)
+    if (!Object.keys(helpContent).length) {
+      return
+    }
+
+    const pathKey = createDocsPathKey(pathParts)
+    const staticEntry = staticMap[pathKey]
+    const routeSlug =
+      staticEntry?.routeSlug
+      || getRouteSlugFromUrl(rawMeta?.url)
+      || normalizeDocSlug(pathParts[pathParts.length - 1])
+
+    entries.push({
+      pathParts,
+      pathKey,
+      routeSlug,
+      helpContent,
+      publishedLangs,
+      source: 'docs-admin',
+    })
+  })
+
+  return entries
 }
 
 const writerHelpContent = {
@@ -1113,7 +1221,7 @@ const staticMetaEntries = [
 ]
 
 export function buildDocsStaticMetaMap() {
-  return Object.fromEntries(
+  const staticMap = Object.fromEntries(
     staticMetaEntries.map((entry) => {
       const pathKey = createDocsPathKey(entry.pathParts)
       return [
@@ -1125,4 +1233,18 @@ export function buildDocsStaticMetaMap() {
       ]
     }),
   )
+
+  // Overlay docs-admin published content onto static meta entries.
+  // This re-links deployed backend content with docs detail pages.
+  const adminEntries = loadAdminPublishedMetaEntries(staticMap)
+  adminEntries.forEach((entry) => {
+    const previous = staticMap[entry.pathKey]
+    staticMap[entry.pathKey] = {
+      ...(previous ?? {}),
+      ...entry,
+      pathKey: entry.pathKey,
+    }
+  })
+
+  return staticMap
 }

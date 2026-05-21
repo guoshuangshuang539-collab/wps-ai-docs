@@ -415,10 +415,18 @@ const docsCatalogSectionsEn = [
 export const docsEnglishContent = {
   ui: {
     heroTitle: 'WPS Docs Center',
-    searchSrOnly: 'Search documentation',
-    heroSearchPlaceholder: 'Search docs by keyword',
-    heroSearchButton: 'Search',
-    sidebarSearchPlaceholder: 'Search in directory',
+    searchSrOnly: 'Search documentation entries',
+    heroSearchPlaceholder: 'Search article titles in the list…',
+    heroSearchRoleLabel: 'Content search · ',
+    heroSearchHint:
+      'Filters the right-hand article list (category, group, and entry names). Substring match, case-insensitive. Not full-text. Clears when input is empty.',
+    sidebarSearchSrOnly: 'Filter directory navigation',
+    sidebarSearchPlaceholder: 'Filter directory (sections & groups)…',
+    sidebarSearchRoleLabel: 'Directory filter · ',
+    sidebarSearchHint:
+      'Filters the left navigation tree only (category and group titles). Does not search entry names. Substring match, case-insensitive.',
+    searchPendingLabel: 'Searching…',
+    sidebarNoResults: 'No matching sections in the directory.',
     directoryTitle: 'Directory',
     faqTitle: 'Frequently asked questions',
     backToTopAriaLabel: 'Back to top',
@@ -485,10 +493,18 @@ export const docsUiByLanguage = withContentLanguageAliases({
 
 docsUiByLanguage['zh-tw'] = {
   heroTitle: 'WPS 文件中心',
-  searchSrOnly: '文件搜尋',
-  heroSearchPlaceholder: '請輸入關鍵字搜尋產品文件',
-  heroSearchButton: '搜尋',
-  sidebarSearchPlaceholder: '在目錄中搜尋',
+  searchSrOnly: '搜尋文件條目',
+  heroSearchPlaceholder: '搜尋右側文件條目名稱…',
+  heroSearchRoleLabel: '內容搜尋 · ',
+  heroSearchHint:
+    '篩選右側文件清單（分類、分組、具體條目名稱）。模糊包含比對，忽略大小寫；不搜正文。清空輸入即恢復全部。',
+  sidebarSearchSrOnly: '篩選目錄導覽',
+  sidebarSearchPlaceholder: '篩選左側目錄（分類/分組）…',
+  sidebarSearchRoleLabel: '目錄篩選 · ',
+  sidebarSearchHint:
+    '僅篩選左側導覽樹（分類與分組標題），不搜具體文件條目名。模糊包含比對，忽略大小寫。',
+  searchPendingLabel: '搜尋中…',
+  sidebarNoResults: '目錄中無符合分類。',
   directoryTitle: '文件目錄',
   faqTitle: '常見問題 FAQ',
   backToTopAriaLabel: '回到頂部',

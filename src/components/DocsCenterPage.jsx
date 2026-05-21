@@ -154,6 +154,27 @@ function markdownToHtml(markdown, emptyText = 'No content available.') {
   return processedLines.join('\n')
 }
 
+const DOCS_SEARCH_DEBOUNCE_MS = 300
+
+function useDebouncedValue(value, delayMs = DOCS_SEARCH_DEBOUNCE_MS) {
+  const [debounced, setDebounced] = useState(value)
+
+  useEffect(() => {
+    if (!`${value}`.trim()) {
+      setDebounced(value)
+      return undefined
+    }
+    const timerId = window.setTimeout(() => setDebounced(value), delayMs)
+    return () => window.clearTimeout(timerId)
+  }, [value, delayMs])
+
+  return debounced
+}
+
+function normalizeDocsSearchKeyword(raw) {
+  return `${raw ?? ''}`.trim().toLowerCase()
+}
+
 function includesKeyword(text, keyword) {
   return `${text ?? ''}`.toLowerCase().includes(keyword)
 }
@@ -312,11 +333,11 @@ export default function DocsCenterPage({
   sourceSectionMarkersMap,
   getSectionBlocks,
 }) {
-  const [heroInputValue, setHeroInputValue] = useState('')
-  const [appliedSearchKeyword, setAppliedSearchKeyword] = useState('')
-  const [tocSearchKeyword, setTocSearchKeyword] = useState('')
+  const [heroSearchInput, setHeroSearchInput] = useState('')
+  const debouncedHeroSearchInput = useDebouncedValue(heroSearchInput)
+  const heroSearchKeyword = normalizeDocsSearchKeyword(debouncedHeroSearchInput)
   const [currentDocLanguage, setCurrentDocLanguage] = useState(getDocLanguageFromLocale(currentLocale))
-  const hasTocSearchKeyword = Boolean(tocSearchKeyword.trim())
+  const hasTocSearchKeyword = Boolean(heroSearchKeyword)
 
   const staticMetaMap = useMemo(() => buildDocsStaticMetaMap(), [])
 
@@ -363,13 +384,13 @@ export default function DocsCenterPage({
   }, [sectionModels])
 
   const visibleSections = useMemo(
-    () => filterSectionsForKeyword(sectionModels, appliedSearchKeyword.trim().toLowerCase()),
-    [sectionModels, appliedSearchKeyword],
+    () => filterSectionsForKeyword(sectionModels, heroSearchKeyword),
+    [sectionModels, heroSearchKeyword],
   )
 
   const tocSections = useMemo(
-    () => filterTocSections(sectionModels, tocSearchKeyword.trim().toLowerCase()),
-    [sectionModels, tocSearchKeyword],
+    () => filterTocSections(sectionModels, heroSearchKeyword),
+    [sectionModels, heroSearchKeyword],
   )
 
   const { sectionSlug: routeSectionSlug, itemSlug: routeItemSlug } = useMemo(
@@ -422,6 +443,26 @@ export default function DocsCenterPage({
   const currentDocUrlPath = currentDocMeta
     ? `wps.ai/${currentLocale}/docs/${currentDocSectionSlug}/${currentDocMeta.routeSlug}/`
     : ''
+  const isZhContent = `${currentLocale}`.toLowerCase().startsWith('zh')
+  const currentDocJourneyLinks = useMemo(() => {
+    if (!currentDocMeta) {
+      return []
+    }
+    return [
+      {
+        label: isZhContent ? '术语解读' : 'Concepts',
+        path: `/${currentLocale}/encyclopedia/`,
+      },
+      {
+        label: isZhContent ? '指南教程' : 'Guides',
+        path: `/${currentLocale}/guides/`,
+      },
+      {
+        label: isZhContent ? '问答中心' : 'Answers Center',
+        path: `/${currentLocale}/answers/`,
+      },
+    ]
+  }, [currentDocMeta, currentLocale, isZhContent])
   const activeBlockTitle = currentDocDisplayParts?.length === 3 ? currentDocDisplayParts[1] : ''
   const [scrollLinkedTarget, setScrollLinkedTarget] = useState(null)
   const sidebarRef = useRef(null)
@@ -613,10 +654,6 @@ export default function DocsCenterPage({
     }
   }, [resolvedActiveBlockTitle, resolvedActiveSection, tocSections])
 
-  const handleHeroSearch = () => {
-    setAppliedSearchKeyword(heroInputValue)
-  }
-
   const navigatePreservingScroll = (targetPath) => {
     navigateTo(targetPath, { scrollToTop: false })
   }
@@ -695,24 +732,17 @@ export default function DocsCenterPage({
       <section className="docs-center-hero">
         <div className="docs-center-container docs-center-hero-inner">
           <h1>{docsUiText.heroTitle}</h1>
-          <div className="docs-center-search-wrap">
-            <label className="docs-center-search-input-wrap" aria-label={docsUiText.searchSrOnly}>
+          <div className="blog-search-wrap mx-auto">
+            <label className="blog-search-input-wrap" aria-label={docsUiText.searchSrOnly}>
               <span aria-hidden="true">⌕</span>
               <input
-                type="text"
-                value={heroInputValue}
+                type="search"
+                value={heroSearchInput}
                 placeholder={docsUiText.heroSearchPlaceholder}
-                onChange={(event) => setHeroInputValue(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    handleHeroSearch()
-                  }
-                }}
+                onChange={(event) => setHeroSearchInput(event.target.value)}
+                autoComplete="off"
               />
             </label>
-            <button type="button" className="docs-center-search-btn" onClick={handleHeroSearch}>
-              {docsUiText.heroSearchButton}
-            </button>
           </div>
           <div className="docs-center-jump-grid">
             {jumpCards.map((card) => (
@@ -722,7 +752,11 @@ export default function DocsCenterPage({
                 className="docs-center-jump-card"
                 onClick={() => {
                   if (card.href) {
-                    navigateTo(card.href)
+                    if (/^https?:\/\//i.test(card.href)) {
+                      window.location.href = card.href
+                    } else {
+                      navigateTo(card.href)
+                    }
                     return
                   }
                   const sectionSlug =
@@ -741,18 +775,9 @@ export default function DocsCenterPage({
 
       <main className="docs-center-layout docs-center-container">
         <aside ref={sidebarRef} className="docs-center-sidebar">
-          <label className="docs-center-sidebar-search">
-            <span aria-hidden="true">⌕</span>
-            <input
-              type="text"
-              placeholder={docsUiText.sidebarSearchPlaceholder}
-              value={tocSearchKeyword}
-              onChange={(event) => setTocSearchKeyword(event.target.value)}
-            />
-          </label>
           <h3>{docsUiText.directoryTitle}</h3>
           <div>
-            {tocSections.map((section) => {
+            {tocSections.length ? tocSections.map((section) => {
               const titledBlocks = section.blocks.filter((block) => block.title)
               const shouldShowChildren = Boolean(titledBlocks.length)
                 && (hasTocSearchKeyword || resolvedActiveSection === section.title)
@@ -769,7 +794,7 @@ export default function DocsCenterPage({
                       handleScrollToSection(section.title)
                     }}
                   >
-                    {renderHighlightedText(section.title, tocSearchKeyword.trim().toLowerCase())}
+                    {renderHighlightedText(section.title, heroSearchKeyword)}
                   </button>
                   {shouldShowChildren ? (
                     <div className="docs-center-toc-children">
@@ -789,14 +814,16 @@ export default function DocsCenterPage({
                             handleScrollToSection(section.title, block.title)
                           }}
                         >
-                          {renderHighlightedText(block.title, tocSearchKeyword.trim().toLowerCase())}
+                          {renderHighlightedText(block.title, heroSearchKeyword)}
                         </button>
                       ))}
                     </div>
                   ) : null}
                 </div>
               )
-            })}
+            }) : (
+              <p className="docs-center-sidebar-empty">{docsUiText.sidebarNoResults}</p>
+            )}
           </div>
         </aside>
 
@@ -809,7 +836,7 @@ export default function DocsCenterPage({
                 className="docs-center-section"
               >
                 <header className="docs-center-section-head">
-                  <h2>{renderHighlightedText(section.title, appliedSearchKeyword.trim().toLowerCase())}</h2>
+                  <h2>{renderHighlightedText(section.title, heroSearchKeyword)}</h2>
                 </header>
                 <div className="docs-center-section-body">
                   {section.blocks.map((block, blockIndex) => {
@@ -831,7 +858,7 @@ export default function DocsCenterPage({
                         {hasTitledGroup ? (
                           <div className={wrapperClassName}>
                             <h3 className="docs-center-group-title">
-                              {renderHighlightedText(block.title, appliedSearchKeyword.trim().toLowerCase())}
+                              {renderHighlightedText(block.title, heroSearchKeyword)}
                             </h3>
                             <div className="docs-center-items">
                               {block.items.map((item) => {
@@ -845,14 +872,14 @@ export default function DocsCenterPage({
                                     className="docs-center-item has-doc"
                                     onClick={() => handleNodeClick(sourcePathParts)}
                                   >
-                                    {renderHighlightedText(item.label, appliedSearchKeyword.trim().toLowerCase())}
+                                    {renderHighlightedText(item.label, heroSearchKeyword)}
                                   </button>
                                 ) : (
                                   <span
                                     key={`${section.title}-${block.title}-${item.label}`}
                                     className="docs-center-item"
                                   >
-                                    {renderHighlightedText(item.label, appliedSearchKeyword.trim().toLowerCase())}
+                                    {renderHighlightedText(item.label, heroSearchKeyword)}
                                   </span>
                                 )
                               })}
@@ -871,11 +898,11 @@ export default function DocsCenterPage({
                                   className="docs-center-item has-doc"
                                   onClick={() => handleNodeClick(sourcePathParts)}
                                 >
-                                  {renderHighlightedText(item.label, appliedSearchKeyword.trim().toLowerCase())}
+                                  {renderHighlightedText(item.label, heroSearchKeyword)}
                                 </button>
                               ) : (
                                 <span key={`${section.title}-${item.label}`} className="docs-center-item">
-                                  {renderHighlightedText(item.label, appliedSearchKeyword.trim().toLowerCase())}
+                                  {renderHighlightedText(item.label, heroSearchKeyword)}
                                 </span>
                               )
                             })}
@@ -900,15 +927,6 @@ export default function DocsCenterPage({
         </section>
       </main>
 
-      <section className="docs-center-info-panels docs-center-container">
-        {infoPanels.map((item) => (
-          <article key={`docs-panel-${item.title}`} className="docs-center-panel">
-            <h4>{item.title}</h4>
-            <p>{item.desc}</p>
-          </article>
-        ))}
-      </section>
-
       <div className="docs-center-float-actions">
         <button
           type="button"
@@ -929,17 +947,6 @@ export default function DocsCenterPage({
           >
             {docsUiText.overlayBackLabel}
           </button>
-          <div className="docs-center-overlay-breadcrumb">
-            {(currentDocDisplayParts ?? []).map((part, index) => (
-              <span key={`bc-${part}-${index}`}>
-                {index === (currentDocDisplayParts?.length ?? 0) - 1 ? (
-                  <span className="docs-center-bc-current">{part}</span>
-                ) : (
-                  <span>{part} / </span>
-                )}
-              </span>
-            ))}
-          </div>
           <div className="docs-center-overlay-lang-tabs">
             {ALL_DOC_LANGS.map((langCode) => {
               const isAvailable = currentDocAvailableLangs.includes(langCode)
@@ -963,10 +970,30 @@ export default function DocsCenterPage({
         </div>
         {currentDocMeta ? (
           currentDocAvailableLangs.length ? (
-            <div
-              className="docs-center-overlay-body docs-center-md"
-              dangerouslySetInnerHTML={{ __html: currentDocHtml }}
-            />
+            <>
+              <div
+                className="docs-center-overlay-body docs-center-md"
+                dangerouslySetInnerHTML={{ __html: currentDocHtml }}
+              />
+              <section className="module-deeplink-panel module-deeplink-panel--overlay">
+                <div className="module-deeplink-inline">
+                  <span className="module-deeplink-prefix">{isZhContent ? '继续探索：' : 'Explore next:'}</span>
+                  {currentDocJourneyLinks.map((link) => (
+                    <a
+                      key={`doc-journey-${link.path}-${link.label}`}
+                      href={link.path}
+                      className="module-deeplink-link"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        navigateTo(link.path)
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </section>
+            </>
           ) : (
             <div className="docs-center-overlay-body">
               <p className="docs-center-empty">{docsUiText.unpublishedDoc}</p>

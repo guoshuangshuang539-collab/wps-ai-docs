@@ -864,6 +864,541 @@ const encyclopediaEntriesZh = [
   },
 ]
 
+const deprecatedEncyclopediaSlugs = new Set([
+  'accessibility',
+  'ai-assistant',
+  'smart-sheets',
+  'smart-slides',
+  'ai-translate',
+  'template-center',
+  'wps-365',
+  'wps-office-overview',
+  'wps-copilot',
+  'wps-pdf',
+  'wps-presentation',
+  'wps-spreadsheets',
+  'wps-writer',
+  'install-setup',
+  'account-billing',
+  'cloud-sync',
+  'collaboration',
+  'excel-templates',
+  'forms-surveys',
+  'mobile-apps',
+  'pdf-convert',
+  'pdf-edit',
+  'presentation-themes',
+  'system-requirements',
+  'account-login',
+  'subscription-plans',
+  'version-history',
+  'security-privacy',
+  'office-compatibility',
+  'pdf-compatibility',
+  'faq-account-billing',
+  'faq-files-formats',
+])
+
+const conceptEntriesEn = [
+  {
+    letter: 'O',
+    slug: 'ocr',
+    title: 'OCR (Optical Character Recognition)',
+    summary: 'Technology that turns scanned images or photos into editable and searchable text.',
+    body: [
+      'OCR detects characters from page images and converts them into machine-readable text that you can edit, copy, and search.',
+      'Accuracy depends on image quality, language pack support, and document structure such as tables or mixed layouts.',
+      'In office scenarios, OCR is commonly used for invoice extraction, contract digitization, and archive retrieval.',
+    ],
+    updated: '2026-05-18',
+    related: ['docx-vs-pdf', 'prompt-engineering', 'ai-learning-path'],
+    docsSlug: 'pdf',
+  },
+  {
+    letter: 'P',
+    slug: 'prompt-engineering',
+    title: 'Prompt Engineering',
+    summary: 'The method of designing instructions so AI can generate stable, useful, and verifiable results.',
+    body: [
+      'Good prompts usually contain role, task, context, constraints, and desired output format.',
+      'Compared with vague requests, structured prompts reduce rework and make collaboration output more consistent.',
+      'For business teams, prompt templates are often standardized into reusable playbooks by scenario.',
+    ],
+    updated: '2026-05-18',
+    related: ['context-window', 'ai-adoption-principles', 'ai-boundaries-misuse'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'C',
+    slug: 'context-window',
+    title: 'Context Window',
+    summary: 'The amount of text an AI model can process in one request.',
+    body: [
+      'A larger context window allows the model to read longer documents while preserving more upstream details.',
+      'If the source document exceeds context limits, chunking and staged summarization are usually required.',
+      'Understanding context limits helps teams choose when to use extraction, summary, or full-document workflows.',
+    ],
+    updated: '2026-05-18',
+    related: ['prompt-engineering', 'ocr', 'ai-learning-path'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'E',
+    slug: 'e-signature-vs-digital-signature',
+    title: 'E-signature vs Digital Signature',
+    summary: 'A practical comparison between intent-based e-signatures and certificate-based digital signatures.',
+    body: [
+      'E-signature emphasizes agreement intent and workflow convenience, often used in internal approvals and routine contracts.',
+      'Digital signature adds cryptographic verification, stronger tamper evidence, and higher compliance assurance.',
+      'Choose based on legal requirements, audit needs, and whether identity proof must be technically verifiable.',
+    ],
+    updated: '2026-05-18',
+    related: ['docx-vs-pdf', 'ai-boundaries-misuse', 'ai-adoption-principles'],
+    docsSlug: 'pdf',
+  },
+  {
+    letter: 'D',
+    slug: 'docx-vs-pdf',
+    title: 'DOCX vs PDF',
+    summary: 'DOCX is optimized for editing, while PDF is optimized for fixed-layout sharing and review.',
+    body: [
+      'Use DOCX when content is still being drafted and collaboratively revised.',
+      'Use PDF when format stability, print consistency, and external review are priorities.',
+      'A common workflow is DOCX for drafting and PDF for final distribution or approval.',
+    ],
+    updated: '2026-05-18',
+    related: ['ocr', 'e-signature-vs-digital-signature', 'context-window'],
+    docsSlug: 'compatibility',
+  },
+  {
+    letter: 'H',
+    slug: 'hallucination',
+    title: 'AI Hallucination',
+    summary: 'When AI generates fluent but incorrect facts, references, or conclusions.',
+    body: [
+      'Hallucination usually appears as plausible but unverifiable statements, fabricated citations, or wrong numerical claims.',
+      'The risk increases when prompts lack clear constraints, or when source context is incomplete and untrusted.',
+      'In business workflows, mitigation relies on source grounding, human review checkpoints, and output verification standards.',
+    ],
+    updated: '2026-05-19',
+    related: ['context-window', 'prompt-engineering', 'ai-boundaries-misuse'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'F',
+    slug: 'few-shot-prompting',
+    title: 'Few-shot Prompting',
+    summary: 'A prompting method that provides a few examples to guide AI output format and quality.',
+    body: [
+      'Few-shot prompting places several input-output examples before the target task so the model can imitate the expected pattern.',
+      'Compared with zero-shot instructions, few-shot often improves consistency for structured writing, extraction, and classification tasks.',
+      'Teams usually maintain a shared prompt example library per scenario to reduce style drift and rework.',
+    ],
+    updated: '2026-05-19',
+    related: ['prompt-engineering', 'hallucination', 'ai-adoption-principles'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'R',
+    slug: 'rag-retrieval-augmented-generation',
+    title: 'RAG (Retrieval-Augmented Generation)',
+    summary: 'A method that lets AI retrieve relevant references before generating answers.',
+    body: [
+      'RAG combines retrieval and generation: first fetch trusted content, then generate responses grounded on those references.',
+      'It helps reduce hallucinations and improves answer traceability in policy-heavy or knowledge-intensive scenarios.',
+      'For organizations, RAG is often used with internal documents, SOPs, and approved knowledge bases.',
+    ],
+    updated: '2026-05-19',
+    related: ['hallucination', 'context-window', 'ai-learning-path'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'A',
+    slug: 'ai-adoption-principles',
+    title: 'AI Adoption Principles',
+    summary: 'Core principles that help teams scale AI productivity with quality and control.',
+    body: [
+      'Start from high-frequency and low-risk scenarios, then expand to wider workflows after proving quality.',
+      'Define review ownership, quality checkpoints, and escalation paths before scaling AI-generated output.',
+      'Treat prompts, templates, and evaluation criteria as shared assets, not individual habits.',
+    ],
+    updated: '2026-05-18',
+    related: ['prompt-engineering', 'ai-boundaries-misuse', 'ai-learning-path'],
+    docsSlug: 'getting-started',
+  },
+  {
+    letter: 'A',
+    slug: 'ai-boundaries-misuse',
+    title: 'AI Boundaries and Misuse',
+    summary: 'Knowing where AI should not be trusted directly, and where human validation is mandatory.',
+    body: [
+      'Do not use AI output as final truth for legal, financial, medical, or policy-critical decisions without review.',
+      'AI can hallucinate citations, misunderstand edge context, or over-generalize from partial data.',
+      'Boundary design means assigning AI to acceleration tasks while preserving human accountability for final decisions.',
+    ],
+    updated: '2026-05-18',
+    related: ['ai-adoption-principles', 'e-signature-vs-digital-signature', 'security-privacy'],
+    docsSlug: 'security',
+  },
+  {
+    letter: 'A',
+    slug: 'ai-learning-path',
+    title: 'AI Learning Path in WPS',
+    summary: 'A practical route from concept understanding to guided tasks and product documentation.',
+    body: [
+      'Start with concept entries to understand terms and trade-offs before applying AI in real workflows.',
+      'Continue with Guides for short task-based tutorials, then use Docs Center for complete feature and policy references.',
+      'This path helps teams balance learning speed, implementation quality, and cross-team consistency.',
+    ],
+    updated: '2026-05-18',
+    related: ['prompt-engineering', 'context-window', 'ai-adoption-principles'],
+    docsSlug: 'getting-started',
+  },
+]
+
+const conceptEntriesZh = [
+  {
+    letter: 'O',
+    slug: 'ocr',
+    title: 'OCR（光学字符识别）',
+    summary: '将扫描件或照片中的文字转换为可编辑、可搜索文本的技术。',
+    body: [
+      'OCR 会识别页面图像中的字符，并转换为机器可读文本，便于编辑、复制和检索。',
+      '识别准确率受图像清晰度、语言支持和版式复杂度（如表格、多栏）影响。',
+      '在办公场景中，OCR 常用于发票提取、合同电子化与历史档案检索。',
+    ],
+    updated: '2026-05-18',
+    related: ['docx-vs-pdf', 'prompt-engineering', 'ai-learning-path'],
+    docsSlug: 'pdf',
+  },
+  {
+    letter: 'P',
+    slug: 'prompt-engineering',
+    title: '提示词工程',
+    summary: '通过设计指令结构，让 AI 输出更稳定、可用、可验证的方法。',
+    body: [
+      '高质量提示词通常包含角色、任务、上下文、约束和输出格式。',
+      '相比模糊提问，结构化提示词能减少返工并提升团队协作结果一致性。',
+      '在业务团队中，提示词模板通常会沉淀为按场景复用的工作手册。',
+    ],
+    updated: '2026-05-18',
+    related: ['context-window', 'ai-adoption-principles', 'ai-boundaries-misuse'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'C',
+    slug: 'context-window',
+    title: '上下文窗口',
+    summary: 'AI 模型在单次请求中可处理的文本容量。',
+    body: [
+      '上下文窗口越大，模型在长文档任务中越能保留前文信息。',
+      '当源文档超过上下文限制时，通常需要分段处理与分步摘要。',
+      '理解上下文限制有助于团队正确选择抽取、摘要或全文处理策略。',
+    ],
+    updated: '2026-05-18',
+    related: ['prompt-engineering', 'ocr', 'ai-learning-path'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'E',
+    slug: 'e-signature-vs-digital-signature',
+    title: '电子签名 vs 数字签名',
+    summary: '从法律意图与密码学验证角度，理解两类签署方式的核心差异。',
+    body: [
+      '电子签名更强调签署意愿与流程便捷，常用于日常审批与常规合同。',
+      '数字签名通过证书与加密校验提供更强的防篡改证据和合规保障。',
+      '选择时应结合监管要求、审计强度以及是否需要技术可验证身份。',
+    ],
+    updated: '2026-05-18',
+    related: ['docx-vs-pdf', 'ai-boundaries-misuse', 'ai-adoption-principles'],
+    docsSlug: 'pdf',
+  },
+  {
+    letter: 'D',
+    slug: 'docx-vs-pdf',
+    title: 'DOCX vs PDF',
+    summary: 'DOCX 更适合编辑协作，PDF 更适合固定版式分发与审阅。',
+    body: [
+      '文档仍在修改阶段时，优先使用 DOCX 以获得更高编辑灵活性。',
+      '需要跨设备稳定呈现、打印一致或外部审阅时，优先使用 PDF。',
+      '典型流程是：DOCX 起草与协作，PDF 定稿与流转。',
+    ],
+    updated: '2026-05-18',
+    related: ['ocr', 'e-signature-vs-digital-signature', 'context-window'],
+    docsSlug: 'compatibility',
+  },
+  {
+    letter: 'H',
+    slug: 'hallucination',
+    title: 'AI 幻觉',
+    summary: 'AI 输出看似流畅但事实、引用或结论不准确的现象。',
+    body: [
+      'AI 幻觉常表现为“听起来合理”但无法核验的陈述、虚构引用或错误数字结论。',
+      '当提示词约束不足、来源上下文不完整或不可靠时，幻觉风险会显著上升。',
+      '在业务场景中，通常通过来源锚定、人工复核和结果校验标准来降低风险。',
+    ],
+    updated: '2026-05-19',
+    related: ['context-window', 'prompt-engineering', 'ai-boundaries-misuse'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'F',
+    slug: 'few-shot-prompting',
+    title: '少样本提示（Few-shot Prompting）',
+    summary: '通过给出少量示例来约束 AI 输出格式与质量的提示方法。',
+    body: [
+      '少样本提示会在目标任务前提供若干输入-输出示例，让模型学习期望的表达模式。',
+      '相比零样本提示，它在结构化写作、信息抽取和分类任务中通常更稳定。',
+      '团队常按场景维护共享示例库，减少风格漂移与重复返工。',
+    ],
+    updated: '2026-05-19',
+    related: ['prompt-engineering', 'hallucination', 'ai-adoption-principles'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'R',
+    slug: 'rag-retrieval-augmented-generation',
+    title: '检索增强生成（RAG）',
+    summary: '先检索可信资料再生成答案的 AI 工作方式。',
+    body: [
+      'RAG 将“检索 + 生成”结合：先从可信来源取回相关内容，再基于这些内容生成结果。',
+      '在知识密集或规则严格的场景中，它能降低幻觉并提高答案可追溯性。',
+      '企业通常将 RAG 与内部文档、SOP 和知识库结合使用。',
+    ],
+    updated: '2026-05-19',
+    related: ['hallucination', 'context-window', 'ai-learning-path'],
+    docsSlug: 'wps-ai',
+  },
+  {
+    letter: 'A',
+    slug: 'ai-adoption-principles',
+    title: 'AI 应用原则',
+    summary: '帮助团队在提升效率的同时保持质量与可控性的落地原则。',
+    body: [
+      '先从高频、低风险场景切入，验证效果后再扩展到更广工作流。',
+      '规模化前需明确复核责任、质量检查点和异常处理机制。',
+      '将提示词、模板和评估标准沉淀为团队资产，而不是依赖个人经验。',
+    ],
+    updated: '2026-05-18',
+    related: ['prompt-engineering', 'ai-boundaries-misuse', 'ai-learning-path'],
+    docsSlug: 'getting-started',
+  },
+  {
+    letter: 'A',
+    slug: 'ai-boundaries-misuse',
+    title: 'AI 使用边界与误区',
+    summary: '明确 AI 不能直接替代判断的场景，以及必须人工复核的环节。',
+    body: [
+      '在法律、财务、医疗、政策等高风险场景中，AI 输出不能直接作为最终结论。',
+      'AI 可能出现虚构引用、边界条件误判和基于片段信息的过度推断。',
+      '边界设计的核心是：让 AI 负责提速，让人类负责最终业务判断。',
+    ],
+    updated: '2026-05-18',
+    related: ['ai-adoption-principles', 'e-signature-vs-digital-signature', 'security-privacy'],
+    docsSlug: 'security',
+  },
+  {
+    letter: 'A',
+    slug: 'ai-learning-path',
+    title: 'WPS AI 学习路径',
+    summary: '从概念理解到任务实践，再到文档查阅的连续学习路径。',
+    body: [
+      '先通过百科词条理解核心概念和差异，再进入实际场景应用。',
+      '再通过指南完成短流程任务，最后在文档中心查阅完整能力与规则说明。',
+      '这条路径可帮助团队兼顾学习效率、落地质量与跨角色协作一致性。',
+    ],
+    updated: '2026-05-18',
+    related: ['prompt-engineering', 'context-window', 'ai-adoption-principles'],
+    docsSlug: 'getting-started',
+  },
+]
+
+const encyclopediaExpansionBuckets = [
+  {
+    categoryId: 'terminology',
+    docsSlug: 'wps-ai',
+    entries: [
+      ['tokenization', 'Tokenization', '分词机制'],
+      ['embedding', 'Embedding', '向量嵌入'],
+      ['vector-database', 'Vector Database', '向量数据库'],
+      ['semantic-search', 'Semantic Search', '语义检索'],
+      ['intent-classification', 'Intent Classification', '意图分类'],
+      ['entity-extraction', 'Entity Extraction', '实体抽取'],
+      ['sentiment-analysis', 'Sentiment Analysis', '情感分析'],
+      ['normalization', 'Text Normalization', '文本规范化'],
+      ['data-anonymization', 'Data Anonymization', '数据匿名化'],
+    ],
+  },
+  {
+    categoryId: 'comparison',
+    docsSlug: 'features',
+    entries: [
+      ['summarization-vs-extraction', 'Summarization vs Extraction', '摘要 vs 抽取'],
+      ['rewrite-vs-translate', 'Rewrite vs Translate', '改写 vs 翻译'],
+      ['draft-vs-polish', 'Draft vs Polish', '初稿 vs 润色'],
+      ['keyword-vs-semantic-search', 'Keyword vs Semantic Search', '关键词检索 vs 语义检索'],
+      ['rule-based-vs-ai', 'Rule-based vs AI', '规则系统 vs AI 系统'],
+      ['doc-qa-vs-chat', 'Doc Q&A vs Open Chat', '文档问答 vs 开放聊天'],
+      ['template-vs-generated', 'Template vs Generated Content', '模板内容 vs 生成内容'],
+      ['cloud-vs-local-processing', 'Cloud vs Local Processing', '云端处理 vs 本地处理'],
+      ['single-agent-vs-multi-agent', 'Single Agent vs Multi-agent', '单智能体 vs 多智能体'],
+    ],
+  },
+  {
+    categoryId: 'principles',
+    docsSlug: 'getting-started',
+    entries: [
+      ['principle-context-first', 'Context-first Principle', '上下文优先原则'],
+      ['principle-source-grounding', 'Source Grounding Principle', '来源锚定原则'],
+      ['principle-structure-output', 'Structured Output Principle', '结构化输出原则'],
+      ['principle-auditability', 'Auditability Principle', '可审计性原则'],
+      ['principle-repeatability', 'Repeatability Principle', '可复现性原则'],
+      ['principle-cost-awareness', 'Cost-awareness Principle', '成本意识原则'],
+      ['principle-security-by-default', 'Security-by-default Principle', '默认安全原则'],
+      ['principle-feedback-loop', 'Feedback Loop Principle', '反馈闭环原则'],
+      ['principle-change-management', 'Change Management Principle', '变更管理原则'],
+    ],
+  },
+  {
+    categoryId: 'boundaries',
+    docsSlug: 'help',
+    entries: [
+      ['boundary-sensitive-data', 'Sensitive Data Boundary', '敏感数据边界'],
+      ['boundary-legal-review', 'Legal Review Boundary', '法务审核边界'],
+      ['boundary-financial-numbers', 'Financial Number Boundary', '财务数字边界'],
+      ['boundary-medical-claims', 'Medical Claim Boundary', '医疗结论边界'],
+      ['boundary-policy-interpretation', 'Policy Interpretation Boundary', '政策解读边界'],
+      ['boundary-bias-risk', 'Bias Risk Boundary', '偏见风险边界'],
+      ['boundary-copyright-risk', 'Copyright Risk Boundary', '版权风险边界'],
+      ['boundary-over-automation', 'Over-automation Boundary', '过度自动化边界'],
+      ['boundary-shadow-it', 'Shadow IT Boundary', '影子 IT 边界'],
+    ],
+  },
+  {
+    categoryId: 'learning-path',
+    docsSlug: 'getting-started',
+    entries: [
+      ['onboarding-ai-basics', 'AI Basics Onboarding', 'AI 基础入门'],
+      ['onboarding-prompt-basics', 'Prompt Basics Onboarding', '提示词基础入门'],
+      ['onboarding-docs-navigation', 'Docs Navigation Onboarding', '文档导航入门'],
+      ['onboarding-template-usage', 'Template Usage Onboarding', '模板使用入门'],
+      ['onboarding-team-playbook', 'Team Playbook Onboarding', '团队手册入门'],
+      ['onboarding-review-checklist', 'Review Checklist Onboarding', '复核清单入门'],
+      ['onboarding-pilot-rollout', 'Pilot Rollout Onboarding', '试点上线入门'],
+      ['onboarding-kpi-tracking', 'KPI Tracking Onboarding', 'KPI 跟踪入门'],
+      ['onboarding-scale-up', 'Scale-up Onboarding', '规模化入门'],
+    ],
+  },
+  {
+    categoryId: 'model-capabilities',
+    docsSlug: 'wps-ai',
+    entries: [
+      ['multimodal-model', 'Multimodal Model', '多模态模型'],
+      ['reasoning-depth', 'Reasoning Depth', '推理深度'],
+      ['instruction-following', 'Instruction Following', '指令遵循能力'],
+      ['long-context-memory', 'Long Context Memory', '长上下文记忆'],
+      ['tool-calling', 'Tool Calling', '工具调用能力'],
+      ['function-calling', 'Function Calling', '函数调用能力'],
+      ['vision-understanding', 'Vision Understanding', '视觉理解能力'],
+      ['table-understanding', 'Table Understanding', '表格理解能力'],
+      ['document-grounding', 'Document Grounding', '文档锚定能力'],
+    ],
+  },
+  {
+    categoryId: 'prompt-strategies',
+    docsSlug: 'wps-ai',
+    entries: [
+      ['zero-shot-prompting', 'Zero-shot Prompting', '零样本提示'],
+      ['chain-of-thought', 'Chain-of-thought Prompting', '思维链提示'],
+      ['role-prompting', 'Role Prompting', '角色提示'],
+      ['output-schema', 'Output Schema Prompting', '输出结构提示'],
+      ['constraint-prompting', 'Constraint Prompting', '约束式提示'],
+      ['delimiter-prompting', 'Delimiter Prompting', '分隔符提示'],
+      ['self-consistency', 'Self-consistency Prompting', '自一致性提示'],
+      ['iterative-refinement', 'Iterative Refinement Prompting', '迭代优化提示'],
+      ['prompt-chaining', 'Prompt Chaining', '提示链路'],
+    ],
+  },
+  {
+    categoryId: 'workflow-design',
+    docsSlug: 'getting-started',
+    entries: [
+      ['task-decomposition', 'Task Decomposition Workflow', '任务拆解流程'],
+      ['human-in-the-loop', 'Human-in-the-loop Workflow', '人在回路流程'],
+      ['approval-gate', 'Approval Gate Workflow', '审批门控流程'],
+      ['escalation-policy', 'Escalation Policy Workflow', '升级处理流程'],
+      ['template-governance', 'Template Governance Workflow', '模板治理流程'],
+      ['knowledge-workflow', 'Knowledge Workflow', '知识处理流程'],
+      ['meeting-workflow', 'Meeting Workflow', '会议协作流程'],
+      ['contract-workflow', 'Contract Workflow', '合同处理流程'],
+      ['report-workflow', 'Report Workflow', '报告生成流程'],
+    ],
+  },
+  {
+    categoryId: 'quality-evaluation',
+    docsSlug: 'help',
+    entries: [
+      ['factuality-check', 'Factuality Check', '事实性校验'],
+      ['citation-verification', 'Citation Verification', '引用校验'],
+      ['consistency-score', 'Consistency Score', '一致性评分'],
+      ['readability-score', 'Readability Score', '可读性评分'],
+      ['latency-budget', 'Latency Budget', '时延预算'],
+      ['cost-per-task', 'Cost per Task', '单任务成本'],
+      ['regression-testing', 'Regression Testing', '回归测试'],
+      ['acceptance-criteria', 'Acceptance Criteria', '验收标准'],
+    ],
+  },
+]
+
+function buildExpandedConceptEntries(language) {
+  const isZh = language === 'zh'
+  return encyclopediaExpansionBuckets.flatMap((bucket) =>
+    bucket.entries.map(([slug, titleEn, titleZh], index, list) => {
+      const displayTitle = isZh ? titleZh : titleEn
+      const normalizedTitle = isZh ? titleZh : titleEn
+      const relatedA = list[(index + 1) % list.length]?.[0]
+      const relatedB = list[(index + 2) % list.length]?.[0]
+      const letter = `${titleEn}`.trim().charAt(0).toUpperCase() || 'A'
+      return {
+        letter,
+        slug,
+        title: displayTitle,
+        summary: isZh
+          ? `${normalizedTitle}是 AI 办公百科中与${bucket.categoryId}相关的核心概念。`
+          : `${normalizedTitle} is a core encyclopedia concept related to ${bucket.categoryId.replace('-', ' ')}.`,
+        body: isZh
+          ? [
+              `${normalizedTitle}用于解释该主题在办公场景中的定义、边界和应用前提。`,
+              '在团队协作中，建议结合具体任务模板和复核机制来保障结果稳定性。',
+              '学习该概念后，可继续前往指南和文档中心查看落地操作与规则说明。',
+            ]
+          : [
+              `${normalizedTitle} explains the definition, boundaries, and usage prerequisites in office scenarios.`,
+              'For team workflows, combine this concept with templates and review checkpoints for stable output quality.',
+              'After understanding this concept, continue to Guides and Docs Center for implementation details.',
+            ],
+        updated: `2026-05-${`${10 + (index % 10)}`.padStart(2, '0')}`,
+        related: [relatedA, relatedB, 'ai-learning-path'].filter(Boolean),
+        docsSlug: bucket.docsSlug,
+        categoryId: bucket.categoryId,
+      }
+    }),
+  )
+}
+
+const expandedConceptEntriesEn = buildExpandedConceptEntries('en')
+const expandedConceptEntriesZh = buildExpandedConceptEntries('zh')
+
+const encyclopediaEntriesActiveEn = [
+  ...conceptEntriesEn,
+  ...expandedConceptEntriesEn,
+].slice(0, 100)
+
+const encyclopediaEntriesActiveZh = [
+  ...conceptEntriesZh,
+  ...expandedConceptEntriesZh,
+].slice(0, 100)
+
 const encyclopediaEntriesJaOverrides = {
   accessibility: {
     title: 'アクセシビリティ',
@@ -1153,9 +1688,108 @@ const encyclopediaEntriesJaOverrides = {
       'クラウド保存ファイルは、プランに応じて最近使ったファイル、ゴミ箱、バージョン履歴から復元できます。',
     ],
   },
+  ocr: {
+    title: 'OCR（光学文字認識）',
+    summary: 'スキャン画像や写真を編集・検索できるテキストへ変換する技術です。',
+    body: [
+      'OCR は画像内の文字を認識し、編集や検索に使えるテキストへ変換します。',
+      '精度は画像品質、言語対応、表や多段組みなどのレイアウトに影響されます。',
+      '請求書処理、契約書の電子化、過去資料の検索で特に効果を発揮します。',
+    ],
+  },
+  'prompt-engineering': {
+    title: 'プロンプトエンジニアリング',
+    summary: 'AI 出力を安定・有用・検証可能にするための指示設計手法です。',
+    body: [
+      '良いプロンプトは、役割、タスク、文脈、制約、出力形式を含みます。',
+      '構造化した指示は手戻りを減らし、チーム成果のばらつきを抑えます。',
+      '実務ではシナリオ別テンプレートとして標準化されることが一般的です。',
+    ],
+  },
+  'context-window': {
+    title: 'コンテキストウィンドウ',
+    summary: 'AI モデルが 1 回のリクエストで扱えるテキスト量です。',
+    body: [
+      'ウィンドウが大きいほど長文処理で前後関係を保持しやすくなります。',
+      '上限を超える文書では、分割処理や段階的要約が必要です。',
+      'この制約を理解すると、抽出・要約・全文処理の使い分けがしやすくなります。',
+    ],
+  },
+  'e-signature-vs-digital-signature': {
+    title: '電子署名とデジタル署名の違い',
+    summary: '意思表示中心の電子署名と、暗号学的検証を伴うデジタル署名を比較します。',
+    body: [
+      '電子署名は運用のしやすさが強みで、日常的な承認や契約に適しています。',
+      'デジタル署名は証明書と暗号検証により、改ざん検知と監査性が高い方式です。',
+      '法規制、監査要件、本人性の技術検証が必要かどうかで選択します。',
+    ],
+  },
+  'docx-vs-pdf': {
+    title: 'DOCX と PDF の使い分け',
+    summary: 'DOCX は編集向き、PDF は固定レイアウト配布向きです。',
+    body: [
+      '共同編集や草稿作成では DOCX を使うと柔軟に更新できます。',
+      '印刷や外部共有で体裁を固定したい場合は PDF が適しています。',
+      '実務では DOCX で作成し、最終配布を PDF にする流れが一般的です。',
+    ],
+  },
+  'ai-adoption-principles': {
+    title: 'AI 導入の基本原則',
+    summary: '効率と品質の両立を目指すための、実務向け導入原則です。',
+    body: [
+      'まずは高頻度かつ低リスクな業務から導入し、効果検証後に拡張します。',
+      '運用前にレビュー責任、品質チェック、例外対応フローを定義します。',
+      'プロンプトやテンプレート、評価基準をチーム資産として共有します。',
+    ],
+  },
+  'ai-boundaries-misuse': {
+    title: 'AI 利用の境界と注意点',
+    summary: 'AI をそのまま最終判断に使うべきでない場面と、誤用リスクを整理します。',
+    body: [
+      '法務・財務・医療など高リスク領域では、AI 出力の人手検証が必須です。',
+      'AI は引用の誤り、条件見落とし、断片情報での過剰推論を起こす可能性があります。',
+      'AI は加速役、人間は最終責任者という役割分担が実務では有効です。',
+    ],
+  },
+  'ai-learning-path': {
+    title: 'WPS AI 学習パス',
+    summary: '概念理解から実践タスク、公式ドキュメント参照までをつなぐ学習ルートです。',
+    body: [
+      'まず百科で概念と違いを理解し、判断基準を揃えます。',
+      '次に Guides で短い実践タスクを実行し、運用感覚をつかみます。',
+      '最後に Docs Center で詳細仕様と運用ルールを確認して定着させます。',
+    ],
+  },
+  hallucination: {
+    title: 'AI ハルシネーション',
+    summary: 'AI が流暢に見えるが不正確な事実や引用を生成してしまう現象です。',
+    body: [
+      'ハルシネーションは、もっともらしいが検証できない説明や架空の引用として現れます。',
+      '制約の弱い指示や不足した文脈は、誤情報生成のリスクを高めます。',
+      '実務では、参照元の明示、レビュー工程、結果検証基準の設計が重要です。',
+    ],
+  },
+  'few-shot-prompting': {
+    title: 'Few-shot プロンプティング',
+    summary: '少数の例を提示して、AI 出力形式と品質を安定させる手法です。',
+    body: [
+      '目標タスクの前に入出力例を置くことで、期待するパターンをモデルに学習させます。',
+      'ゼロショットよりも、抽出・分類・定型文章で一貫した結果を得やすくなります。',
+      'チームではシナリオ別の例セットを共有し、再利用性を高める運用が有効です。',
+    ],
+  },
+  'rag-retrieval-augmented-generation': {
+    title: 'RAG（検索拡張生成）',
+    summary: '先に信頼できる情報を検索し、その内容を根拠に AI が回答を生成する方式です。',
+    body: [
+      'RAG は「検索」と「生成」を組み合わせ、根拠付きの回答を作ることを目的とします。',
+      '知識密度の高い業務では、ハルシネーション低減と追跡性向上に効果があります。',
+      '社内文書、SOP、承認済みナレッジを接続する運用が一般的です。',
+    ],
+  },
 }
 
-const encyclopediaEntriesJa = encyclopediaEntriesEn.map((entry) => ({
+const encyclopediaEntriesJa = encyclopediaEntriesActiveEn.map((entry) => ({
   ...entry,
   ...(encyclopediaEntriesJaOverrides[entry.slug] ?? {}),
   body: encyclopediaEntriesJaOverrides[entry.slug]?.body ?? entry.body,
@@ -1194,9 +1828,20 @@ const encyclopediaEntriesKoText = {
   'pdf-compatibility': ['PDF 호환성', '여러 장치에서 PDF 읽기, 주석, 변환, 보호, 내보내기를 지원합니다.', ['WPS PDF는 표준 PDF, OCR 스캔 문서, 주석, 서명, 페이지 작업을 지원합니다.', '변환 도구로 PDF, Word, Excel, PowerPoint, 이미지 간 내용을 이동할 수 있습니다.', '개인정보가 포함된 문서를 보내기 전에 비밀번호 보호나 가리기 기능을 사용하세요.']],
   'faq-account-billing': ['FAQ: 계정 및 결제', '로그인, 구독, 청구서, 갱신, 환불에 관한 자주 묻는 질문.', ['구매 후 플랜이 보이지 않으면 구매한 계정으로 로그인한 뒤 상태를 새로 고치세요.', '지원 지역에서는 계정 센터에서 청구서와 결제 수단을 관리할 수 있습니다.', '팀 플랜의 좌석 수나 결제 소유자를 변경하기 전에 워크스페이스 관리자에게 문의하세요.']],
   'faq-files-formats': ['FAQ: 파일 및 형식', '파일 열기, 서식 유지, PDF 변환, 문서 복구에 관한 답변.', ['파일 표시가 달라 보이면 누락된 글꼴, 포함 개체 또는 원본 앱의 고급 매크로를 확인하세요.', '인쇄나 외부 검토에서 레이아웃을 고정해야 한다면 PDF 내보내기를 사용하세요.', '클라우드 저장 파일은 플랜에 따라 최근 파일, 휴지통, 버전 기록에서 복구할 수 있습니다.']],
+  ocr: ['OCR(광학 문자 인식)', '스캔 이미지나 사진을 편집·검색 가능한 텍스트로 변환하는 기술입니다.', ['OCR은 이미지 속 문자를 인식해 편집 및 검색 가능한 텍스트로 바꿉니다.', '정확도는 이미지 품질, 언어 지원, 표·다단 레이아웃 등 문서 구조의 영향을 받습니다.', '청구서 추출, 계약서 전자화, 보관 문서 검색 같은 업무에서 자주 활용됩니다.']],
+  'prompt-engineering': ['프롬프트 엔지니어링', 'AI가 안정적이고 유용하며 검증 가능한 결과를 내도록 지시를 설계하는 방법입니다.', ['좋은 프롬프트는 역할, 작업, 맥락, 제약, 출력 형식을 함께 정의합니다.', '구조화된 프롬프트는 재작업을 줄이고 팀 결과물의 일관성을 높입니다.', '실무에서는 시나리오별 템플릿으로 표준화해 재사용하는 방식이 효과적입니다.']],
+  'context-window': ['컨텍스트 윈도우', 'AI 모델이 한 번의 요청에서 처리할 수 있는 텍스트 범위입니다.', ['컨텍스트가 클수록 긴 문서를 처리할 때 앞뒤 맥락을 더 잘 유지합니다.', '문서가 한계를 넘으면 분할 처리와 단계별 요약이 필요합니다.', '이 제약을 이해하면 추출·요약·전체 처리 전략을 더 정확히 선택할 수 있습니다.']],
+  'e-signature-vs-digital-signature': ['전자서명 vs 디지털서명', '동의 의사 중심 전자서명과 암호 검증 중심 디지털서명의 차이를 비교합니다.', ['전자서명은 편의성과 업무 흐름에 강점이 있어 일반 승인에 적합합니다.', '디지털서명은 인증서와 암호 검증으로 위변조 탐지와 감사 신뢰성이 더 높습니다.', '규제 요건, 감사 강도, 신원 검증 필요성에 따라 방식을 선택해야 합니다.']],
+  'docx-vs-pdf': ['DOCX vs PDF', 'DOCX는 편집 중심, PDF는 고정 레이아웃 공유 중심 형식입니다.', ['내용을 계속 수정하고 협업할 때는 DOCX가 유리합니다.', '출력 일관성과 외부 검토가 중요할 때는 PDF가 적합합니다.', '실무에서는 DOCX로 작성하고 PDF로 배포하는 흐름이 가장 일반적입니다.']],
+  'ai-adoption-principles': ['AI 도입 원칙', '효율 향상과 품질 통제를 함께 달성하기 위한 핵심 도입 원칙입니다.', ['먼저 고빈도·저위험 업무에서 시작해 품질을 검증한 뒤 확장합니다.', '확산 전에 검토 책임, 품질 체크포인트, 예외 처리 흐름을 정의해야 합니다.', '프롬프트·템플릿·평가기준을 개인 노하우가 아닌 팀 자산으로 관리합니다.']],
+  'ai-boundaries-misuse': ['AI 사용 경계와 오용', 'AI를 그대로 최종 판단에 쓰면 안 되는 상황과 오용 위험을 설명합니다.', ['법무·재무·의료 같은 고위험 영역에서는 AI 결과의 사람 검증이 필수입니다.', 'AI는 인용 오류, 맥락 누락, 부분 정보 기반 과잉 추론을 일으킬 수 있습니다.', 'AI는 속도를 높이고 사람은 최종 책임을 지는 역할 분리가 안정적입니다.']],
+  'ai-learning-path': ['WPS AI 학습 경로', '개념 이해부터 실습 가이드, 문서 센터까지 이어지는 학습 루트입니다.', ['먼저 백과에서 핵심 용어와 차이를 이해합니다.', '다음으로 Guides에서 짧은 실습형 작업을 수행합니다.', '마지막으로 Docs Center에서 상세 기능과 운영 규칙을 확인해 정착시킵니다.']],
+  hallucination: ['AI 환각', 'AI가 그럴듯하지만 사실이 아닌 내용이나 인용을 생성하는 현상입니다.', ['환각은 검증 불가능한 주장, 허구 인용, 잘못된 수치로 나타날 수 있습니다.', '제약이 약한 프롬프트와 불완전한 문맥은 환각 위험을 높입니다.', '실무에서는 근거 출처 고정, 사람 검토, 결과 검증 기준을 함께 설계해야 합니다.']],
+  'few-shot-prompting': ['소수 예시 프롬프팅', '몇 가지 예시를 제공해 AI 출력 형식과 품질을 안정화하는 방법입니다.', ['목표 작업 전에 입력-출력 예시를 제시해 기대 패턴을 학습시킵니다.', '제로샷보다 추출·분류·정형 문서 작업에서 일관성이 높아지는 경우가 많습니다.', '팀 단위로 시나리오별 예시 라이브러리를 관리하면 재사용 효율이 높아집니다.']],
+  'rag-retrieval-augmented-generation': ['RAG(검색 증강 생성)', '신뢰 가능한 자료를 먼저 검색한 뒤 그 근거로 AI가 답변을 생성하는 방식입니다.', ['RAG는 검색과 생성을 결합해 근거 기반 답변 품질을 높입니다.', '지식 밀도가 높은 업무에서 환각을 줄이고 추적 가능성을 강화하는 데 효과적입니다.', '기업에서는 내부 문서, SOP, 검증된 지식베이스와 함께 도입하는 경우가 많습니다.']],
 }
 
-const encyclopediaEntriesKo = encyclopediaEntriesEn.map((entry) => {
+const encyclopediaEntriesKo = encyclopediaEntriesActiveEn.map((entry) => {
   const [title, summary, body] = encyclopediaEntriesKoText[entry.slug] ?? []
   return {
     ...entry,
@@ -1238,13 +1883,16 @@ function localizeEncyclopediaEntries(entries, language) {
 const localizedEncyclopediaEntriesByLanguage = Object.fromEntries(
   encyclopediaContentLanguages.map((language) => [
     language,
-    localizeEncyclopediaEntries(language === 'zh-tw' ? encyclopediaEntriesZh : encyclopediaEntriesEn, language),
+    localizeEncyclopediaEntries(
+      language === 'zh-tw' ? encyclopediaEntriesActiveZh : encyclopediaEntriesActiveEn,
+      language,
+    ),
   ]),
 )
 
 export const encyclopediaEntriesByLocale = {
-  en: encyclopediaEntriesEn,
-  zh: encyclopediaEntriesZh,
+  en: encyclopediaEntriesActiveEn,
+  zh: encyclopediaEntriesActiveZh,
   ja: encyclopediaEntriesJa,
   ko: encyclopediaEntriesKo,
   ...localizedEncyclopediaEntriesByLanguage,
@@ -1261,7 +1909,7 @@ export function resolveEncyclopediaEntriesForLocale(locale, localizeFn) {
 export const encyclopediaUiTextByLocale = {
   en: {
     heroTitle: 'WPS Glossary & Knowledge Base',
-    heroSubtitle: 'Understand the concepts, terms, and technology behind WPS AI — from AI writing to document formats, explained simply.',
+    heroSubtitle: 'Understand concepts and principles first, then move to practical workflows in Guides and detailed references in Docs Center.',
     searchPlaceholder: 'Search terms, concepts, or features...',
     promoTitle: 'Put these concepts to work in WPS',
     promoCta: 'Try for free',
@@ -1276,7 +1924,7 @@ export const encyclopediaUiTextByLocale = {
   },
   zh: {
     heroTitle: 'WPS 术语百科',
-    heroSubtitle: '解释 WPS AI 背后的概念、术语与技术——从 AI 写作到文档格式，通俗易懂，方便快查。',
+    heroSubtitle: '先理解概念与原理，再进入指南完成任务，最后到文档中心查看完整能力说明与规则。',
     searchPlaceholder: '搜索术语、概念或功能...',
     promoTitle: '将这些概念付诸实践',
     promoCta: '快速体验',
@@ -1293,13 +1941,13 @@ export const encyclopediaUiTextByLocale = {
     featuredTitle: '推荐词条',
     topicListTitle: '全部词条',
     openTopic: '打开词条',
-    quickActions: '快捷入口',
+    quickActions: '一站式使用路线',
     browseAnswers: '查看问答',
     continueLearning: '继续了解',
   },
   'zh-tw': {
     heroTitle: 'WPS 術語百科',
-    heroSubtitle: '解釋 WPS AI 背後的概念、術語與技術——從 AI 寫作到文件格式，通俗易懂，方便快查。',
+    heroSubtitle: '先理解概念與原理，再進入指南完成任務，最後到文件中心查看完整能力說明與規則。',
     searchPlaceholder: '搜尋術語、概念或功能...',
     promoTitle: '將這些概念付諸實踐',
     promoCta: '免費試用',
@@ -1316,7 +1964,7 @@ export const encyclopediaUiTextByLocale = {
     featuredTitle: '推薦詞條',
     topicListTitle: '全部詞條',
     openTopic: '開啟詞條',
-    quickActions: '快速入口',
+    quickActions: '一站式使用路線',
     browseAnswers: '查看問答',
     continueLearning: '繼續了解',
   },
@@ -1384,7 +2032,7 @@ export const encyclopediaUiTextByLocale = {
     featuredTitle: '注目トピック',
     topicListTitle: 'すべてのコンテンツ',
     openTopic: 'トピックを開く',
-    quickActions: 'クイックアクション',
+    quickActions: '次のおすすめルート',
     browseAnswers: 'Q&A を見る',
     continueLearning: 'さらに学ぶ',
   },
@@ -1407,7 +2055,7 @@ export const encyclopediaUiTextByLocale = {
     featuredTitle: '추천 주제',
     topicListTitle: '전체 콘텐츠',
     openTopic: '주제 열기',
-    quickActions: '빠른 작업',
+    quickActions: '다음 추천 경로',
     browseAnswers: 'Q&A 보기',
     continueLearning: '계속 알아보기',
   },
@@ -1584,12 +2232,34 @@ const encyclopediaUiTextRequiredFields = {
   featuredTitle: 'Featured topics',
   topicListTitle: 'All topics',
   openTopic: 'Open topic',
-  quickActions: 'Quick actions',
+  quickActions: 'Recommended route',
   browseAnswers: 'Browse Q&A',
   continueLearning: 'Continue learning',
 }
 
+const encyclopediaPromoCopyByLocale = {
+  en: {
+    promoTitle: 'Learn WPS AI driving force',
+    promoCta: 'Start learning',
+  },
+  zh: {
+    promoTitle: '学习WPS AI驱动力',
+    promoCta: '快速学习',
+  },
+  'zh-tw': {
+    promoTitle: '學習WPS AI驅動力',
+    promoCta: '快速學習',
+  },
+}
+
 Object.entries(encyclopediaUiTextByLocale).forEach(([language, uiText]) => {
+  const promoCopy = encyclopediaPromoCopyByLocale[language] ?? {
+    promoTitle: translateOfflinePhrase(language, encyclopediaPromoCopyByLocale.en.promoTitle),
+    promoCta: translateOfflinePhrase(language, encyclopediaPromoCopyByLocale.en.promoCta),
+  }
+  uiText.promoTitle = promoCopy.promoTitle
+  uiText.promoCta = promoCopy.promoCta
+
   Object.entries(encyclopediaUiTextRequiredFields).forEach(([key, fallbackValue]) => {
     if (!uiText[key]) {
       uiText[key] = translateOfflinePhrase(language, fallbackValue)
